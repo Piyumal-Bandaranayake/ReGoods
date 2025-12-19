@@ -110,11 +110,11 @@ export default function Navbar() {
             ) : (
               // 🔴 GUEST VIEW
               <div className="flex items-center space-x-4">
-                <Link href="/login" className="text-gray-500 hover:text-gray-900 font-medium">
+                <Link href="/auth/login" className="text-gray-500 hover:text-gray-900 font-medium">
                   Log in
                 </Link>
                 <Link 
-                  href="/login" 
+                  href="/auth/register" 
                   className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium transition"
                 >
                   Join Now

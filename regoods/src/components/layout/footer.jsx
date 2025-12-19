@@ -9,7 +9,7 @@ export default function Footer() {
           
           {/* 1. BRAND & TAGLINE */}
           <div className="space-y-4">
-            <h3 className="text-2xl font-bold text-indigo-600">LoopLane</h3>
+            <h3 className="text-2xl font-bold text-indigo-600">ReGoods</h3>
             <p className="text-gray-500 text-sm">
               The unified marketplace where everyone is a buyer and a seller. 
               Safe, simple, and open for negotiation.
@@ -81,7 +81,7 @@ export default function Footer() {
         {/* BOTTOM COPYRIGHT */}
         <div className="border-t border-gray-100 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
           <p className="text-sm text-gray-400">
-            © {new Date().getFullYear()} LoopLane Inc. All rights reserved.
+            © {new Date().getFullYear()} ReGoods Inc. All rights reserved.
           </p>
           <div className="flex space-x-6 mt-4 md:mt-0 text-sm text-gray-400">
             <span>Made with ❤️ for the Community</span>
