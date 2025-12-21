@@ -43,31 +43,34 @@ export default function LoginPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12">
-      <div className="w-full max-w-md space-y-8 bg-white p-8 rounded-xl shadow-lg border border-gray-100">
+      <div className="w-full max-w-md space-y-8 bg-white p-10 rounded-none border border-gray-200 shadow-none">
         <div className="text-center">
-          <h2 className="text-3xl font-bold tracking-tight text-gray-900">
+          <h2 className="text-3xl font-serif font-bold tracking-tight text-gray-900">
             Welcome Back
           </h2>
+          <p className="mt-2 text-sm text-gray-600">
+            Sign in to continue to ReGoods.
+          </p>
         </div>
 
 
         {/* Email Form */}
         <form className="space-y-6" onSubmit={handleSubmit}>
           {successMsg && <div className="text-green-600 text-sm text-center">{successMsg}</div>}
-          
+
           <div className="space-y-4">
             <input
               name="email"
               type="email"
               required
-              className="block w-full rounded-md border-0 py-3 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-indigo-600 px-4"
+              className="block w-full rounded-md border-0 py-3 text-gray-900 ring-1 ring-inset ring-gray-200 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-black px-4 bg-gray-50"
               placeholder="Email"
             />
             <input
               name="password"
               type="password"
               required
-              className="block w-full rounded-md border-0 py-3 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-indigo-600 px-4"
+              className="block w-full rounded-md border-0 py-3 text-gray-900 ring-1 ring-inset ring-gray-200 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-black px-4 bg-gray-50"
               placeholder="Password"
             />
           </div>
@@ -77,7 +80,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full flex justify-center rounded-md bg-indigo-600 px-3 py-3 text-sm font-semibold text-white hover:bg-indigo-500 disabled:opacity-70"
+            className="w-full flex justify-center rounded-sm bg-black px-3 py-4 text-sm font-bold uppercase tracking-widest text-white hover:bg-gray-900 disabled:opacity-70 transition-all"
           >
             {loading ? <Loader2 className="animate-spin" /> : "Sign In"}
           </button>
@@ -85,7 +88,7 @@ export default function LoginPage() {
 
         <p className="text-center text-sm text-gray-500">
           Don't have an account?{" "}
-          <Link href="/auth/register" className="font-semibold text-indigo-600 hover:text-indigo-500">
+          <Link href="/auth/register" className="font-bold text-gray-900 hover:underline">
             Sign up
           </Link>
         </p>

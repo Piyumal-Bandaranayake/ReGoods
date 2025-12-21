@@ -6,22 +6,26 @@ export default function Footer() {
     <footer className="bg-white border-t border-gray-200 mt-auto">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          
+
           {/* 1. BRAND & TAGLINE */}
           <div className="space-y-4">
-            <h3 className="text-2xl font-bold text-indigo-600">ReGoods</h3>
-            <p className="text-gray-500 text-sm">
-              The unified marketplace where everyone is a buyer and a seller. 
+            <h3 className="text-2xl font-bold flex items-baseline">
+              <span className="font-serif italic text-black">Re</span>
+              <span className="font-sans font-extrabold tracking-tighter text-black">Goods</span>
+              <span className="text-indigo-600 ml-0.5">.</span>
+            </h3>
+            <p className="text-gray-500 text-sm max-w-xs leading-relaxed">
+              The unified marketplace where everyone is a buyer and a seller.
               Safe, simple, and open for negotiation.
             </p>
             <div className="flex space-x-4">
-              <a href="#" className="text-gray-400 hover:text-indigo-600 transition">
+              <a href="#" className="text-gray-400 hover:text-black transition">
                 <Facebook className="w-5 h-5" />
               </a>
-              <a href="#" className="text-gray-400 hover:text-indigo-600 transition">
+              <a href="#" className="text-gray-400 hover:text-black transition">
                 <Twitter className="w-5 h-5" />
               </a>
-              <a href="#" className="text-gray-400 hover:text-indigo-600 transition">
+              <a href="#" className="text-gray-400 hover:text-black transition">
                 <Instagram className="w-5 h-5" />
               </a>
             </div>

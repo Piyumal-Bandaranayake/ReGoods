@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
 
+import { registerUser } from "@/app/actions/auth";
+
 export default function RegisterPage() {
   const router = useRouter();
   const [error, setError] = useState("");
@@ -24,19 +26,19 @@ export default function RegisterPage() {
       setLoading(false);
     } else {
       // If successful, send them to login page
-      router.push("/login?registered=true");
+      router.push("/auth/login?registered=true");
     }
   };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12">
-      <div className="w-full max-w-md space-y-8 bg-white p-8 rounded-xl shadow-lg border border-gray-100">
+      <div className="w-full max-w-md space-y-8 bg-white p-10 rounded-none border border-gray-200 shadow-none">
         <div className="text-center">
-          <h2 className="text-3xl font-bold tracking-tight text-indigo-600">
+          <h2 className="text-3xl font-serif font-bold tracking-tight text-gray-900">
             Create Account
           </h2>
           <p className="mt-2 text-sm text-gray-600">
-            Join LoopLane to start buying and selling.
+            Join ReGoods to start buying and selling.
           </p>
         </div>
 
@@ -46,36 +48,43 @@ export default function RegisterPage() {
               name="name"
               type="text"
               required
-              className="block w-full rounded-md border-0 py-3 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-indigo-600 px-4"
+              className="block w-full rounded-md border-0 py-3 text-gray-900 ring-1 ring-inset ring-gray-200 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-black px-4 bg-gray-50"
               placeholder="Full Name"
             />
             <input
               name="email"
               type="email"
               required
-              className="block w-full rounded-md border-0 py-3 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-indigo-600 px-4"
+              className="block w-full rounded-md border-0 py-3 text-gray-900 ring-1 ring-inset ring-gray-200 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-black px-4 bg-gray-50"
               placeholder="Email Address"
             />
             <input
               name="phone"
               type="tel"
               required
-              className="block w-full rounded-md border-0 py-3 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-indigo-600 px-4"
+              className="block w-full rounded-md border-0 py-3 text-gray-900 ring-1 ring-inset ring-gray-200 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-black px-4 bg-gray-50"
               placeholder="Phone Number"
             />
             <input
               name="nationality"
               type="text"
               required
-              className="block w-full rounded-md border-0 py-3 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-indigo-600 px-4"
+              className="block w-full rounded-md border-0 py-3 text-gray-900 ring-1 ring-inset ring-gray-200 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-black px-4 bg-gray-50"
               placeholder="Nationality"
             />
             <input
               name="password"
               type="password"
               required
-              className="block w-full rounded-md border-0 py-3 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-indigo-600 px-4"
+              className="block w-full rounded-md border-0 py-3 text-gray-900 ring-1 ring-inset ring-gray-200 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-black px-4 bg-gray-50"
               placeholder="Password"
+            />
+            <input
+              name="confirmPassword"
+              type="password"
+              required
+              className="block w-full rounded-md border-0 py-3 text-gray-900 ring-1 ring-inset ring-gray-200 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-black px-4 bg-gray-50"
+              placeholder="Confirm Password"
             />
           </div>
 
@@ -85,11 +94,11 @@ export default function RegisterPage() {
               name="terms"
               type="checkbox"
               required
-              className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
+              className="h-4 w-4 rounded border-gray-300 text-black focus:ring-black"
             />
             <label htmlFor="terms" className="ml-2 block text-sm text-gray-900">
               I agree to the{" "}
-              <a href="#" className="font-semibold text-indigo-600 hover:text-indigo-500">
+              <a href="#" className="font-bold text-gray-900 hover:underline">
                 Terms and Conditions
               </a>
             </label>
@@ -100,7 +109,7 @@ export default function RegisterPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full flex justify-center rounded-md bg-indigo-600 px-3 py-3 text-sm font-semibold text-white hover:bg-indigo-500 disabled:opacity-70"
+            className="w-full flex justify-center rounded-sm bg-black px-3 py-4 text-sm font-bold uppercase tracking-widest text-white hover:bg-gray-900 disabled:opacity-70 transition-all"
           >
             {loading ? <Loader2 className="animate-spin" /> : "Sign Up"}
           </button>
@@ -108,7 +117,7 @@ export default function RegisterPage() {
 
         <p className="text-center text-sm text-gray-500">
           Already have an account?{" "}
-          <Link href="/auth/login" className="font-semibold text-indigo-600 hover:text-indigo-500">
+          <Link href="/auth/login" className="font-bold text-gray-900 hover:underline">
             Log in
           </Link>
         </p>

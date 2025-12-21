@@ -31,8 +31,30 @@ const ItemSchema = new mongoose.Schema(
       default: "Active",
     },
     category: {
-      type: String, // Optional, as you requested "no categories", but good to have just in case
+      type: String, 
       default: "General",
+    },
+    condition: {
+      type: String,
+      required: true,
+      enum: ["New", "Like New", "Good", "Fair", "Poor"],
+    },
+    location: {
+      type: String,
+      required: true,
+    },
+    delivery: {
+      type: String,
+      required: true,
+      enum: ["Meet-up", "Courier", "Meet-up / Courier"],
+    },
+    negotiable: {
+      type: Boolean,
+      default: false,
+    },
+    returnPolicy: {
+      type: String,
+      default: "No Returns",
     },
   },
   { timestamps: true }
