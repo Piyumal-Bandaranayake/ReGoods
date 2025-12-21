@@ -14,6 +14,12 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  phone: {
+    type: String,
+  },
+  nationality: {
+    type: String,
+  },
   image: {
     type: String,
   },
@@ -27,6 +33,10 @@ const UserSchema = new mongoose.Schema({
     default: "user"
   },
   wishlist: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Item"
+  }],
+  cart: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: "Item"
   }],

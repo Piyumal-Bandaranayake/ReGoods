@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
-import { Search, Heart, MessageCircle, LogOut, User, PlusCircle } from "lucide-react";
+import { Search, Heart, MessageCircle, LogOut, User, PlusCircle, LayoutDashboard } from "lucide-react";
 import { useState } from "react";
 
 export default function Navbar() {
@@ -13,11 +13,13 @@ export default function Navbar() {
     <nav className="border-b bg-white sticky top-0 z-50 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          
+
           {/* 1. LOGO */}
           <div className="flex-shrink-0 flex items-center">
-            <Link href="/" className="text-2xl font-bold text-indigo-600">
-              ReGoods
+            <Link href="/" className="text-2xl flex items-baseline">
+              <span className="font-serif italic text-black font-semibold">Re</span>
+              <span className="font-sans font-extrabold tracking-tighter text-black">Goods</span>
+              <span className="text-indigo-600 text-3xl leading-none">.</span>
             </Link>
           </div>
 
@@ -37,25 +39,31 @@ export default function Navbar() {
 
           {/* 3. RIGHT SIDE ACTIONS */}
           <div className="flex items-center space-x-4">
-            
+            <Link href="/" className="text-gray-500 hover:text-indigo-600 font-medium transition">
+              Home
+            </Link>
+            <Link href="/dashboard" className="text-gray-500 hover:text-indigo-600 font-medium transition">
+              Marketplace
+            </Link>
+
             {session ? (
               // 🟢 LOGGED IN VIEW
               <>
                 {/* Sell Button */}
-                <Link 
-                  href="/items/create" 
-                  className="hidden sm:flex items-center space-x-1 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-full text-sm font-medium transition"
+                <Link
+                  href="/items/create"
+                  className="hidden sm:flex items-center space-x-1 bg-blue-950 hover:bg-black text-white px-5 py-2 rounded-full text-sm font-bold tracking-wide transition shadow-md hover:shadow-lg hover:shadow-blue-900/20"
                 >
                   <PlusCircle className="w-4 h-4" />
-                  <span>Sell Item</span>
+                  <span>SELL ITEM</span>
                 </Link>
 
                 {/* Icons */}
                 <Link href="/dashboard?tab=buying" className="text-gray-500 hover:text-indigo-600 transition">
                   <Heart className="w-6 h-6" />
                 </Link>
-                
-                <Link href="/dashboard?tab=inbox" className="text-gray-500 hover:text-indigo-600 transition">
+
+                <Link href="/inbox" className="text-gray-500 hover:text-indigo-600 transition">
                   <MessageCircle className="w-6 h-6" />
                 </Link>
 
@@ -65,11 +73,9 @@ export default function Navbar() {
                     onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                     className="flex text-sm border-2 border-transparent rounded-full focus:outline-none focus:border-indigo-300 transition"
                   >
-                    <img
-                      className="h-8 w-8 rounded-full object-cover"
-                      src={session.user.image || "https://via.placeholder.com/40"}
-                      alt="User avatar"
-                    />
+                    <div className="h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold">
+                      {session.user.name ? session.user.name[0].toUpperCase() : "U"}
+                    </div>
                   </button>
 
                   {/* Dropdown Menu */}
@@ -78,18 +84,34 @@ export default function Navbar() {
                       <div className="px-4 py-2 text-xs text-gray-500 border-b">
                         Signed in as <br /> <span className="font-bold text-gray-900">{session.user.name}</span>
                       </div>
-                      
-                      <Link 
-                        href="/dashboard" 
+
+                      <Link
+                        href="/account"
                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
                         onClick={() => setIsDropdownOpen(false)}
                       >
-                        <User className="w-4 h-4 mr-2" /> Dashboard
+                        <LayoutDashboard className="w-4 h-4 mr-2" /> My Account
+                      </Link>
+
+                      <Link
+                        href={`/profile/${session.user.id}`}
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
+                        onClick={() => setIsDropdownOpen(false)}
+                      >
+                        <User className="w-4 h-4 mr-2" /> My Public Profile
+                      </Link>
+
+                      <Link
+                        href="/dashboard"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
+                        onClick={() => setIsDropdownOpen(false)}
+                      >
+                        <Heart className="w-4 h-4 mr-2" /> Dashboard
                       </Link>
 
                       {session.user.role === 'admin' && (
-                        <Link 
-                          href="/admin" 
+                        <Link
+                          href="/admin"
                           className="block px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center font-semibold"
                           onClick={() => setIsDropdownOpen(false)}
                         >
@@ -113,11 +135,11 @@ export default function Navbar() {
                 <Link href="/auth/login" className="text-gray-500 hover:text-gray-900 font-medium">
                   Log in
                 </Link>
-                <Link 
-                  href="/auth/register" 
-                  className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium transition"
+                <Link
+                  href="/auth/register"
+                  className="bg-black hover:bg-gray-800 text-white px-6 py-2 rounded-full text-sm font-bold tracking-wide transition"
                 >
-                  Join Now
+                  JOIN NOW
                 </Link>
               </div>
             )}
