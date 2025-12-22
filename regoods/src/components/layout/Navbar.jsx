@@ -6,6 +6,7 @@ import { Search, Heart, MessageCircle, LogOut, User, PlusCircle, LayoutDashboard
 import { useState } from "react";
 import WishlistDropdown from "./WishlistDropdown";
 import CartDropdown from "./CartDropdown";
+import NotificationDropdown from "./NotificationDropdown";
 
 import { useRouter } from "next/navigation";
 
@@ -74,6 +75,7 @@ export default function Navbar() {
                 </Link>
 
                 {/* Icons */}
+                <NotificationDropdown />
                 <WishlistDropdown />
                 <CartDropdown />
 

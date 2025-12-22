@@ -19,7 +19,7 @@ import {
 import ItemActions from "@/components/account/ItemActions";
 import ItemImageGallery from "@/components/items/ItemImageGallery";
 import { getUserInteractions } from "@/app/actions/user";
-import { WishlistButton, AddToCartButton, BuyNowButton } from "@/components/items/ItemInteractionButtons";
+import { WishlistButton, AddToCartButton, BuyNowButton, NegotiateButton } from "@/components/items/ItemInteractionButtons";
 
 async function getItem(id) {
     await dbConnect();
@@ -112,12 +112,16 @@ export default async function ItemPage({ params }) {
                                     <div className="space-y-3">
                                         {/* Row 1: Chat, Cart, Wishlist */}
                                         <div className="flex gap-3 items-center">
-                                            <Link
-                                                href={`/inbox/${seller._id}?itemId=${item._id}`}
-                                                className="flex-1 py-4 rounded-full bg-white border border-gray-200 text-black font-bold text-sm uppercase tracking-widest hover:bg-gray-50 hover:border-black transition shadow-sm text-center flex items-center justify-center"
-                                            >
-                                                Chat / Offer
-                                            </Link>
+                                            {item.negotiable ? (
+                                                <NegotiateButton itemId={item._id} currentPrice={item.price} />
+                                            ) : (
+                                                <Link
+                                                    href={`/inbox/${seller._id}?itemId=${item._id}`}
+                                                    className="flex-1 py-4 rounded-full bg-white border border-gray-200 text-black font-bold text-sm uppercase tracking-widest hover:bg-gray-50 hover:border-black transition shadow-sm text-center flex items-center justify-center"
+                                                >
+                                                    Chat
+                                                </Link>
+                                            )}
 
                                             <div className="flex-1">
                                                 <AddToCartButton itemId={item._id} initialIsInCart={isInCart} />

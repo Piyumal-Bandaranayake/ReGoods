@@ -3,6 +3,7 @@ import { authOptions } from "@/lib/auth";
 import dbConnect from "@/lib/db";
 import User from "@/lib/models/User";
 import Item from "@/lib/models/Item";
+import Offer from "@/lib/models/Offer";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import {
@@ -12,6 +13,7 @@ import {
 } from "lucide-react";
 import ProfileSettings from "@/components/account/ProfileSettings";
 import ItemActions from "@/components/account/ItemActions";
+import OfferList from "@/components/account/OfferList";
 import { getConversations } from "@/app/actions/message";
 
 async function getAccountData(userId) {
@@ -23,10 +25,17 @@ async function getAccountData(userId) {
     const myListings = await Item.find({ sellerId: userId, status: "Active" }).sort({ createdAt: -1 });
     const mySales = await Item.find({ sellerId: userId, status: "Sold" }).sort({ updatedAt: -1 });
 
+    // Fetch Offers Received
+    const offersReceived = await Offer.find({ sellerId: userId })
+        .populate("itemId", "title price images")
+        .populate("buyerId", "name email image")
+        .sort({ createdAt: -1 });
+
     return {
         user: JSON.parse(JSON.stringify(user)),
         myListings: JSON.parse(JSON.stringify(myListings)),
-        mySales: JSON.parse(JSON.stringify(mySales))
+        mySales: JSON.parse(JSON.stringify(mySales)),
+        offersReceived: JSON.parse(JSON.stringify(offersReceived))
     };
 }
 
@@ -37,7 +46,7 @@ export default async function AccountPage({ searchParams }) {
     }
 
     const data = await getAccountData(session.user.id);
-    const { user, myListings, mySales } = data;
+    const { user, myListings, mySales, offersReceived } = data;
 
     // Default tab
     const { tab } = await searchParams || { tab: 'listings' };
@@ -51,9 +60,7 @@ export default async function AccountPage({ searchParams }) {
     // Calculated Stats
     const itemsSold = mySales.length;
     const itemsListed = myListings.length;
-    // Offers/Reviews models do not exist yet
-    const offersReceived = 0;
-    const offersAccepted = 0;
+    const pendingOffers = offersReceived.filter(o => o.status === "Pending").length;
     const reviewScore = 0; // Or null to hide
 
     return (
@@ -101,7 +108,7 @@ export default async function AccountPage({ searchParams }) {
                             <TabLink href="?tab=listings" active={currentTab === 'listings'} icon={<LayoutDashboard className="w-4 h-4" />} label="My Listings" count={itemsListed} />
                             <TabLink href="?tab=sales" active={currentTab === 'sales'} icon={<TrendingUp className="w-4 h-4" />} label="My Sales" count={itemsSold} />
                             <TabLink href="?tab=purchases" active={currentTab === 'purchases'} icon={<ShoppingBag className="w-4 h-4" />} label="Purchases" />
-                            <TabLink href="?tab=offers" active={currentTab === 'offers'} icon={<DollarSign className="w-4 h-4" />} label="Offers" />
+                            <TabLink href="?tab=offers" active={currentTab === 'offers'} icon={<DollarSign className="w-4 h-4" />} label="Offers" count={pendingOffers} />
                             <TabLink href="?tab=messages" active={currentTab === 'messages'} icon={<MessageCircle className="w-4 h-4" />} label="Messages" />
                             <div className="h-px bg-gray-200 my-4 mx-4"></div>
                             <TabLink href="?tab=settings" active={currentTab === 'settings'} icon={<Settings className="w-4 h-4" />} label="Settings" />
@@ -186,13 +193,22 @@ export default async function AccountPage({ searchParams }) {
 
                         {currentTab === 'settings' && <div className="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm"><ProfileSettings user={user} /></div>}
 
-                        {/* Placeholders for Sales/Purchases/Offers (Styled Basic) */}
-                        {['sales', 'purchases', 'offers'].includes(currentTab) && (
+                        {currentTab === 'offers' && (
+                            <div className="space-y-6 animate-fade-in">
+                                <div>
+                                    <h2 className="text-2xl font-serif font-bold text-gray-900">Price Offers</h2>
+                                    <p className="text-gray-500 text-sm mt-1">Manage negotiation requests from buyers</p>
+                                </div>
+                                <OfferList offers={offersReceived} />
+                            </div>
+                        )}
+
+                        {/* Placeholders for Sales/Purchases (Styled Basic) */}
+                        {['sales', 'purchases'].includes(currentTab) && (
                             <div className="bg-white rounded-2xl border border-gray-200 p-12 text-center shadow-sm">
                                 <div className="inline-flex p-4 bg-gray-50 rounded-full mb-4">
                                     {currentTab === 'sales' && <TrendingUp className="w-6 h-6 text-gray-400" />}
                                     {currentTab === 'purchases' && <ShoppingBag className="w-6 h-6 text-gray-400" />}
-                                    {currentTab === 'offers' && <DollarSign className="w-6 h-6 text-gray-400" />}
                                 </div>
                                 <h3 className="text-lg font-bold text-gray-900 capitalize mb-2">{currentTab}</h3>
                                 <p className="text-gray-500 max-w-sm mx-auto">This section is being updated with the new design system. Check back soon for your {currentTab} history.</p>
