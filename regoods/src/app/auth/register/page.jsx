@@ -109,7 +109,7 @@ export default function RegisterPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full flex justify-center rounded-sm bg-black px-3 py-4 text-sm font-bold uppercase tracking-widest text-white hover:bg-gray-900 disabled:opacity-70 transition-all"
+            className="w-full flex justify-center rounded-full bg-blue-950 px-3 py-4 text-sm font-bold uppercase tracking-widest text-white hover:bg-black disabled:opacity-70 transition-all shadow-md hover:shadow-lg hover:shadow-blue-900/20"
           >
             {loading ? <Loader2 className="animate-spin" /> : "Sign Up"}
           </button>

@@ -36,16 +36,13 @@ const ItemSchema = new mongoose.Schema(
     },
     condition: {
       type: String,
-      required: true,
       enum: ["New", "Like New", "Good", "Fair", "Poor"],
     },
     location: {
       type: String,
-      required: true,
     },
     delivery: {
       type: String,
-      required: true,
       enum: ["Meet-up", "Courier", "Meet-up / Courier"],
     },
     negotiable: {
@@ -55,6 +52,22 @@ const ItemSchema = new mongoose.Schema(
     returnPolicy: {
       type: String,
       default: "No Returns",
+    },
+    buyerId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+    paymentMethod: {
+      type: String,
+      enum: ["COD", "Online"],
+    },
+    deliveryDetails: {
+      fullName: String,
+      email: String,
+      address: String,
+      city: String,
+      postalCode: String,
+      phone: String,
     },
   },
   { timestamps: true }

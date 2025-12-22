@@ -120,7 +120,7 @@ export default function Navbar() {
                       )}
 
                       <button
-                        onClick={() => signOut()}
+                        onClick={() => signOut({ callbackUrl: '/' })}
                         className="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
                       >
                         <LogOut className="w-4 h-4 mr-2" /> Sign out

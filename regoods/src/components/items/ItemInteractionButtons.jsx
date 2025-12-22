@@ -28,8 +28,8 @@ export function WishlistButton({ itemId, initialIsWishlisted }) {
             onClick={handleToggle}
             disabled={loading}
             className={`w-14 h-14 rounded-full border flex items-center justify-center transition hover:shadow-md ${isWishlisted
-                    ? 'bg-red-50 border-red-200 text-red-500'
-                    : 'bg-white border-gray-200 text-gray-400 hover:text-black hover:border-black'
+                ? 'bg-red-50 border-red-200 text-red-500'
+                : 'bg-white border-gray-200 text-gray-400 hover:text-black hover:border-black'
                 }`}
             title={isWishlisted ? "Remove from Wishlist" : "Add to Wishlist"}
         >
@@ -70,3 +70,17 @@ export function AddToCartButton({ itemId, initialIsInCart }) {
         </button>
     );
 }
+
+export function BuyNowButton({ itemId }) {
+    const router = useRouter();
+
+    return (
+        <button
+            onClick={() => router.push(`/checkout/${itemId}`)}
+            className="w-full py-4 rounded-full bg-black text-white font-bold text-sm uppercase tracking-widest hover:scale-[1.02] transition shadow-lg flex justify-center items-center"
+        >
+            Buy Now
+        </button>
+    );
+}
+
