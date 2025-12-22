@@ -19,7 +19,7 @@ import {
 import ItemActions from "@/components/account/ItemActions";
 import ItemImageGallery from "@/components/items/ItemImageGallery";
 import { getUserInteractions } from "@/app/actions/user";
-import { WishlistButton, AddToCartButton } from "@/components/items/ItemInteractionButtons";
+import { WishlistButton, AddToCartButton, BuyNowButton } from "@/components/items/ItemInteractionButtons";
 
 async function getItem(id) {
     await dbConnect();
@@ -129,9 +129,7 @@ export default async function ItemPage({ params }) {
                                         </div>
 
                                         {/* Row 2: Buy Now */}
-                                        <button className="w-full py-4 rounded-full bg-black text-white font-bold text-sm uppercase tracking-widest hover:scale-[1.02] transition shadow-lg flex justify-center items-center">
-                                            Buy Now
-                                        </button>
+                                        <BuyNowButton itemId={item._id} />
                                     </div>
                                 )
                             ) : (

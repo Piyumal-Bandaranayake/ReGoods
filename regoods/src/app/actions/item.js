@@ -188,3 +188,38 @@ export async function markAsSold(itemId) {
     return { error: `Failed to update item status: ${error.message}` };
   }
 }
+
+export async function purchaseItem({ itemId, paymentMethod, deliveryDetails }) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session) return { error: "Not logged in" };
+
+    if (!paymentMethod || !["COD", "Online"].includes(paymentMethod)) {
+        return { error: "Invalid payment method" };
+    }
+
+    if (!deliveryDetails || !deliveryDetails.fullName || !deliveryDetails.email || !deliveryDetails.address || !deliveryDetails.city || !deliveryDetails.phone) {
+        return { error: "Missing delivery details" };
+    }
+
+    await dbConnect();
+    const item = await Item.findById(itemId);
+    if (!item) return { error: "Item not found" };
+    if (item.status === "Sold") return { error: "Item already sold" };
+    if (item.sellerId.toString() === session.user.id) return { error: "Cannot buy your own item" };
+
+    item.status = "Sold";
+    item.buyerId = session.user.id;
+    item.paymentMethod = paymentMethod;
+    item.deliveryDetails = deliveryDetails;
+    await item.save();
+
+    revalidatePath(`/items/${itemId}`);
+    revalidatePath("/dashboard");
+    
+    return { success: true };
+  } catch (error) {
+    console.error("Purchase error:", error);
+    return { error: `Failed to complete purchase: ${error.message}` };
+  }
+}
