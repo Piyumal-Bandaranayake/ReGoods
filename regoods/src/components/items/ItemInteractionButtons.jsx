@@ -5,17 +5,34 @@ import { toggleWishlist, toggleCart } from "@/app/actions/user";
 import { Heart, ShoppingCart } from "lucide-react";
 import { useRouter } from "next/navigation";
 
+import { useWishlist } from "@/components/providers/WishlistProvider";
+import { useCart } from "@/components/providers/CartProvider";
+
 export function WishlistButton({ itemId, initialIsWishlisted }) {
     const [isWishlisted, setIsWishlisted] = useState(initialIsWishlisted);
     const [loading, setLoading] = useState(false);
     const router = useRouter();
+    const { toggleWishlist: toggleWishlistContext } = useWishlist() || {};
 
     const handleToggle = async () => {
         if (loading) return;
         setLoading(true);
-        const result = await toggleWishlist(itemId);
+        
+        // Use context function if available, fall back to direct action
+        const action = toggleWishlistContext || toggleWishlist;
+        
+        const result = await action(itemId);
+        
         if (result.success) {
-            setIsWishlisted(result.isWishlisted);
+            // Result.isWishlisted might be available from the action return
+            // But if context, it returns what the action returns.
+            // The action in user.js return { success: true, isWishlisted: !isWishlisted }
+            if (result.isWishlisted !== undefined) {
+                setIsWishlisted(result.isWishlisted);
+            } else {
+                 // Fallback if return is different
+                 setIsWishlisted(!isWishlisted);
+            }
             router.refresh();
         } else if (result.error === "Not logged in") {
             router.push("/auth/login");
@@ -42,13 +59,21 @@ export function AddToCartButton({ itemId, initialIsInCart }) {
     const [isInCart, setIsInCart] = useState(initialIsInCart);
     const [loading, setLoading] = useState(false);
     const router = useRouter();
+    const { toggleCart: toggleCartContext } = useCart() || {};
 
     const handleToggle = async () => {
         if (loading) return;
         setLoading(true);
-        const result = await toggleCart(itemId);
+        
+        const action = toggleCartContext || toggleCart;
+        const result = await action(itemId);
+        
         if (result.success) {
-            setIsInCart(result.isInCart);
+            if (result.isInCart !== undefined) {
+                setIsInCart(result.isInCart);
+            } else {
+                setIsInCart(!isInCart);
+            }
             router.refresh();
         } else if (result.error === "Not logged in") {
             router.push("/auth/login");
