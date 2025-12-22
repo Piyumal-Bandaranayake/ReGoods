@@ -31,10 +31,16 @@ async function getAccountData(userId) {
         .populate("buyerId", "name email image")
         .sort({ createdAt: -1 });
 
+    // Fetch My Purchases
+    const myPurchases = await Item.find({ buyerId: userId })
+        .populate("sellerId", "name email image")
+        .sort({ updatedAt: -1 });
+
     return {
         user: JSON.parse(JSON.stringify(user)),
         myListings: JSON.parse(JSON.stringify(myListings)),
         mySales: JSON.parse(JSON.stringify(mySales)),
+        myPurchases: JSON.parse(JSON.stringify(myPurchases)),
         offersReceived: JSON.parse(JSON.stringify(offersReceived))
     };
 }
@@ -46,7 +52,7 @@ export default async function AccountPage({ searchParams }) {
     }
 
     const data = await getAccountData(session.user.id);
-    const { user, myListings, mySales, offersReceived } = data;
+    const { user, myListings, mySales, myPurchases, offersReceived } = data;
 
     // Default tab
     const { tab } = await searchParams || { tab: 'listings' };
@@ -94,7 +100,7 @@ export default async function AccountPage({ searchParams }) {
                             <div className="w-px h-6 bg-gray-200"></div>
                             <StatBox label="Active" value={itemsListed} />
                             <div className="w-px h-6 bg-gray-200"></div>
-                            <StatBox label="Rating" value={reviewScore || "N/A"} icon={<Star className="w-3 h-3 text-yellow-500 fill-current ml-1" />} />
+                            <StatBox label="Purchased" value={myPurchases.length} />
                         </div>
                     </div>
                 </div>
@@ -107,7 +113,7 @@ export default async function AccountPage({ searchParams }) {
                         <div className="sticky top-24 space-y-1">
                             <TabLink href="?tab=listings" active={currentTab === 'listings'} icon={<LayoutDashboard className="w-4 h-4" />} label="My Listings" count={itemsListed} />
                             <TabLink href="?tab=sales" active={currentTab === 'sales'} icon={<TrendingUp className="w-4 h-4" />} label="My Sales" count={itemsSold} />
-                            <TabLink href="?tab=purchases" active={currentTab === 'purchases'} icon={<ShoppingBag className="w-4 h-4" />} label="Purchases" />
+                            <TabLink href="?tab=purchases" active={currentTab === 'purchases'} icon={<ShoppingBag className="w-4 h-4" />} label="Purchases" count={myPurchases.length} />
                             <TabLink href="?tab=offers" active={currentTab === 'offers'} icon={<DollarSign className="w-4 h-4" />} label="Offers" count={pendingOffers} />
                             <TabLink href="?tab=messages" active={currentTab === 'messages'} icon={<MessageCircle className="w-4 h-4" />} label="Messages" />
                             <div className="h-px bg-gray-200 my-4 mx-4"></div>
@@ -124,7 +130,6 @@ export default async function AccountPage({ searchParams }) {
                                         <h2 className="text-2xl font-serif font-bold text-gray-900">Active Listings</h2>
                                         <p className="text-gray-500 text-sm mt-1">Manage your items currently for sale</p>
                                     </div>
-
                                 </div>
                                 {myListings.length > 0 ? (
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -155,7 +160,7 @@ export default async function AccountPage({ searchParams }) {
                             </div>
                         )}
 
-                        {/* Messages (Styled) */}
+                        {/* Messages */}
                         {currentTab === 'messages' && (
                             <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm min-h-[500px]">
                                 <div className="p-6 border-b border-gray-100">
@@ -203,15 +208,85 @@ export default async function AccountPage({ searchParams }) {
                             </div>
                         )}
 
-                        {/* Placeholders for Sales/Purchases (Styled Basic) */}
-                        {['sales', 'purchases'].includes(currentTab) && (
-                            <div className="bg-white rounded-2xl border border-gray-200 p-12 text-center shadow-sm">
-                                <div className="inline-flex p-4 bg-gray-50 rounded-full mb-4">
-                                    {currentTab === 'sales' && <TrendingUp className="w-6 h-6 text-gray-400" />}
-                                    {currentTab === 'purchases' && <ShoppingBag className="w-6 h-6 text-gray-400" />}
+                        {currentTab === 'purchases' && (
+                            <div className="space-y-6 animate-fade-in">
+                                <div>
+                                    <h2 className="text-2xl font-serif font-bold text-gray-900">My Purchases</h2>
+                                    <p className="text-gray-500 text-sm mt-1">History of items you have bought</p>
                                 </div>
-                                <h3 className="text-lg font-bold text-gray-900 capitalize mb-2">{currentTab}</h3>
-                                <p className="text-gray-500 max-w-sm mx-auto">This section is being updated with the new design system. Check back soon for your {currentTab} history.</p>
+                                {myPurchases.length > 0 ? (
+                                    <div className="space-y-4">
+                                        {myPurchases.map((item) => (
+                                            <div key={item._id} className="bg-white p-5 rounded-xl border border-gray-200 flex flex-col sm:flex-row gap-5 items-center">
+                                                <Link href={`/items/${item._id}`} className="block w-20 h-20 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
+                                                    {item.images?.[0] && <img src={item.images[0]} className="w-full h-full object-cover" />}
+                                                </Link>
+                                                <div className="flex-1 text-center sm:text-left">
+                                                    <h3 className="font-bold text-gray-900 truncate">{item.title}</h3>
+                                                    <p className="text-sm text-gray-500 mt-0.5">Bought from <span className="font-bold text-black">{item.sellerId?.name || "Seller"}</span></p>
+                                                    <p className="text-xs text-gray-400 mt-2">Placed on {new Date(item.updatedAt).toLocaleDateString()}</p>
+                                                </div>
+                                                <div className="text-right">
+                                                    <div className="text-lg font-bold text-gray-900 mb-2">${item.price}</div>
+                                                    <span className="inline-block px-3 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-full uppercase tracking-wide">
+                                                        {item.paymentMethod === 'COD' ? 'Pending (COD)' : 'Paid'}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <EmptyState label="You haven't purchased anything yet." action="/dashboard" actionLabel="Browse Marketplace" />
+                                )}
+                            </div>
+                        )}
+
+                        {/* Placeholders for Sales (Styled Basic) */}
+                        {currentTab === 'sales' && (
+                            <div className="space-y-6 animate-fade-in">
+                                <div>
+                                    <h2 className="text-2xl font-serif font-bold text-gray-900">My Sales</h2>
+                                    <p className="text-gray-500 text-sm mt-1">History of items you have sold</p>
+                                </div>
+                                {mySales.length > 0 ? (
+                                    <div className="space-y-4">
+                                        {mySales.map((item) => (
+                                            <div key={item._id} className="bg-white p-5 rounded-xl border border-gray-200 flex flex-col sm:flex-row gap-5 items-center">
+                                                <Link href={`/items/${item._id}`} className="block w-20 h-20 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0 relative">
+                                                    {item.images?.[0] && <img src={item.images[0]} className="w-full h-full object-cover grayscale" />}
+                                                    <div className="absolute inset-0 flex items-center justify-center bg-black/10">
+                                                        <span className="text-[10px] bg-black text-white px-1.5 py-0.5 rounded font-bold uppercase tracking-widest">Sold</span>
+                                                    </div>
+                                                </Link>
+                                                <div className="flex-1 text-center sm:text-left">
+                                                    <h3 className="font-bold text-gray-900 truncate">{item.title}</h3>
+                                                    <p className="text-sm text-gray-500 mt-0.5">Sold on {new Date(item.updatedAt).toLocaleDateString()}</p>
+
+                                                    {item.deliveryDetails && (
+                                                        <div className="mt-2 text-xs bg-gray-50 p-2 rounded border border-gray-100 inline-block text-left">
+                                                            <p className="font-bold text-gray-700 mb-0.5">Ship to:</p>
+                                                            <p className="text-gray-500">{item.deliveryDetails.fullName}</p>
+                                                            <p className="text-gray-500">{item.deliveryDetails.address}, {item.deliveryDetails.city}</p>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                <div className="text-right">
+                                                    <div className="text-lg font-bold text-gray-900 mb-2">${item.price}</div>
+                                                    <div className="flex flex-col items-end gap-1">
+                                                        <span className="inline-block px-3 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-full uppercase tracking-wide">
+                                                            Sold
+                                                        </span>
+                                                        <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
+                                                            {item.paymentMethod || "COD"}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <EmptyState label="You haven't sold anything yet." action="/items/create" actionLabel="List an Item" />
+                                )}
                             </div>
                         )}
                     </div>
