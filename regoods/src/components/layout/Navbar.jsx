@@ -5,10 +5,23 @@ import { useSession, signOut } from "next-auth/react";
 import { Search, Heart, MessageCircle, LogOut, User, PlusCircle, LayoutDashboard } from "lucide-react";
 import { useState } from "react";
 import WishlistDropdown from "./WishlistDropdown";
+import CartDropdown from "./CartDropdown";
+import NotificationDropdown from "./NotificationDropdown";
+
+import { useRouter } from "next/navigation";
 
 export default function Navbar() {
   const { data: session } = useSession();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const router = useRouter();
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/dashboard?search=${encodeURIComponent(searchQuery)}`);
+    }
+  };
 
   return (
     <nav className="border-b bg-white sticky top-0 z-50 shadow-sm">
@@ -26,7 +39,7 @@ export default function Navbar() {
 
           {/* 2. SEARCH BAR (Hidden on small mobile) */}
           <div className="hidden md:flex flex-1 items-center justify-center px-8">
-            <div className="relative w-full max-w-md">
+            <form onSubmit={handleSearch} className="relative w-full max-w-md">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <Search className="h-5 w-5 text-gray-400" />
               </div>
@@ -34,8 +47,10 @@ export default function Navbar() {
                 type="text"
                 className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-full leading-5 bg-gray-50 placeholder-gray-500 focus:outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500 sm:text-sm transition duration-150 ease-in-out"
                 placeholder="Search for items..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
               />
-            </div>
+            </form>
           </div>
 
           {/* 3. RIGHT SIDE ACTIONS */}
@@ -60,7 +75,9 @@ export default function Navbar() {
                 </Link>
 
                 {/* Icons */}
+                <NotificationDropdown />
                 <WishlistDropdown />
+                <CartDropdown />
 
                 <Link href="/inbox" className="text-gray-500 hover:text-indigo-600 transition">
                   <MessageCircle className="w-6 h-6" />

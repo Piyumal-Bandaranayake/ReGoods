@@ -2,6 +2,7 @@
 
 import dbConnect from "@/lib/db";
 import User from "@/lib/models/User";
+import Item from "@/lib/models/Item";
 import { writeFile } from "fs/promises";
 import path from "path";
 import { getServerSession } from "next-auth";
@@ -115,5 +116,46 @@ export async function getUserInteractions() {
     return { 
         wishlist: (user.wishlist || []).map(id => id.toString()), 
         cart: (user.cart || []).map(id => id.toString()) 
+    };
+}
+
+export async function getWishlistItems() {
+    const session = await getServerSession(authOptions);
+    if (!session) return { wishlist: [] };
+
+    await dbConnect();
+    const user = await User.findById(session.user.id).populate({
+        path: 'wishlist',
+        model: Item,
+        select: 'title price images slug _id' // Select fields needed for dropdown
+    });
+
+    if (!user) return { wishlist: [] };
+
+    // Filter out nulls if items were deleted
+    const items = user.wishlist.filter(item => item !== null);
+
+    return { 
+        wishlist: JSON.parse(JSON.stringify(items))
+    };
+}
+
+export async function getCartItems() {
+    const session = await getServerSession(authOptions);
+    if (!session) return { cart: [] };
+
+    await dbConnect();
+    const user = await User.findById(session.user.id).populate({
+        path: 'cart',
+        model: Item,
+        select: 'title price images slug _id status sellerId'
+    });
+
+    if (!user) return { cart: [] };
+
+    const items = user.cart.filter(item => item !== null);
+
+    return { 
+        cart: JSON.parse(JSON.stringify(items))
     };
 }

@@ -14,6 +14,13 @@ async function getItems(filters = {}) {
         query.category = { $regex: new RegExp(`^${filters.category}$`, "i") };
     }
 
+    if (filters.search) {
+        query.$or = [
+            { title: { $regex: filters.search, $options: "i" } },
+            { description: { $regex: filters.search, $options: "i" } }
+        ];
+    }
+
     // Fetch active items, sorted by newest first
     const items = await Item.find(query)
         .sort({ createdAt: -1 })
@@ -32,8 +39,9 @@ export default async function DashboardPage({ searchParams }) {
 
     const resolvedParams = await searchParams;
     const category = resolvedParams?.category;
+    const search = resolvedParams?.search;
 
-    const items = await getItems({ category });
+    const items = await getItems({ category, search });
 
     return (
         <div className="min-h-screen bg-white py-12">
@@ -43,12 +51,12 @@ export default async function DashboardPage({ searchParams }) {
                 <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-12 border-b border-gray-100 pb-6">
                     <div>
                         <h1 className="text-4xl md:text-5xl font-serif font-bold text-gray-900 tracking-tight">
-                            {category ? category : "Marketplace"}
+                            {category ? category : (search ? `Results for "${search}"` : "Marketplace")}
                         </h1>
                         <p className="mt-4 text-gray-500 font-light text-lg">
                             {category
                                 ? `Curated selection of ${category.toLowerCase()}`
-                                : "Discover unique pre-loved treasures"}
+                                : (search ? `Matches found for your search` : "Discover unique pre-loved treasures")}
                         </p>
                     </div>
                 </div>
