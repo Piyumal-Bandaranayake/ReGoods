@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import { Search, Heart, MessageCircle, LogOut, User, PlusCircle, LayoutDashboard } from "lucide-react";
 import { useState } from "react";
+import WishlistDropdown from "./WishlistDropdown";
 
 export default function Navbar() {
   const { data: session } = useSession();
@@ -59,9 +60,7 @@ export default function Navbar() {
                 </Link>
 
                 {/* Icons */}
-                <Link href="/dashboard?tab=buying" className="text-gray-500 hover:text-indigo-600 transition">
-                  <Heart className="w-6 h-6" />
-                </Link>
+                <WishlistDropdown />
 
                 <Link href="/inbox" className="text-gray-500 hover:text-indigo-600 transition">
                   <MessageCircle className="w-6 h-6" />
