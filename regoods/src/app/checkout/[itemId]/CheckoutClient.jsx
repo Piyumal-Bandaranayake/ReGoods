@@ -31,11 +31,6 @@ export default function CheckoutClient({ item }) {
 
         setLoading(true);
 
-        if (paymentMethod === "Online") {
-            // Simulator for online payment
-            await new Promise(resolve => setTimeout(resolve, 2000));
-        }
-
         const result = await purchaseItem({
             itemId: item._id,
             paymentMethod,
@@ -43,11 +38,7 @@ export default function CheckoutClient({ item }) {
         });
 
         if (result.success) {
-            const message = paymentMethod === 'COD'
-                ? "Success! Your order has been placed via Cash on Delivery."
-                : "Payment Successful! Your order has been confirmed.";
-
-            setSuccessMessage(message);
+            setSuccessMessage("Success! Your order has been placed via Cash on Delivery.");
             setShowSuccessModal(true);
         } else {
             alert(result.error);
@@ -180,7 +171,7 @@ export default function CheckoutClient({ item }) {
                 <div className="bg-gray-50 p-5 rounded-xl border border-gray-200">
                     <span className="text-xs font-bold text-gray-400 uppercase tracking-widest block mb-3">Payment Method</span>
 
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-2 gap-3 mb-4">
                         <label className={`flex items-center p-3 border rounded-lg cursor-pointer transition ${paymentMethod === 'COD' ? 'border-black bg-white shadow-sm' : 'border-gray-200 hover:border-gray-300'}`}>
                             <input
                                 type="radio"
@@ -211,23 +202,44 @@ export default function CheckoutClient({ item }) {
                             </div>
                         </label>
                     </div>
+
+                    {paymentMethod === 'Online' ? (
+                        <div className="mt-4 border-t border-gray-100 pt-4">
+                            <p className="text-sm text-gray-500 mb-4">You will be redirected to a secure payment page to complete your purchase.</p>
+                            <button
+                                onClick={() => {
+                                    if (!deliveryDetails.fullName || !deliveryDetails.phone || !deliveryDetails.address || !deliveryDetails.city) {
+                                        alert("Please fill in delivery details first.");
+                                        return;
+                                    }
+                                    router.push(`/checkout/payment?itemId=${item._id}`);
+                                }}
+                                className="w-full py-4 bg-blue-900 hover:bg-black text-white font-bold rounded-lg hover:scale-[1.02] transition shadow-md flex justify-center items-center text-sm uppercase tracking-widest"
+                            >
+                                Proceed to Payment
+                            </button>
+                        </div>
+                    ) : (
+                        <div className="mt-4 border-t border-gray-100 pt-4">
+                            <p className="text-sm text-gray-500 mb-4">You will pay securely upon delivery of the item.</p>
+                            <button
+                                onClick={handleConfirm}
+                                disabled={loading}
+                                className="w-full py-4 bg-blue-900 hover:bg-black text-white font-bold rounded-lg hover:scale-[1.02] transition disabled:opacity-50 flex justify-center items-center text-sm uppercase tracking-widest shadow-md"
+                            >
+                                {loading ? (
+                                    <>
+                                        <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2"></span>
+                                        Wait...
+                                    </>
+                                ) : (
+                                    `Confirm Order • $${item.price}`
+                                )}
+                            </button>
+                        </div>
+                    )}
                 </div>
             </div>
-
-            <button
-                onClick={handleConfirm}
-                disabled={loading}
-                className="w-full py-4 mt-3 bg-blue-900 hover:bg-black text-white font-bold rounded-lg hover:scale-[1.02] transition disabled:opacity-50 flex justify-center items-center text-sm uppercase tracking-widest shadow-md hover:shadow-lg hover:shadow-blue-900/20"
-            >
-                {loading ? (
-                    <>
-                        <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2"></span>
-                        {paymentMethod === 'Online' ? 'Processing...' : 'Wait...'}
-                    </>
-                ) : (
-                    `Confirm • $${item.price}`
-                )}
-            </button>
         </div>
     );
 }

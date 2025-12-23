@@ -7,6 +7,8 @@ import CheckoutClient from "./CheckoutClient";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 async function getItem(id) {
     await dbConnect();
     // Validate that id is a valid ObjectId before querying
@@ -31,29 +33,29 @@ export default async function CheckoutPage({ params }) {
         return notFound();
     }
 
-    if (item.status === 'Sold') {
-        return (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-100/50 backdrop-blur-md">
-                <div className="bg-white p-8 rounded-2xl shadow-2xl text-center max-w-sm w-full animate-scale-in border border-gray-100">
-                    <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                    </div>
-                    <h1 className="text-xl font-serif font-bold mb-2 text-gray-900">Item Unavailable</h1>
-                    <p className="text-gray-500 mb-8 text-sm leading-relaxed">
-                        This item has already been sold and is no longer available for purchase.
-                    </p>
-                    <Link
-                        href="/dashboard"
-                        className="block w-full py-3.5 bg-blue-900 text-white font-bold rounded-xl text-xs uppercase tracking-widest hover:bg-black transition shadow-lg shadow-blue-900/20"
-                    >
-                        Back to Dashboard
-                    </Link>
-                </div>
-            </div>
-        );
-    }
+    // if (item.status === 'Sold') {
+    //     return (
+    //         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-100/50 backdrop-blur-md">
+    //             <div className="bg-white p-8 rounded-2xl shadow-2xl text-center max-w-sm w-full animate-scale-in border border-gray-100">
+    //                 <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
+    //                     <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    //                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+    //                     </svg>
+    //                 </div>
+    //                 <h1 className="text-xl font-serif font-bold mb-2 text-gray-900">Item Unavailable</h1>
+    //                 <p className="text-gray-500 mb-8 text-sm leading-relaxed">
+    //                     This item has already been sold and is no longer available for purchase.
+    //                 </p>
+    //                 <Link
+    //                     href="/dashboard"
+    //                     className="block w-full py-3.5 bg-blue-900 text-white font-bold rounded-xl text-xs uppercase tracking-widest hover:bg-black transition shadow-lg shadow-blue-900/20"
+    //                 >
+    //                     Back to Dashboard
+    //                 </Link>
+    //             </div>
+    //         </div>
+    //     );
+    // }
 
     if (item.sellerId?._id === session.user.id) {
         return (
