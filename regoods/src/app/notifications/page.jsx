@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Bell, Check, ExternalLink, Clock } from "lucide-react";
+import { Bell, Check, ExternalLink, Clock, ShieldCheck, XCircle, Tag, MessageSquare, AlertTriangle } from "lucide-react";
 import Link from "next/link";
 import { getNotifications, markAsRead, markAllAsRead } from "@/app/actions/notification";
 import { formatDistanceToNow } from "date-fns";
@@ -39,6 +39,23 @@ export default function NotificationsPage() {
         }
     }, [status]);
 
+    const getNotificationIcon = (type) => {
+        switch (type) {
+            case 'account_verified':
+                return <ShieldCheck className="w-5 h-5 text-blue-600" />;
+            case 'verification_rejected':
+                return <XCircle className="w-5 h-5 text-red-500" />;
+            case 'new_offer':
+                return <Tag className="w-5 h-5 text-green-600" />;
+            case 'message':
+                return <MessageSquare className="w-5 h-5 text-purple-600" />;
+            case 'account_banned':
+                return <AlertTriangle className="w-5 h-5 text-red-600" />;
+            default:
+                return <Bell className="w-5 h-5 text-gray-400" />;
+        }
+    };
+
     const handleMarkAsRead = async (id) => {
         await markAsRead(id);
         // Optimistic update
@@ -74,9 +91,19 @@ export default function NotificationsPage() {
                                     className={`p-6 hover:bg-gray-50 transition relative group ${!n.read ? 'bg-blue-50/20' : ''}`}
                                 >
                                     <div className="flex justify-between items-start mb-2">
-                                        <h2 className={`text-base font-bold ${!n.read ? 'text-gray-900' : 'text-gray-600'}`}>
-                                            {n.title}
-                                        </h2>
+                                        <div className="flex items-start space-x-3">
+                                            <div className={`p-2 rounded-lg ${!n.read ? 'bg-white shadow-sm' : 'bg-transparent'}`}>
+                                                {getNotificationIcon(n.type)}
+                                            </div>
+                                            <div>
+                                                <h2 className={`text-base font-bold ${!n.read ? 'text-gray-900' : 'text-gray-600'}`}>
+                                                    {n.title}
+                                                </h2>
+                                                <p className="text-sm text-gray-600 leading-relaxed max-w-2xl mt-1">
+                                                    {n.content}
+                                                </p>
+                                            </div>
+                                        </div>
                                         <div className="flex items-center space-x-2">
                                             <span className="text-xs text-gray-400 flex items-center">
                                                 <Clock className="w-3 h-3 mr-1" />
@@ -94,9 +121,6 @@ export default function NotificationsPage() {
                                         </div>
                                     </div>
 
-                                    <p className="text-sm text-gray-600 mb-4 leading-relaxed max-w-2xl">
-                                        {n.content}
-                                    </p>
 
                                     {n.link && (
                                         <Link

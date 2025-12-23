@@ -3,13 +3,15 @@
 import dbConnect from "@/lib/db";
 import User from "@/lib/models/User";
 import Item from "@/lib/models/Item";
-import { writeFile } from "fs/promises";
+import { writeFile, mkdir } from "fs/promises";
+import { existsSync } from "fs";
 import path from "path";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import Report from "@/lib/models/Report";
 import Notification from "@/lib/models/Notification";
+import Verification from "@/lib/models/Verification";
 
 export async function updateProfile(formData) {
   try {
@@ -215,5 +217,80 @@ export async function reportUser(formData) {
     } catch (error) {
         console.error("Report user error:", error);
         return { error: "Failed to report seller. Please try again." };
+    }
+}
+
+export async function submitVerification(formData) {
+    try {
+        const session = await getServerSession(authOptions);
+        if (!session) return { error: "Not logged in" };
+
+        const fullName = formData.get("fullName");
+        const nicNumber = formData.get("nicNumber");
+        const nicFront = formData.get("nicFront");
+        const nicBack = formData.get("nicBack");
+
+        if (!fullName || !nicNumber || !nicFront || !nicBack) {
+            return { error: "Please fill in all fields and upload both NIC sides." };
+        }
+
+        await dbConnect();
+
+        // Check if already pending or verified
+        const existing = await Verification.findOne({ userId: session.user.id });
+        if (existing && existing.status === 'Pending') {
+            return { error: "You already have a verification request pending." };
+        }
+
+        // Upload images
+        const uploadDir = path.join(process.cwd(), "public", "uploads", "verification");
+        // Ensure directory exists
+        if (!existsSync(uploadDir)) {
+            await mkdir(uploadDir, { recursive: true });
+        }
+
+        let frontUrl = "";
+        let backUrl = "";
+
+        if (nicFront instanceof File) {
+            const buffer = Buffer.from(await nicFront.arrayBuffer());
+            const filename = `front-${session.user.id}-${Date.now()}${path.extname(nicFront.name)}`;
+            await writeFile(path.join(uploadDir, filename), buffer);
+            frontUrl = `/uploads/verification/${filename}`;
+        }
+
+        if (nicBack instanceof File) {
+            const buffer = Buffer.from(await nicBack.arrayBuffer());
+            const filename = `back-${session.user.id}-${Date.now()}${path.extname(nicBack.name)}`;
+            await writeFile(path.join(uploadDir, filename), buffer);
+            backUrl = `/uploads/verification/${filename}`;
+        }
+
+        if (existing) {
+            await Verification.findByIdAndUpdate(existing._id, {
+                fullName,
+                nicNumber,
+                nicFront: frontUrl,
+                nicBack: backUrl,
+                status: "Pending"
+            });
+        } else {
+            await Verification.create({
+                userId: session.user.id,
+                fullName,
+                nicNumber,
+                nicFront: frontUrl,
+                nicBack: backUrl,
+                status: "Pending"
+            });
+        }
+
+        await User.findByIdAndUpdate(session.user.id, { verificationStatus: "Pending" });
+
+        revalidatePath(`/profile/${session.user.id}`);
+        return { success: true, message: "Verification request submitted successfully!" };
+    } catch (error) {
+        console.error("Verification error:", error);
+        return { error: "Failed to submit verification." };
     }
 }

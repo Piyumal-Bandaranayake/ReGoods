@@ -10,6 +10,7 @@ import { authOptions } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import Report from "@/lib/models/Report";
 import Notification from "@/lib/models/Notification";
+import Verification from "@/lib/models/Verification";
 
 // Middleware-like check for admin
 async function checkAdmin() {
@@ -34,13 +35,15 @@ export async function getAdminStats() {
 
     const activeReports = await Message.countDocuments({ reported: true });
     const userReportsCount = await Report.countDocuments({});
+    const verificationRequestsCount = await Verification.countDocuments({ status: "Pending" });
 
     return {
         totalUsers,
         soldItems,
         activeItems,
         totalRevenue,
-        activeReports: activeReports + userReportsCount
+        activeReports: activeReports + userReportsCount,
+        verificationRequestsCount
     };
 }
 
@@ -150,4 +153,63 @@ export async function resolveReport(messageId, action) {
     
     revalidatePath("/admin/reports");
     return { success: true };
+}
+
+export async function getVerificationRequests() {
+    await checkAdmin();
+    await dbConnect();
+    const requests = await Verification.find({ status: "Pending" })
+        .populate("userId", "name email")
+        .sort({ createdAt: -1 });
+    return JSON.parse(JSON.stringify(requests));
+}
+
+export async function resolveVerification(requestId, action, adminNotes) {
+    try {
+        const session = await checkAdmin();
+        await dbConnect();
+
+        const request = await Verification.findById(requestId);
+        if (!request) return { error: "Verification request not found" };
+
+        const targetUserId = request.userId.toString();
+
+        if (action === "approve") {
+            await Verification.findByIdAndUpdate(requestId, { status: "Approved", adminNotes });
+            await User.findByIdAndUpdate(targetUserId, { 
+                isVerified: true, 
+                verificationStatus: "Verified" 
+            });
+
+            await Notification.create({
+                recipientId: targetUserId,
+                senderId: session.user.id,
+                type: "account_verified",
+                title: "Verification Approved!",
+                content: "Congratulations! Your account has been verified. You now have a blue badge on your profile.",
+                link: `/profile/${targetUserId}`
+            });
+        } else if (action === "reject") {
+            await Verification.findByIdAndUpdate(requestId, { status: "Rejected", adminNotes });
+            await User.findByIdAndUpdate(targetUserId, { 
+                isVerified: false, 
+                verificationStatus: "Rejected" 
+            });
+
+            await Notification.create({
+                recipientId: targetUserId,
+                senderId: session.user.id,
+                type: "verification_rejected",
+                title: "Verification Rejected",
+                content: `Your verification request was rejected. ${adminNotes ? `Reason: ${adminNotes}` : "Please ensure your NIC images are clear and valid."}`,
+            });
+        }
+
+        revalidatePath("/admin/verification");
+        revalidatePath(`/profile/${targetUserId}`);
+        return { success: true };
+    } catch (error) {
+        console.error("Resolve verification error:", error);
+        return { error: error.message || "Failed to resolve verification request." };
+    }
 }

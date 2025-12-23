@@ -1,5 +1,5 @@
 import { getAdminStats } from "@/app/actions/admin";
-import { Users, DollarSign, Package, AlertCircle } from "lucide-react";
+import { Users, DollarSign, Package, AlertCircle, ShieldCheck } from "lucide-react";
 
 async function StatCard({ title, value, icon: Icon, color }) {
     return (
@@ -27,7 +27,7 @@ export default async function AdminDashboard() {
                 <p className="text-gray-500 mt-1">Welcome back, Admin.</p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
                 <StatCard
                     title="Total Users"
                     value={stats.totalUsers}
@@ -51,6 +51,12 @@ export default async function AdminDashboard() {
                     value={stats.activeReports}
                     icon={AlertCircle}
                     color="bg-red-500"
+                />
+                <StatCard
+                    title="Pending Verifications"
+                    value={stats.verificationRequestsCount}
+                    icon={ShieldCheck}
+                    color="bg-blue-600"
                 />
             </div>
 

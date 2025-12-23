@@ -11,6 +11,7 @@ import {
     MessageCircle, Award, TrendingUp, Clock, Package, Flag
 } from "lucide-react";
 import ReportUserButton from "@/components/account/ReportUserButton";
+import VerifyAccountButton from "@/components/account/VerifyAccountButton";
 
 async function getProfileData(userId) {
     await dbConnect();
@@ -46,7 +47,11 @@ export default async function ProfilePage({ params, searchParams }) {
     let badgeColor = "bg-gray-100 text-gray-800 border-gray-200";
     let badgeIcon = <Star className="w-3 h-3 mr-1" />;
 
-    if (totalSold >= 50) {
+    if (user.isVerified) {
+        sellerLevel = "Verified Seller";
+        badgeColor = "bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-100";
+        badgeIcon = <CheckCircle className="w-3 h-3 mr-1" />;
+    } else if (totalSold >= 50) {
         sellerLevel = "Pro Seller";
         badgeColor = "bg-black text-white border-black";
         badgeIcon = <Award className="w-3 h-3 mr-1" />;
@@ -91,7 +96,12 @@ export default async function ProfilePage({ params, searchParams }) {
                             {/* Name & Badge */}
                             <div className="mt-4 md:mt-0 md:ml-6 flex-1">
                                 <div className="flex flex-col md:flex-row md:items-center">
-                                    <h1 className="text-3xl font-serif font-bold text-gray-900 mr-3">{user.name}</h1>
+                                    <h1 className="text-3xl font-serif font-bold text-gray-900 mr-3 flex items-center">
+                                        {user.name}
+                                        {user.isVerified && (
+                                            <CheckCircle className="w-6 h-6 ml-2 text-blue-600 fill-blue-50" title="Verified Seller" />
+                                        )}
+                                    </h1>
                                     <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border ${badgeColor} mt-2 md:mt-0 uppercase tracking-wider`}>
                                         {badgeIcon} {sellerLevel}
                                     </span>
@@ -111,9 +121,12 @@ export default async function ProfilePage({ params, searchParams }) {
                             {/* Action Buttons */}
                             <div className="mt-6 md:mt-0 flex space-x-3">
                                 {session?.user?.id === user._id ? (
-                                    <Link href="/account" className="px-6 py-3 border border-gray-300 text-black text-xs font-bold uppercase tracking-widest rounded-sm hover:bg-black hover:text-white transition">
-                                        Edit Profile
-                                    </Link>
+                                    <div className="flex space-x-3">
+                                        <Link href="/account" className="px-6 py-3 border border-gray-300 text-black text-xs font-bold uppercase tracking-widest rounded-sm hover:bg-black hover:text-white transition">
+                                            Edit Profile
+                                        </Link>
+                                        <VerifyAccountButton currentStatus={user.verificationStatus || "Unverified"} />
+                                    </div>
                                 ) : (
                                     <div className="flex space-x-3">
                                         <Link
@@ -142,10 +155,15 @@ export default async function ProfilePage({ params, searchParams }) {
                                 <div className="text-3xl font-serif font-bold text-gray-900">4.9</div>
                                 <div className="text-xs text-gray-500 font-bold uppercase tracking-widest mt-1">Rating</div>
                             </div>
-                            <div className="p-4 bg-gray-50 text-center border border-gray-100 flex flex-col justify-center items-center">
-                                <div className="font-bold text-gray-900 text-sm uppercase">Verified Member</div>
-                                <div className="text-xs text-gray-400 mt-1">Since {new Date(user.createdAt).getFullYear()}</div>
-                            </div>
+                            {user.isVerified && (
+                                <div className="p-4 bg-blue-50 text-center border border-blue-100 flex flex-col justify-center items-center">
+                                    <div className="font-bold text-blue-900 text-sm uppercase flex items-center">
+                                        <CheckCircle className="w-3 h-3 mr-1.5" />
+                                        Verified Member
+                                    </div>
+                                    <div className="text-[10px] text-blue-600 font-bold mt-1 uppercase tracking-tighter">Established Trust</div>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
