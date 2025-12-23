@@ -2,23 +2,57 @@
 
 import { useState } from "react";
 import { deleteUser } from "@/app/actions/admin";
-import { Trash2, Shield, User } from "lucide-react";
+import { Trash2, Shield, User, Search, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export default function UserList({ initialUsers }) {
-    const [users, setUsers] = useState(initialUsers);
+    const [searchTerm, setSearchTerm] = useState("");
     const router = useRouter();
+
+    const filteredUsers = initialUsers.filter(user => 
+        user.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+        user.email.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
     const handleDelete = async (id) => {
         if (confirm("Are you sure you want to delete this user? This cannot be undone.")) {
             await deleteUser(id);
-            setUsers(users.filter(u => u._id !== id));
             router.refresh();
         }
     };
 
     return (
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="space-y-4">
+            {/* Search Bar */}
+            <form onSubmit={(e) => e.preventDefault()} className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex items-center justify-between gap-4">
+                <div className="relative flex-1">
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <input 
+                        type="text"
+                        placeholder="Search users by name or email..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="w-full pl-11 pr-10 py-3 bg-gray-50 border border-gray-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-black transition"
+                    />
+                    {searchTerm && (
+                        <button 
+                            type="button"
+                            onClick={() => setSearchTerm("")}
+                            className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-black"
+                        >
+                            <X className="w-4 h-4" />
+                        </button>
+                    )}
+                </div>
+                <button 
+                    type="submit"
+                    className="px-6 py-3 bg-black text-white text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-gray-800 transition shadow-lg shadow-black/10"
+                >
+                    Search
+                </button>
+            </form>
+
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
             <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm">
                     <thead className="bg-gray-50 border-b border-gray-200">
@@ -31,7 +65,7 @@ export default function UserList({ initialUsers }) {
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
-                        {users.map((user) => (
+                        {filteredUsers.map((user) => (
                             <tr key={user._id} className="hover:bg-gray-50/50">
                                 <td className="px-6 py-4">
                                     <div className="flex items-center">
@@ -74,6 +108,12 @@ export default function UserList({ initialUsers }) {
                     </tbody>
                 </table>
             </div>
+            {filteredUsers.length === 0 && (
+                <div className="text-center py-12 text-gray-500 italic">
+                    No users found matching "{searchTerm}"
+                </div>
+            )}
+        </div>
         </div>
     );
 }

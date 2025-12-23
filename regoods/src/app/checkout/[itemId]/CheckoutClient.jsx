@@ -233,7 +233,7 @@ export default function CheckoutClient({ item }) {
                                         Wait...
                                     </>
                                 ) : (
-                                    `Confirm Order • $${item.price}`
+                                    `Confirm Order • $${(item.price + 400).toLocaleString()}`
                                 )}
                             </button>
                         </div>

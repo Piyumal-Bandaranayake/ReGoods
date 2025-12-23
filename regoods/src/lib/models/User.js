@@ -47,7 +47,31 @@ const UserSchema = new mongoose.Schema({
   isBanned: {
     type: Boolean,
     default: false
+  },
+  banReason: {
+    type: String,
+  },
+  isVerified: {
+    type: Boolean,
+    default: false
+  },
+  verificationStatus: {
+    type: String,
+    enum: ["Unverified", "Pending", "Verified", "Rejected"],
+    default: "Unverified"
+  },
+  averageRating: {
+    type: Number,
+    default: 0
+  },
+  reviewCount: {
+    type: Number,
+    default: 0
   }
 }, { timestamps: true });
+
+if (process.env.NODE_ENV === "development") {
+  delete mongoose.models.User;
+}
 
 export default mongoose.models.User || mongoose.model('User', UserSchema);

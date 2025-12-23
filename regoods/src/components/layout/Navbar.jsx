@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
-import { Search, Heart, MessageCircle, LogOut, User, PlusCircle, LayoutDashboard } from "lucide-react";
+import { Search, Heart, MessageCircle, LogOut, User, PlusCircle, LayoutDashboard, HelpCircle, Phone, X } from "lucide-react";
 import { useState } from "react";
 import WishlistDropdown from "./WishlistDropdown";
 import CartDropdown from "./CartDropdown";
@@ -13,6 +13,7 @@ import { useRouter, usePathname } from "next/navigation";
 export default function Navbar() {
   const { data: session } = useSession();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const router = useRouter();
   const pathname = usePathname();
@@ -72,6 +73,12 @@ export default function Navbar() {
             <Link href="/dashboard" className="text-gray-500 hover:text-indigo-600 font-medium transition">
               Marketplace
             </Link>
+            <button 
+              onClick={() => setIsHelpModalOpen(true)}
+              className="text-gray-500 hover:text-indigo-600 font-medium transition"
+            >
+              Help Center
+            </button>
 
             {session ? (
               // 🟢 LOGGED IN VIEW
@@ -173,6 +180,48 @@ export default function Navbar() {
           </div>
         </div >
       </div >
+
+      {/* Help Center Modal */}
+      {isHelpModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div 
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={() => setIsHelpModalOpen(false)}
+          ></div>
+          <div className="relative bg-white rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden animate-in fade-in zoom-in duration-300">
+            <div className="bg-blue-900 h-2"></div>
+            <div className="p-8 text-center text-black">
+              <button 
+                onClick={() => setIsHelpModalOpen(false)}
+                className="absolute top-4 right-4 text-gray-400 hover:text-black transition"
+              >
+                <X className="w-5 h-5" />
+              </button>
+              
+              <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                <HelpCircle className="w-8 h-8 text-blue-900" />
+              </div>
+              
+              <h3 className="text-2xl font-serif font-bold mb-2">Help Center</h3>
+              <p className="text-gray-500 mb-8 leading-relaxed">
+                Our support team is available to assist you. Call us directly at:
+              </p>
+              
+              <a 
+                href="tel:0705756790"
+                className="flex items-center justify-center gap-3 w-full py-4 bg-blue-900 hover:bg-black text-white rounded-xl font-bold transition group shadow-lg shadow-blue-900/20"
+              >
+                <Phone className="w-5 h-5 group-hover:rotate-12 transition-transform" />
+                <span className="text-lg">0705756790</span>
+              </a>
+              
+              <p className="mt-6 text-[10px] text-gray-400 uppercase font-bold tracking-widest">
+                Support Available 24/7
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </nav >
   );
 }

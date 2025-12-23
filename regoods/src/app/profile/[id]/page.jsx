@@ -8,8 +8,12 @@ import Image from "next/image";
 import Link from "next/link";
 import {
     MapPin, Calendar, Star, CheckCircle, Shield,
-    MessageCircle, Award, TrendingUp, Clock, Package
+    MessageCircle, Award, TrendingUp, Clock, Package, Flag
 } from "lucide-react";
+import ReportUserButton from "@/components/account/ReportUserButton";
+import VerifyAccountButton from "@/components/account/VerifyAccountButton";
+import { getSellerReviews, getSellerRating } from "@/app/actions/review";
+import ReviewSection from "@/components/account/ReviewSection";
 
 async function getProfileData(userId) {
     await dbConnect();
@@ -39,13 +43,22 @@ export default async function ProfilePage({ params, searchParams }) {
     const { user, activeItems, soldItems } = data;
     const session = await getServerSession(authOptions);
 
+    const [reviews, ratingData] = await Promise.all([
+        getSellerReviews(id),
+        getSellerRating(id)
+    ]);
+
     // --- CALCULATED STATS ---
     const totalSold = soldItems.length;
     let sellerLevel = "New Seller";
     let badgeColor = "bg-gray-100 text-gray-800 border-gray-200";
     let badgeIcon = <Star className="w-3 h-3 mr-1" />;
 
-    if (totalSold >= 50) {
+    if (user.isVerified) {
+        sellerLevel = "Verified Seller";
+        badgeColor = "bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-100";
+        badgeIcon = <CheckCircle className="w-3 h-3 mr-1" />;
+    } else if (totalSold >= 50) {
         sellerLevel = "Pro Seller";
         badgeColor = "bg-black text-white border-black";
         badgeIcon = <Award className="w-3 h-3 mr-1" />;
@@ -90,7 +103,12 @@ export default async function ProfilePage({ params, searchParams }) {
                             {/* Name & Badge */}
                             <div className="mt-4 md:mt-0 md:ml-6 flex-1">
                                 <div className="flex flex-col md:flex-row md:items-center">
-                                    <h1 className="text-3xl font-serif font-bold text-gray-900 mr-3">{user.name}</h1>
+                                    <h1 className="text-3xl font-serif font-bold text-gray-900 mr-3 flex items-center">
+                                        {user.name}
+                                        {user.isVerified && (
+                                            <CheckCircle className="w-6 h-6 ml-2 text-blue-600 fill-blue-50" title="Verified Seller" />
+                                        )}
+                                    </h1>
                                     <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border ${badgeColor} mt-2 md:mt-0 uppercase tracking-wider`}>
                                         {badgeIcon} {sellerLevel}
                                     </span>
@@ -110,16 +128,22 @@ export default async function ProfilePage({ params, searchParams }) {
                             {/* Action Buttons */}
                             <div className="mt-6 md:mt-0 flex space-x-3">
                                 {session?.user?.id === user._id ? (
-                                    <Link href="/account" className="px-6 py-3 border border-gray-300 text-black text-xs font-bold uppercase tracking-widest rounded-sm hover:bg-black hover:text-white transition">
-                                        Edit Profile
-                                    </Link>
+                                    <div className="flex space-x-3">
+                                        <Link href="/account" className="px-6 py-3 border border-gray-300 text-black text-xs font-bold uppercase tracking-widest rounded-sm hover:bg-black hover:text-white transition">
+                                            Edit Profile
+                                        </Link>
+                                        <VerifyAccountButton currentStatus={user.verificationStatus || "Unverified"} />
+                                    </div>
                                 ) : (
-                                    <Link
-                                        href={`/inbox/${user._id}`}
-                                        className="px-6 py-3 border border-gray-300 text-black text-xs font-bold uppercase tracking-widest rounded-sm hover:bg-black hover:text-white transition"
-                                    >
-                                        Message
-                                    </Link>
+                                    <div className="flex space-x-3">
+                                        <Link
+                                            href={`/inbox/${user._id}`}
+                                            className="px-6 py-3 border border-gray-300 text-black text-xs font-bold uppercase tracking-widest rounded-sm hover:bg-black hover:text-white transition"
+                                        >
+                                            Message
+                                        </Link>
+                                        <ReportUserButton userId={user._id} userName={user.name} />
+                                    </div>
                                 )}
                             </div>
                         </div>
@@ -135,13 +159,18 @@ export default async function ProfilePage({ params, searchParams }) {
                                 <div className="text-xs text-gray-500 font-bold uppercase tracking-widest mt-1">Active Listings</div>
                             </div>
                             <div className="p-4 bg-gray-50 text-center border border-gray-100">
-                                <div className="text-3xl font-serif font-bold text-gray-900">4.9</div>
-                                <div className="text-xs text-gray-500 font-bold uppercase tracking-widest mt-1">Rating</div>
+                                <div className="text-3xl font-serif font-bold text-gray-900">{ratingData.average}</div>
+                                <div className="text-xs text-gray-500 font-bold uppercase tracking-widest mt-1">Rating ({ratingData.count})</div>
                             </div>
-                            <div className="p-4 bg-gray-50 text-center border border-gray-100 flex flex-col justify-center items-center">
-                                <div className="font-bold text-gray-900 text-sm uppercase">Verified Member</div>
-                                <div className="text-xs text-gray-400 mt-1">Since {new Date(user.createdAt).getFullYear()}</div>
-                            </div>
+                            {user.isVerified && (
+                                <div className="p-4 bg-blue-50 text-center border border-blue-100 flex flex-col justify-center items-center">
+                                    <div className="font-bold text-blue-900 text-sm uppercase flex items-center">
+                                        <CheckCircle className="w-3 h-3 mr-1.5" />
+                                        Verified Member
+                                    </div>
+                                    <div className="text-[10px] text-blue-600 font-bold mt-1 uppercase tracking-tighter">Established Trust</div>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -169,13 +198,7 @@ export default async function ProfilePage({ params, searchParams }) {
                                     href={`?tab=reviews`}
                                     className={`whitespace-nowrap pb-4 border-b-2 font-bold text-xs uppercase tracking-widest flex items-center ${currentTab === 'reviews' ? 'border-black text-black' : 'border-transparent text-gray-400 hover:text-black hover:border-gray-200'}`}
                                 >
-                                    Reviews
-                                </Link>
-                                <Link
-                                    href={`?tab=about`}
-                                    className={`whitespace-nowrap pb-4 border-b-2 font-bold text-xs uppercase tracking-widest flex items-center ${currentTab === 'about' ? 'border-black text-black' : 'border-transparent text-gray-400 hover:text-black hover:border-gray-200'}`}
-                                >
-                                    About Seller
+                                    Reviews ({ratingData.count})
                                 </Link>
                             </nav>
                         </div>
@@ -242,31 +265,14 @@ export default async function ProfilePage({ params, searchParams }) {
 
                         {/* 3. REVIEWS */}
                         {currentTab === 'reviews' && (
-                            <div className="bg-white border border-gray-200 p-12 text-center text-gray-400 uppercase tracking-wide text-xs">
-                                No reviews yet.
-                            </div>
+                            <ReviewSection 
+                                sellerId={id} 
+                                reviews={reviews} 
+                                currentUserId={session?.user?.id} 
+                            />
                         )}
 
-                        {/* 4. ABOUT SELLER */}
-                        {currentTab === 'about' && (
-                            <div className="bg-white border border-gray-200 p-8">
-                                <h3 className="text-xl font-serif font-bold text-gray-900 mb-6">About {user.name}</h3>
-                                <p className="text-gray-600 leading-relaxed mb-8 max-w-2xl">
-                                    {user.bio || "This seller hasn't written a biography yet."}
-                                </p>
 
-                                <h4 className="text-xs font-bold text-gray-900 uppercase tracking-widest mb-4">Achievements</h4>
-                                <div className="flex flex-wrap gap-4">
-                                    {achievements.length > 0 ? achievements.map((ach, i) => (
-                                        <div key={i} className="flex items-center px-4 py-3 bg-gray-50 text-gray-900 border border-gray-200 text-xs font-bold uppercase tracking-wider">
-                                            {ach.icon} {ach.label}
-                                        </div>
-                                    )) : (
-                                        <p className="text-gray-400 italic text-sm">No achievements yet.</p>
-                                    )}
-                                </div>
-                            </div>
-                        )}
 
                     </div>
                 </div>

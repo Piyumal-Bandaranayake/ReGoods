@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Users, ShoppingBag, AlertTriangle } from "lucide-react";
+import { LayoutDashboard, Users, ShoppingBag, AlertTriangle, ShieldCheck } from "lucide-react";
 
 export default function AdminSidebar() {
     const pathname = usePathname();
@@ -11,6 +11,7 @@ export default function AdminSidebar() {
         { href: "/admin", label: "Overview", icon: LayoutDashboard },
         { href: "/admin/users", label: "User Management", icon: Users },
         { href: "/admin/activity", label: "Market Activity", icon: ShoppingBag },
+        { href: "/admin/verification", label: "Verifications", icon: ShieldCheck },
         { href: "/admin/reports", label: "Reports", icon: AlertTriangle },
     ];
 

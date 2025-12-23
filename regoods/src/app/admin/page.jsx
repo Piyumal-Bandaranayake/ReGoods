@@ -1,5 +1,8 @@
-import { getAdminStats } from "@/app/actions/admin";
-import { Users, DollarSign, Package, AlertCircle } from "lucide-react";
+import { getAdminStats, getEngagementStats, getItemStats, getRecentOffers } from "@/app/actions/admin";
+import { Users, Package, AlertCircle, ShieldCheck } from "lucide-react";
+import EngagementChart from "@/components/admin/EngagementChart";
+import ItemSellingChart from "@/components/admin/ItemSellingChart";
+import MarketActivity from "@/components/admin/MarketActivity";
 
 async function StatCard({ title, value, icon: Icon, color }) {
     return (
@@ -18,7 +21,12 @@ async function StatCard({ title, value, icon: Icon, color }) {
 }
 
 export default async function AdminDashboard() {
-    const stats = await getAdminStats();
+    const [stats, engagementData, itemData, recentOffers] = await Promise.all([
+        getAdminStats(),
+        getEngagementStats(),
+        getItemStats(),
+        getRecentOffers()
+    ]);
 
     return (
         <div className="space-y-8">
@@ -35,12 +43,6 @@ export default async function AdminDashboard() {
                     color="bg-purple-500"
                 />
                 <StatCard
-                    title="Total Revenue (Est)"
-                    value={`$${stats.totalRevenue.toLocaleString()}`}
-                    icon={DollarSign}
-                    color="bg-green-500"
-                />
-                <StatCard
                     title="Sold Items"
                     value={stats.soldItems}
                     icon={Package}
@@ -52,17 +54,25 @@ export default async function AdminDashboard() {
                     icon={AlertCircle}
                     color="bg-red-500"
                 />
+                <StatCard
+                    title="Pending Verifications"
+                    value={stats.verificationRequestsCount}
+                    icon={ShieldCheck}
+                    color="bg-blue-600"
+                />
             </div>
 
             {/* Additional simple charts or lists could go here */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 h-64 flex items-center justify-center text-gray-400">
-                    Chart Placeholder
+                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-center">
+                    <EngagementChart data={engagementData} />
                 </div>
-                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 h-64 flex items-center justify-center text-gray-400">
-                    Activity Feed Placeholder
+                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-center">
+                    <ItemSellingChart data={itemData} />
                 </div>
             </div>
+
+            <MarketActivity initialOffers={recentOffers} />
         </div>
     );
 }

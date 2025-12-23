@@ -14,7 +14,6 @@ const NotificationSchema = new mongoose.Schema(
     },
     type: {
       type: String,
-      enum: ["offer_accepted", "offer_rejected", "new_offer", "message"],
       required: true,
     },
     title: {
@@ -35,5 +34,10 @@ const NotificationSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+// In development, handle hot-reloading by deleting the model if it exists
+if (process.env.NODE_ENV === "development") {
+    delete mongoose.models.Notification;
+}
 
 export default mongoose.models.Notification || mongoose.model("Notification", NotificationSchema);

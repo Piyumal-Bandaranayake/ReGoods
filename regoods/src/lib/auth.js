@@ -35,6 +35,10 @@ export const authOptions = {
           return null;
         }
 
+        if (user.isBanned) {
+          throw new Error(`Your account has been banned. Reason: ${user.banReason || "Violation of platform terms."}`);
+        }
+
         return { id: user._id.toString(), email: user.email, name: user.name, role: user.role };
       },
     }),

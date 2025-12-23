@@ -8,14 +8,17 @@ import { notFound } from "next/navigation";
 import {
     Heart,
     MessageCircle,
-    ArrowLeft,
     ShoppingBag,
     ShoppingCart,
     MapPin,
     Package,
     ShieldCheck,
-    Share2
+    Share2,
+    Flag,
+    CheckCircle,
+    Star
 } from "lucide-react";
+import ReportUserButton from "@/components/account/ReportUserButton";
 import ItemActions from "@/components/account/ItemActions";
 import ItemImageGallery from "@/components/items/ItemImageGallery";
 import { getUserInteractions } from "@/app/actions/user";
@@ -23,7 +26,7 @@ import { WishlistButton, AddToCartButton, BuyNowButton, NegotiateButton } from "
 
 async function getItem(id) {
     await dbConnect();
-    const item = await Item.findById(id).populate("sellerId", "name email image role warningCount isBanned createdAt");
+    const item = await Item.findById(id).populate("sellerId", "name email image role warningCount isBanned isVerified createdAt averageRating reviewCount");
     if (!item) return null;
     return JSON.parse(JSON.stringify(item));
 }
@@ -48,12 +51,7 @@ export default async function ItemPage({ params }) {
 
     return (
         <div className="min-h-screen bg-white">
-            {/* Nav / Breadcrumbs - Floating on desktop to match clean look */}
-            <div className="fixed top-0 left-0 p-6 z-50">
-                <Link href="/dashboard" className="flex items-center text-sm font-bold uppercase tracking-widest text-gray-500 hover:text-black transition bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full border border-gray-100 shadow-sm">
-                    <ArrowLeft className="w-4 h-4 mr-2" /> Back
-                </Link>
-            </div>
+
 
             <main className="lg:flex min-h-screen">
 
@@ -164,13 +162,27 @@ export default async function ItemPage({ params }) {
                             </Link>
                             <div>
                                 <p className="text-xs font-bold uppercase text-gray-400 tracking-wider">Listed By</p>
-                                <Link href={`/profile/${seller?._id}`} className="text-sm font-bold text-gray-900 hover:underline">{seller?.name}</Link>
+                                <Link href={`/profile/${seller?._id}`} className="text-sm font-bold text-gray-900 hover:underline flex items-center">
+                                    {seller?.name}
+                                    {seller?.isVerified && (
+                                        <CheckCircle className="w-4 h-4 ml-1.5 text-blue-600 fill-blue-50" title="Verified Seller" />
+                                    )}
+                                    {seller?.reviewCount > 0 && (
+                                        <span className="ml-3 flex items-center text-xs text-yellow-500 font-bold bg-yellow-50 px-2 py-0.5 rounded-full border border-yellow-100">
+                                            <Star className="w-3 h-3 fill-current mr-1" />
+                                            {seller.averageRating}
+                                        </span>
+                                    )}
+                                </Link>
                             </div>
                             <div className="ml-auto flex space-x-3">
                                 {!isOwner && (
-                                    <Link href={`/inbox/${seller._id}?itemId=${item._id}`} className="p-2 border border-gray-200 rounded-full hover:bg-white hover:shadow-sm transition text-gray-400 hover:text-black">
-                                        <MessageCircle className="w-5 h-5" />
-                                    </Link>
+                                    <div className="flex items-center space-x-2">
+                                        <Link href={`/inbox/${seller._id}?itemId=${item._id}`} className="p-2 border border-gray-200 rounded-full hover:bg-white hover:shadow-sm transition text-gray-400 hover:text-black" title="Message Seller">
+                                            <MessageCircle className="w-5 h-5" />
+                                        </Link>
+                                        {!isOwner && <ReportUserButton userId={seller._id} userName={seller.name} iconOnly={true} />}
+                                    </div>
                                 )}
 
 

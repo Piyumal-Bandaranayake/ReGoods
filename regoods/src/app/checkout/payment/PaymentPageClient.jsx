@@ -81,9 +81,19 @@ export default function PaymentPageClient({ item, clientSecret, deliveryDetails 
 
             <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
                 <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-                    <div className="mb-6 bg-blue-50 p-4 rounded-lg flex justify-between items-center text-blue-900">
-                        <span className="font-medium">Total Amount</span>
-                        <span className="font-bold text-xl">${item.price}</span>
+                    <div className="mb-6 bg-blue-50 p-4 rounded-lg flex flex-col gap-2 text-blue-900">
+                        <div className="flex justify-between items-center text-sm border-b border-blue-100 pb-2">
+                            <span>Item Price</span>
+                            <span>${item.price}</span>
+                        </div>
+                        <div className="flex justify-between items-center text-sm border-b border-blue-100 pb-2">
+                            <span>Shipping Charge</span>
+                            <span>$400</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                            <span className="font-medium">Total Amount</span>
+                            <span className="font-bold text-xl">${(item.price + 400).toLocaleString()}</span>
+                        </div>
                     </div>
 
                     <div className="mb-6 bg-yellow-50 border border-yellow-200 p-4 rounded-lg text-sm text-yellow-800">
@@ -98,7 +108,7 @@ export default function PaymentPageClient({ item, clientSecret, deliveryDetails 
 
                     <Elements options={options} stripe={stripePromise}>
                         <StripePaymentForm
-                            amount={item.price}
+                            amount={item.price + 400}
                             onSuccess={handleStripeSuccess}
                             onError={(msg) => alert(msg)}
                         />
