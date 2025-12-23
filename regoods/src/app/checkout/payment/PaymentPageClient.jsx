@@ -6,6 +6,7 @@ import { Elements } from "@stripe/react-stripe-js";
 import stripePromise from "@/lib/stripe";
 import StripePaymentForm from "@/components/checkout/StripePaymentForm";
 import { purchaseItem } from "@/app/actions/item";
+import { generateReceipt } from "@/lib/receiptGenerator";
 
 export default function PaymentPageClient({ item, clientSecret, deliveryDetails }) {
     const router = useRouter();
@@ -40,6 +41,12 @@ export default function PaymentPageClient({ item, clientSecret, deliveryDetails 
             });
 
             if (result.success) {
+                // Auto-download receipt
+                try {
+                    generateReceipt(item, finalDelivery, "Online", 40);
+                } catch (pdfErr) {
+                    console.error("Receipt download failed", pdfErr);
+                }
                 setSuccess(true);
             } else {
                 alert("Payment succeeded but order recording failed: " + result.error);
@@ -62,7 +69,7 @@ export default function PaymentPageClient({ item, clientSecret, deliveryDetails 
                     </div>
                     <h3 className="text-2xl font-bold mb-2">Payment Successful!</h3>
                     <p className="text-gray-600 mb-6">Your order has been confirmed.</p>
-                    <button onClick={() => router.push("/account?tab=purchases")} className="w-full py-3 bg-blue-900 text-white rounded-xl font-bold">View Purchases</button>
+                    <button onClick={() => router.push("/dashboard")} className="w-full py-3 bg-blue-900 text-white rounded-xl font-bold">Return to Dashboard</button>
                 </div>
             </div>
         );
@@ -88,11 +95,11 @@ export default function PaymentPageClient({ item, clientSecret, deliveryDetails 
                         </div>
                         <div className="flex justify-between items-center text-sm border-b border-blue-100 pb-2">
                             <span>Shipping Charge</span>
-                            <span>$400</span>
+                            <span>$40</span>
                         </div>
                         <div className="flex justify-between items-center">
                             <span className="font-medium">Total Amount</span>
-                            <span className="font-bold text-xl">${(item.price + 400).toLocaleString()}</span>
+                            <span className="font-bold text-xl">${(item.price + 40).toLocaleString()}</span>
                         </div>
                     </div>
 
@@ -108,7 +115,7 @@ export default function PaymentPageClient({ item, clientSecret, deliveryDetails 
 
                     <Elements options={options} stripe={stripePromise}>
                         <StripePaymentForm
-                            amount={item.price + 400}
+                            amount={item.price + 40}
                             onSuccess={handleStripeSuccess}
                             onError={(msg) => alert(msg)}
                         />

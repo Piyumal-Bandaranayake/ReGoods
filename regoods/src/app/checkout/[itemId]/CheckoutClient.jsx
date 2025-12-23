@@ -4,6 +4,7 @@ import { useState } from "react";
 import { purchaseItem } from "@/app/actions/item";
 import { useRouter } from "next/navigation";
 import { Loader2, CheckCircle, Package, ArrowRight, User, Mail, Phone, MapPin, CreditCard, Truck } from "lucide-react";
+import { generateReceipt } from "@/lib/receiptGenerator";
 
 export default function CheckoutClient({ item }) {
     const [loading, setLoading] = useState(false);
@@ -39,7 +40,14 @@ export default function CheckoutClient({ item }) {
         });
 
         if (result.success) {
-            setSuccessMessage("Your order has been authorized and placed for delivery.");
+            // Auto-download receipt
+            try {
+                generateReceipt(item, deliveryDetails, paymentMethod, 40);
+            } catch (pdfErr) {
+                console.error("Receipt download failed", pdfErr);
+            }
+            
+            setSuccessMessage("Your order has been authorized and placed for delivery. Your receipt has been downloaded.");
             setShowSuccessModal(true);
         } else {
             alert(result.error);
@@ -77,10 +85,10 @@ export default function CheckoutClient({ item }) {
                         </p>
 
                         <button
-                            onClick={handleCloseModal}
+                            onClick={() => router.push("/dashboard")}
                             className="group w-full py-5 bg-gray-900 hover:bg-blue-500 text-white rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] transition-all shadow-xl shadow-blue-500/10 flex items-center justify-center gap-3"
                         >
-                            View Order History
+                            Return to Dashboard
                             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                         </button>
                     </div>
