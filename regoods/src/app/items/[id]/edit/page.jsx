@@ -2,7 +2,10 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import dbConnect from "@/lib/db";
 import Item from "@/lib/models/Item";
+import User from "@/lib/models/User";
 import { redirect, notFound } from "next/navigation";
+import { ShieldAlert, ChevronRight } from "lucide-react";
+import Link from "next/link";
 import EditItemForm from "@/components/items/EditItemForm";
 
 export default async function EditItemPage({ params }) {
@@ -13,8 +16,34 @@ export default async function EditItemPage({ params }) {
     }
 
     await dbConnect();
-    const item = await Item.findById(params.id);
+    const user = await User.findById(session.user.id);
+    
+    if (!user || user.verificationStatus !== "Verified") {
+        return (
+            <div className="min-h-[80vh] flex items-center justify-center bg-gray-50 px-4">
+                <div className="max-w-md w-full bg-white rounded-3xl shadow-xl border border-gray-100 p-8 text-center">
+                    <div className="w-20 h-20 bg-amber-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <ShieldAlert className="w-10 h-10 text-amber-500" />
+                    </div>
+                    <h2 className="text-2xl font-serif font-bold text-gray-900 mb-3">Verification Required</h2>
+                    <p className="text-gray-600 mb-8 leading-relaxed">
+                        To maintain a safe community, only verified sellers can manage items on ReGoods. 
+                        Please complete your identity verification.
+                    </p>
 
+                    <Link 
+                        href={`/profile/${session.user.id}`}
+                        className="flex items-center justify-between w-full bg-blue-900 text-white font-bold py-4 px-6 rounded-2xl hover:bg-black transition-all group"
+                    >
+                        <span>Go to Verification</span>
+                        <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                    </Link>
+                </div>
+            </div>
+        );
+    }
+
+    const item = await Item.findById(params.id);
     if (!item) {
         notFound();
     }

@@ -2,6 +2,7 @@
 
 import dbConnect from "@/lib/db";
 import Item from "@/lib/models/Item";
+import User from "@/lib/models/User";
 import { uploadToCloudinary } from "@/lib/cloudinary";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
@@ -12,6 +13,12 @@ export async function createItem(formData) {
     const session = await getServerSession(authOptions);
     if (!session) {
       return { error: "You must be logged in to list an item." };
+    }
+
+    await dbConnect();
+    const user = await User.findById(session.user.id);
+    if (!user || user.verificationStatus !== "Verified") {
+        return { error: "Only verified sellers can list items. Please verify your account in the profile settings." };
     }
 
     const title = formData.get("title");
@@ -103,6 +110,11 @@ export async function updateItem(itemId, formData) {
     if (!session) return { error: "Not logged in" };
 
     await dbConnect();
+    const user = await User.findById(session.user.id);
+    if (!user || user.verificationStatus !== "Verified") {
+        return { error: "Only verified sellers can management listings. Please verify your account." };
+    }
+
     const item = await Item.findById(itemId);
     if (!item) return { error: "Item not found" };
     if (item.sellerId.toString() !== session.user.id) return { error: "Unauthorized" };

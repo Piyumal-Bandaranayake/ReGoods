@@ -10,6 +10,16 @@ import { revalidatePath } from "next/cache";
 import Report from "@/lib/models/Report";
 import Notification from "@/lib/models/Notification";
 import Verification from "@/lib/models/Verification";
+import { redirect } from "next/navigation";
+
+export async function getCurrentUserStatus() {
+    const session = await getServerSession(authOptions);
+    if (!session) return null;
+
+    await dbConnect();
+    const user = await User.findById(session.user.id).select("verificationStatus isVerified _id");
+    return JSON.parse(JSON.stringify(user));
+}
 
 export async function updateProfile(formData) {
   try {
