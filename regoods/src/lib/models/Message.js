@@ -27,6 +27,13 @@ const MessageSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    reported: {
+      type: Boolean,
+      default: false,
+    },
+    reportReason: {
+      type: String,
+    },
   },
   { timestamps: true }
 );

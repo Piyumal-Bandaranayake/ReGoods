@@ -18,12 +18,12 @@ export function WishlistButton({ itemId, initialIsWishlisted }) {
     const handleToggle = async () => {
         if (loading) return;
         setLoading(true);
-        
+
         // Use context function if available, fall back to direct action
         const action = toggleWishlistContext || toggleWishlist;
-        
+
         const result = await action(itemId);
-        
+
         if (result.success) {
             // Result.isWishlisted might be available from the action return
             // But if context, it returns what the action returns.
@@ -31,8 +31,8 @@ export function WishlistButton({ itemId, initialIsWishlisted }) {
             if (result.isWishlisted !== undefined) {
                 setIsWishlisted(result.isWishlisted);
             } else {
-                 // Fallback if return is different
-                 setIsWishlisted(!isWishlisted);
+                // Fallback if return is different
+                setIsWishlisted(!isWishlisted);
             }
             router.refresh();
         } else if (result.error === "Not logged in") {
@@ -65,10 +65,10 @@ export function AddToCartButton({ itemId, initialIsInCart }) {
     const handleToggle = async () => {
         if (loading) return;
         setLoading(true);
-        
+
         const action = toggleCartContext || toggleCart;
         const result = await action(itemId);
-        
+
         if (result.success) {
             if (result.isInCart !== undefined) {
                 setIsInCart(result.isInCart);
@@ -103,7 +103,7 @@ export function BuyNowButton({ itemId }) {
     return (
         <button
             onClick={() => router.push(`/checkout/${itemId}`)}
-            className="w-full py-4 rounded-full bg-black text-white font-bold text-sm uppercase tracking-widest hover:scale-[1.02] transition shadow-lg flex justify-center items-center"
+            className="w-full py-4 rounded-full bg-blue-900 text-white font-bold text-sm uppercase tracking-widest hover:scale-[1.02] hover:bg-black transition shadow-lg shadow-blue-900/20 flex justify-center items-center"
         >
             Buy Now
         </button>
@@ -156,7 +156,7 @@ export function NegotiateButton({ itemId, currentPrice }) {
                     <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl relative z-10 overflow-hidden animate-fade-in-up">
                         <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
                             <h3 className="text-lg font-bold font-serif">Make an Offer</h3>
-                            <button 
+                            <button
                                 onClick={() => setIsOpen(false)}
                                 className="p-2 hover:bg-gray-200 rounded-full transition"
                                 disabled={loading}
@@ -202,11 +202,11 @@ export function NegotiateButton({ itemId, currentPrice }) {
                                     <button
                                         type="submit"
                                         disabled={loading}
-                                        className="w-full py-4 bg-blue-950 text-white rounded-full font-bold uppercase tracking-widest hover:bg-black transition-all shadow-lg shadow-blue-900/20 flex items-center justify-center disabled:opacity-50"
+                                        className="w-full py-4 bg-blue-900 text-white rounded-full font-bold uppercase tracking-widest hover:bg-black transition-all shadow-lg shadow-blue-900/20 flex items-center justify-center disabled:opacity-50"
                                     >
                                         {loading ? "Sending..." : "Send Offer"}
                                     </button>
-                                    
+
                                     <p className="mt-4 text-[10px] text-gray-400 text-center uppercase tracking-widest leading-relaxed">
                                         By sending an offer, you agree to purchase the item at this price if the seller accepts.
                                     </p>

@@ -309,7 +309,7 @@ export default function CreateItemPage() {
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="flex w-full justify-center rounded-sm bg-black px-3 py-4 text-sm font-bold uppercase tracking-widest leading-6 text-white shadow-lg hover:bg-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black disabled:opacity-70 transition-all hover:scale-[1.01]"
+                                className="flex w-full justify-center rounded-sm bg-blue-900 px-3 py-4 text-sm font-bold uppercase tracking-widest leading-6 text-white shadow-lg hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-900 disabled:opacity-70 transition-all hover:scale-[1.01] shadow-blue-900/20"
                             >
                                 {loading ? (
                                     <>

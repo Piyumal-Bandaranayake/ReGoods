@@ -72,7 +72,7 @@ export default async function Home() {
               <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
                 <Link 
                   href="/dashboard" 
-                  className="px-10 py-4 bg-white text-blue-950 text-sm font-bold rounded-full hover:bg-gray-100 transition-all hover:scale-105 shadow-[0_0_20px_rgba(255,255,255,0.3)] min-w-[200px]"
+                  className="px-10 py-4 bg-white text-blue-900 text-sm font-bold rounded-full hover:bg-gray-100 transition-all hover:scale-105 shadow-[0_0_20px_rgba(255,255,255,0.3)] min-w-[200px]"
                 >
                   SHOP COLLECTION
                 </Link>
@@ -110,7 +110,7 @@ export default async function Home() {
               </div>
               <h3 className="text-lg font-semibold text-gray-900">Clothing</h3>
               <p className="text-sm text-gray-500 mb-4">Fresh arrivals & vintage finds</p>
-              <Link href="/dashboard?category=Clothing" className="inline-block px-6 py-2 border border-blue-950 rounded-full text-xs font-bold font-sans uppercase tracking-widest text-blue-950 hover:bg-blue-950 hover:text-white transition-colors">
+              <Link href="/dashboard?category=Clothing" className="inline-block px-6 py-2 border border-blue-900 rounded-full text-xs font-bold font-sans uppercase tracking-widest text-blue-900 hover:bg-blue-900 hover:text-white transition-colors">
                 Shop Now
               </Link>
             </div>
@@ -128,7 +128,7 @@ export default async function Home() {
               </div>
               <h3 className="text-lg font-semibold text-gray-900">Electronics</h3>
               <p className="text-sm text-gray-500 mb-4">Refurbished tech & gadgets</p>
-              <Link href="/dashboard?category=Electronics" className="inline-block px-6 py-2 bg-blue-950 text-white rounded-full text-xs font-bold font-sans uppercase tracking-widest hover:bg-black transition-colors">
+              <Link href="/dashboard?category=Electronics" className="inline-block px-6 py-2 bg-blue-900 text-white rounded-full text-xs font-bold font-sans uppercase tracking-widest hover:bg-black transition-colors">
                 Shop Now
               </Link>
             </div>
@@ -146,7 +146,7 @@ export default async function Home() {
               </div>
               <h3 className="text-lg font-semibold text-gray-900">Home & Garden</h3>
               <p className="text-sm text-gray-500 mb-4">Decor, furniture & more</p>
-              <Link href="/dashboard?category=Home & Garden" className="inline-block px-6 py-2 border border-blue-950 rounded-full text-xs font-bold font-sans uppercase tracking-widest text-blue-950 hover:bg-blue-950 hover:text-white transition-colors">
+              <Link href="/dashboard?category=Home & Garden" className="inline-block px-6 py-2 border border-blue-900 rounded-full text-xs font-bold font-sans uppercase tracking-widest text-blue-900 hover:bg-blue-900 hover:text-white transition-colors">
                 Shop Now
               </Link>
             </div>
@@ -203,7 +203,7 @@ export default async function Home() {
           <div className="mt-16 text-center">
             <Link 
               href="/dashboard" 
-              className="inline-flex items-center px-8 py-3 bg-blue-950 text-white text-sm font-bold uppercase tracking-widest rounded-full hover:bg-black hover:scale-105 transition-all duration-300 shadow-lg shadow-blue-900/20"
+              className="inline-flex items-center px-8 py-3 bg-blue-900 text-white text-sm font-bold uppercase tracking-widest rounded-full hover:bg-black hover:scale-105 transition-all duration-300 shadow-lg shadow-blue-900/20"
             >
               View All Marketplace Items <ArrowRight className="w-4 h-4 ml-3" />
             </Link>

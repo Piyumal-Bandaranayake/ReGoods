@@ -42,6 +42,25 @@ export async function markAsRead(notificationId) {
   }
 }
 
+export async function markAllAsRead() {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session) return { error: "Not logged in" };
+
+    await dbConnect();
+    await Notification.updateMany(
+      { recipientId: session.user.id, read: false },
+      { $set: { read: true } }
+    );
+
+    revalidatePath("/");
+    return { success: true };
+  } catch (error) {
+    console.error("Mark all as read error:", error);
+    return { error: "Failed to update notifications" };
+  }
+}
+
 export async function createNotification({ recipientId, senderId, type, title, content, link }) {
     // This is internal helper meant to be called from other server actions
     try {

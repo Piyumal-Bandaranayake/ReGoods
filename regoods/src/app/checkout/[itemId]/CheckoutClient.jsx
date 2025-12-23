@@ -19,6 +19,9 @@ export default function CheckoutClient({ item }) {
         phone: ""
     });
 
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [successMessage, setSuccessMessage] = useState("");
+
     const handleConfirm = async () => {
         // Validation
         if (!deliveryDetails.fullName || !deliveryDetails.email || !deliveryDetails.address || !deliveryDetails.city || !deliveryDetails.phone) {
@@ -43,8 +46,9 @@ export default function CheckoutClient({ item }) {
             const message = paymentMethod === 'COD'
                 ? "Success! Your order has been placed via Cash on Delivery."
                 : "Payment Successful! Your order has been confirmed.";
-            alert(message);
-            router.push("/account?tab=purchases");
+
+            setSuccessMessage(message);
+            setShowSuccessModal(true);
         } else {
             alert(result.error);
         }
@@ -56,10 +60,42 @@ export default function CheckoutClient({ item }) {
         setDeliveryDetails(prev => ({ ...prev, [name]: value }));
     };
 
+    const handleCloseModal = () => {
+        setShowSuccessModal(false);
+        router.push("/account?tab=purchases");
+    };
+
     const inputClasses = "w-full p-2.5 border border-gray-200 rounded-lg text-sm text-black font-medium focus:outline-none focus:border-black transition placeholder-gray-400";
 
     return (
-        <div className="flex flex-col">
+        <div className="flex flex-col relative">
+            {/* Success Modal */}
+            {showSuccessModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+                    <div className="bg-white rounded-2xl p-8 max-w-sm w-full shadow-2xl transform transition-all scale-100 animate-scale-in text-center relative overflow-hidden">
+                        <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-900 via-indigo-800 to-blue-900"></div>
+
+                        <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-5 animate-bounce-slow">
+                            <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                        </div>
+
+                        <h3 className="text-2xl font-serif font-bold text-gray-900 mb-2">Order Confirmed!</h3>
+                        <p className="text-gray-600 mb-8 leading-relaxed text-sm">
+                            {successMessage}
+                        </p>
+
+                        <button
+                            onClick={handleCloseModal}
+                            className="w-full py-3.5 bg-blue-900 hover:bg-black text-white rounded-xl font-bold uppercase tracking-widest text-sm transition shadow-lg hover:shadow-xl hover:-translate-y-0.5 shadow-blue-900/20"
+                        >
+                            View My Purchases
+                        </button>
+                    </div>
+                </div>
+            )}
+
             <div className="space-y-3">
                 {/* Delivery Details Section */}
                 <div className="bg-gray-50 p-5 rounded-xl border border-gray-200">
@@ -181,7 +217,7 @@ export default function CheckoutClient({ item }) {
             <button
                 onClick={handleConfirm}
                 disabled={loading}
-                className="w-full py-4 mt-3 bg-blue-950 hover:bg-black text-white font-bold rounded-lg hover:scale-[1.02] transition disabled:opacity-50 flex justify-center items-center text-sm uppercase tracking-widest shadow-md hover:shadow-lg hover:shadow-blue-900/20"
+                className="w-full py-4 mt-3 bg-blue-900 hover:bg-black text-white font-bold rounded-lg hover:scale-[1.02] transition disabled:opacity-50 flex justify-center items-center text-sm uppercase tracking-widest shadow-md hover:shadow-lg hover:shadow-blue-900/20"
             >
                 {loading ? (
                     <>

@@ -73,7 +73,7 @@ export default function OfferList({ offers }) {
                         {/* Offer Amount */}
                         <div className="bg-blue-50/50 px-6 py-3 rounded-2xl border border-blue-100 text-center flex-shrink-0">
                             <span className="block text-[10px] uppercase font-bold text-blue-400 tracking-wider mb-1">Offered Price</span>
-                            <span className="text-2xl font-bold text-blue-950 font-serif">${offer.offerAmount}</span>
+                            <span className="text-2xl font-bold text-blue-900 font-serif">${offer.offerAmount}</span>
                         </div>
 
                         {/* Buyer Info */}
@@ -102,7 +102,7 @@ export default function OfferList({ offers }) {
                                     <button
                                         onClick={() => handleAccept(offer._id)}
                                         disabled={loadingId === offer._id}
-                                        className="px-6 py-3 bg-blue-950 text-white rounded-full font-bold text-xs uppercase tracking-widest hover:bg-black transition shadow-lg shadow-blue-900/20 flex items-center gap-2 disabled:opacity-50"
+                                        className="px-6 py-3 bg-blue-900 text-white rounded-full font-bold text-xs uppercase tracking-widest hover:bg-black transition shadow-lg shadow-blue-900/20 flex items-center gap-2 disabled:opacity-50"
                                     >
                                         {loadingId === offer._id ? "Processing..." : (
                                             <>
