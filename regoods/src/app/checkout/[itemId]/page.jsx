@@ -104,9 +104,13 @@ export default async function CheckoutPage({ params }) {
                             <span>Protection Fee</span>
                             <span className="text-gray-400 line-through">$2.00</span>
                         </div>
-                        <div className="flex justify-between items-center text-lg pt-2 font-bold text-gray-900">
+                        <div className="flex justify-between items-center text-sm text-gray-500">
+                            <span>Shipping Charge</span>
+                            <span className="font-bold text-gray-900">$400</span>
+                        </div>
+                        <div className="flex justify-between items-center text-lg pt-2 font-bold text-gray-900 border-t border-gray-100 mt-2">
                             <span>Total</span>
-                            <span>${item.price}</span>
+                            <span>${(item.price + 400).toLocaleString()}</span>
                         </div>
                     </div>
                 </div>

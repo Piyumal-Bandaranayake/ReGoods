@@ -47,6 +47,64 @@ export async function getAdminStats() {
     };
 }
 
+export async function getEngagementStats() {
+    await checkAdmin();
+    await dbConnect();
+
+    const last7Days = Array.from({ length: 7 }, (_, i) => {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        return d.toISOString().split("T")[0];
+    }).reverse();
+
+    const engagementData = await Promise.all(
+        last7Days.map(async (date) => {
+            const startOfDay = new Date(date);
+            const endOfDay = new Date(date);
+            endOfDay.setHours(23, 59, 59, 999);
+
+            const count = await User.countDocuments({
+                createdAt: { $gte: startOfDay, $lte: endOfDay },
+                role: "user"
+            });
+
+            return {
+                date: new Date(date).toLocaleDateString("en-US", { weekday: "short" }),
+                users: count
+            };
+        })
+    );
+
+    return engagementData;
+}
+
+export async function getItemStats() {
+    await checkAdmin();
+    await dbConnect();
+
+    const stats = await Item.aggregate([
+        {
+            $group: {
+                _id: "$category",
+                count: { $sum: 1 }
+            }
+        },
+        { $sort: { count: -1 } },
+        { $limit: 8 } // Limit to top 8 categories to keep the chart clean
+    ]);
+
+    const colors = [
+        "#8b5cf6", "#3b82f6", "#10b981", "#f59e0b", 
+        "#ef4444", "#ec4899", "#06b6d4", "#84cc16"
+    ];
+
+    return stats.map((stat, index) => ({
+        name: stat._id || "Other",
+        value: stat.count,
+        color: colors[index % colors.length]
+    }));
+}
+
 export async function getUsers() {
     await checkAdmin();
     await dbConnect();

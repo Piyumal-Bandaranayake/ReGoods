@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import dbConnect from "@/lib/db";
 import Item from "@/lib/models/Item";
 import Link from "next/link";
-import { PlusCircle, ShoppingBag, Filter, ArrowRight, MapPin } from "lucide-react";
+import { PlusCircle, ShoppingBag, Filter, ArrowRight, MapPin, Star } from "lucide-react";
 
 
 
@@ -26,7 +26,7 @@ async function getItems(filters = {}) {
     // Fetch active items, sorted by newest first
     const items = await Item.find(query)
         .sort({ createdAt: -1 })
-        .populate("sellerId", "name"); // Get seller name
+        .populate("sellerId", "name averageRating reviewCount"); // Get seller details
 
     // Serialize Mongoose documents to plain objects to avoid serialization issues in Next.js
     return JSON.parse(JSON.stringify(items));
@@ -173,9 +173,15 @@ export default async function DashboardPage({ searchParams }) {
                                             ${item.price}
                                         </span>
                                     </div>
-                                    <p className="text-sm text-gray-500 font-light flex items-center gap-1">
-                                        by <span className="text-gray-700 font-medium">{item.sellerId?.name || "Seller"}</span>
-                                    </p>
+                                    <div className="flex justify-between items-center text-sm text-gray-500 font-light">
+                                        <p>by <span className="text-gray-700 font-medium">{item.sellerId?.name || "Seller"}</span></p>
+                                        {item.sellerId?.reviewCount > 0 && (
+                                            <div className="flex items-center text-yellow-500 font-bold text-xs">
+                                                <Star className="w-3 h-3 fill-current mr-0.5" />
+                                                {item.sellerId.averageRating}
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
                             </Link>
                         ))}

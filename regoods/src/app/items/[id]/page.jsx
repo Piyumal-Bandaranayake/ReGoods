@@ -15,7 +15,8 @@ import {
     ShieldCheck,
     Share2,
     Flag,
-    CheckCircle
+    CheckCircle,
+    Star
 } from "lucide-react";
 import ReportUserButton from "@/components/account/ReportUserButton";
 import ItemActions from "@/components/account/ItemActions";
@@ -25,7 +26,7 @@ import { WishlistButton, AddToCartButton, BuyNowButton, NegotiateButton } from "
 
 async function getItem(id) {
     await dbConnect();
-    const item = await Item.findById(id).populate("sellerId", "name email image role warningCount isBanned isVerified createdAt");
+    const item = await Item.findById(id).populate("sellerId", "name email image role warningCount isBanned isVerified createdAt averageRating reviewCount");
     if (!item) return null;
     return JSON.parse(JSON.stringify(item));
 }
@@ -165,6 +166,12 @@ export default async function ItemPage({ params }) {
                                     {seller?.name}
                                     {seller?.isVerified && (
                                         <CheckCircle className="w-4 h-4 ml-1.5 text-blue-600 fill-blue-50" title="Verified Seller" />
+                                    )}
+                                    {seller?.reviewCount > 0 && (
+                                        <span className="ml-3 flex items-center text-xs text-yellow-500 font-bold bg-yellow-50 px-2 py-0.5 rounded-full border border-yellow-100">
+                                            <Star className="w-3 h-3 fill-current mr-1" />
+                                            {seller.averageRating}
+                                        </span>
                                     )}
                                 </Link>
                             </div>

@@ -59,6 +59,14 @@ const UserSchema = new mongoose.Schema({
     type: String,
     enum: ["Unverified", "Pending", "Verified", "Rejected"],
     default: "Unverified"
+  },
+  averageRating: {
+    type: Number,
+    default: 0
+  },
+  reviewCount: {
+    type: Number,
+    default: 0
   }
 }, { timestamps: true });
 

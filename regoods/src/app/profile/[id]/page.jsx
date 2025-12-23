@@ -12,6 +12,8 @@ import {
 } from "lucide-react";
 import ReportUserButton from "@/components/account/ReportUserButton";
 import VerifyAccountButton from "@/components/account/VerifyAccountButton";
+import { getSellerReviews, getSellerRating } from "@/app/actions/review";
+import ReviewSection from "@/components/account/ReviewSection";
 
 async function getProfileData(userId) {
     await dbConnect();
@@ -40,6 +42,11 @@ export default async function ProfilePage({ params, searchParams }) {
 
     const { user, activeItems, soldItems } = data;
     const session = await getServerSession(authOptions);
+
+    const [reviews, ratingData] = await Promise.all([
+        getSellerReviews(id),
+        getSellerRating(id)
+    ]);
 
     // --- CALCULATED STATS ---
     const totalSold = soldItems.length;
@@ -152,8 +159,8 @@ export default async function ProfilePage({ params, searchParams }) {
                                 <div className="text-xs text-gray-500 font-bold uppercase tracking-widest mt-1">Active Listings</div>
                             </div>
                             <div className="p-4 bg-gray-50 text-center border border-gray-100">
-                                <div className="text-3xl font-serif font-bold text-gray-900">4.9</div>
-                                <div className="text-xs text-gray-500 font-bold uppercase tracking-widest mt-1">Rating</div>
+                                <div className="text-3xl font-serif font-bold text-gray-900">{ratingData.average}</div>
+                                <div className="text-xs text-gray-500 font-bold uppercase tracking-widest mt-1">Rating ({ratingData.count})</div>
                             </div>
                             {user.isVerified && (
                                 <div className="p-4 bg-blue-50 text-center border border-blue-100 flex flex-col justify-center items-center">
@@ -191,13 +198,7 @@ export default async function ProfilePage({ params, searchParams }) {
                                     href={`?tab=reviews`}
                                     className={`whitespace-nowrap pb-4 border-b-2 font-bold text-xs uppercase tracking-widest flex items-center ${currentTab === 'reviews' ? 'border-black text-black' : 'border-transparent text-gray-400 hover:text-black hover:border-gray-200'}`}
                                 >
-                                    Reviews
-                                </Link>
-                                <Link
-                                    href={`?tab=about`}
-                                    className={`whitespace-nowrap pb-4 border-b-2 font-bold text-xs uppercase tracking-widest flex items-center ${currentTab === 'about' ? 'border-black text-black' : 'border-transparent text-gray-400 hover:text-black hover:border-gray-200'}`}
-                                >
-                                    About Seller
+                                    Reviews ({ratingData.count})
                                 </Link>
                             </nav>
                         </div>
@@ -264,31 +265,14 @@ export default async function ProfilePage({ params, searchParams }) {
 
                         {/* 3. REVIEWS */}
                         {currentTab === 'reviews' && (
-                            <div className="bg-white border border-gray-200 p-12 text-center text-gray-400 uppercase tracking-wide text-xs">
-                                No reviews yet.
-                            </div>
+                            <ReviewSection 
+                                sellerId={id} 
+                                reviews={reviews} 
+                                currentUserId={session?.user?.id} 
+                            />
                         )}
 
-                        {/* 4. ABOUT SELLER */}
-                        {currentTab === 'about' && (
-                            <div className="bg-white border border-gray-200 p-8">
-                                <h3 className="text-xl font-serif font-bold text-gray-900 mb-6">About {user.name}</h3>
-                                <p className="text-gray-600 leading-relaxed mb-8 max-w-2xl">
-                                    {user.bio || "This seller hasn't written a biography yet."}
-                                </p>
 
-                                <h4 className="text-xs font-bold text-gray-900 uppercase tracking-widest mb-4">Achievements</h4>
-                                <div className="flex flex-wrap gap-4">
-                                    {achievements.length > 0 ? achievements.map((ach, i) => (
-                                        <div key={i} className="flex items-center px-4 py-3 bg-gray-50 text-gray-900 border border-gray-200 text-xs font-bold uppercase tracking-wider">
-                                            {ach.icon} {ach.label}
-                                        </div>
-                                    )) : (
-                                        <p className="text-gray-400 italic text-sm">No achievements yet.</p>
-                                    )}
-                                </div>
-                            </div>
-                        )}
 
                     </div>
                 </div>
