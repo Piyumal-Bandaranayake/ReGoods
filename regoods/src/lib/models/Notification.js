@@ -14,7 +14,7 @@ const NotificationSchema = new mongoose.Schema(
     },
     type: {
       type: String,
-      enum: ["offer_accepted", "offer_rejected", "new_offer", "message"],
+      enum: ["offer_accepted", "offer_rejected", "new_offer", "message", "account_banned"],
       required: true,
     },
     title: {

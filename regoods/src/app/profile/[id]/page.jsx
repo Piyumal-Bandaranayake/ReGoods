@@ -8,8 +8,9 @@ import Image from "next/image";
 import Link from "next/link";
 import {
     MapPin, Calendar, Star, CheckCircle, Shield,
-    MessageCircle, Award, TrendingUp, Clock, Package
+    MessageCircle, Award, TrendingUp, Clock, Package, Flag
 } from "lucide-react";
+import ReportUserButton from "@/components/account/ReportUserButton";
 
 async function getProfileData(userId) {
     await dbConnect();
@@ -114,12 +115,15 @@ export default async function ProfilePage({ params, searchParams }) {
                                         Edit Profile
                                     </Link>
                                 ) : (
-                                    <Link
-                                        href={`/inbox/${user._id}`}
-                                        className="px-6 py-3 border border-gray-300 text-black text-xs font-bold uppercase tracking-widest rounded-sm hover:bg-black hover:text-white transition"
-                                    >
-                                        Message
-                                    </Link>
+                                    <div className="flex space-x-3">
+                                        <Link
+                                            href={`/inbox/${user._id}`}
+                                            className="px-6 py-3 border border-gray-300 text-black text-xs font-bold uppercase tracking-widest rounded-sm hover:bg-black hover:text-white transition"
+                                        >
+                                            Message
+                                        </Link>
+                                        <ReportUserButton userId={user._id} userName={user.name} />
+                                    </div>
                                 )}
                             </div>
                         </div>

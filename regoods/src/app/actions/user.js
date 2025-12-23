@@ -8,6 +8,8 @@ import path from "path";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
+import Report from "@/lib/models/Report";
+import Notification from "@/lib/models/Notification";
 
 export async function updateProfile(formData) {
   try {
@@ -158,4 +160,60 @@ export async function getCartItems() {
     return { 
         cart: JSON.parse(JSON.stringify(items))
     };
+}
+
+export async function reportUser(formData) {
+    try {
+        const session = await getServerSession(authOptions);
+        if (!session) return { error: "You must be logged in to report a seller." };
+
+        const reportedUserId = formData.get("reportedUserId");
+        const reason = formData.get("reason");
+        const description = formData.get("description");
+        const rawImages = formData.getAll("images");
+
+        if (session.user.id === reportedUserId) {
+            return { error: "You cannot report yourself." };
+        }
+
+        if (!reason || !description) {
+            return { error: "Please provide a reason and description for your report." };
+        }
+
+        await dbConnect();
+        
+        // Handle Proof Images
+        const imageUrls = [];
+        for (const file of rawImages) {
+            if (file instanceof File && file.size > 0) {
+                const buffer = Buffer.from(await file.arrayBuffer());
+                const filename = `report-${reportedUserId}-${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
+                const uploadDir = path.join(process.cwd(), "public", "uploads");
+                await writeFile(path.join(uploadDir, filename), buffer);
+                imageUrls.push(`/uploads/${filename}`);
+            }
+        }
+
+        // Create Report Document
+        await Report.create({
+            reporterId: session.user.id,
+            reportedUserId,
+            reason,
+            description,
+            images: imageUrls
+        });
+
+        // Find the user to increment warning count
+        const userToReport = await User.findById(reportedUserId);
+        if (userToReport) {
+            const newWarningCount = (userToReport.warningCount || 0) + 1;
+            await User.findByIdAndUpdate(reportedUserId, { warningCount: newWarningCount });
+        }
+
+        revalidatePath(`/profile/${reportedUserId}`);
+        return { success: true, message: "Seller has been reported successfully. Our team will review the case." };
+    } catch (error) {
+        console.error("Report user error:", error);
+        return { error: "Failed to report seller. Please try again." };
+    }
 }

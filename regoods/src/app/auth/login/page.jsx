@@ -34,7 +34,11 @@ function LoginForm() {
     });
 
     if (res?.error) {
-      setError("Invalid email or password.");
+      if (res.error.includes("banned")) {
+        setError(res.error);
+      } else {
+        setError("Invalid email or password.");
+      }
       setLoading(false);
     } else {
       // Check user role for redirection

@@ -8,6 +8,8 @@ import Message from "@/lib/models/Message";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
+import Report from "@/lib/models/Report";
+import Notification from "@/lib/models/Notification";
 
 // Middleware-like check for admin
 async function checkAdmin() {
@@ -31,13 +33,14 @@ export async function getAdminStats() {
     const totalRevenue = soldItemsData.reduce((acc, item) => acc + (item.price || 0), 0);
 
     const activeReports = await Message.countDocuments({ reported: true });
+    const userReportsCount = await Report.countDocuments({});
 
     return {
         totalUsers,
         soldItems,
         activeItems,
         totalRevenue,
-        activeReports
+        activeReports: activeReports + userReportsCount
     };
 }
 
@@ -80,6 +83,7 @@ export async function getRecentOffers() {
     return JSON.parse(JSON.stringify(offers));
 }
 
+
 export async function getReportedMessages() {
     await checkAdmin();
     await dbConnect();
@@ -88,6 +92,50 @@ export async function getReportedMessages() {
         .populate("receiverId", "name email")
         .sort({ createdAt: -1 });
     return JSON.parse(JSON.stringify(messages));
+}
+
+export async function getUserReports() {
+    await checkAdmin();
+    await dbConnect();
+    const reports = await Report.find({})
+        .populate("reporterId", "name email")
+        .populate("reportedUserId", "name email warningCount isBanned")
+        .sort({ createdAt: -1 });
+    return JSON.parse(JSON.stringify(reports));
+}
+
+export async function resolveUserReport(reportId, action, customReason) {
+    const session = await checkAdmin();
+    await dbConnect();
+    
+    const report = await Report.findById(reportId);
+    if (!report) return { error: "Report not found" };
+
+    if (action === "dismiss") {
+        await Report.findByIdAndDelete(reportId);
+    } else if (action === "ban") {
+        const banReason = customReason || `Violation of platform rules: ${report.reason}`;
+        
+        // Update user status
+        await User.findByIdAndUpdate(report.reportedUserId, { 
+            isBanned: true,
+            banReason: banReason
+        });
+
+        // Send Notification (They might see this weight trying to login or if they are online)
+        await Notification.create({
+            recipientId: report.reportedUserId,
+            senderId: session.user.id,
+            type: "account_banned",
+            title: "Your account has been banned",
+            content: `Your account has been suspended due to: ${banReason}. If you believe this is a mistake, please contact support.`,
+        });
+
+        await Report.findByIdAndDelete(reportId);
+    }
+    
+    revalidatePath("/admin/reports");
+    return { success: true };
 }
 
 export async function resolveReport(messageId, action) {
