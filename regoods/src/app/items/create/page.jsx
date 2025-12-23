@@ -1,16 +1,29 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createItem } from "@/app/actions/item";
-import { Loader2, Upload, DollarSign, Tag, FileText, X } from "lucide-react";
+import { getCurrentUserStatus } from "@/app/actions/user";
+import { Loader2, Upload, DollarSign, Tag, FileText, X, ShieldAlert, CheckCircle, ChevronRight } from "lucide-react";
+import Link from "next/link";
 import { useDropzone } from "react-dropzone";
 
 export default function CreateItemPage() {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
+    const [pageLoading, setPageLoading] = useState(true);
+    const [userStatus, setUserStatus] = useState(null);
     const [error, setError] = useState("");
     const [uploadedImages, setUploadedImages] = useState([]);
+
+    useEffect(() => {
+        const checkStatus = async () => {
+            const status = await getCurrentUserStatus();
+            setUserStatus(status);
+            setPageLoading(false);
+        };
+        checkStatus();
+    }, []);
 
     // Mock Dropzone Handler - In a real app, you would upload to AWS S3/Cloudinary here
     const onDrop = useCallback((acceptedFiles) => {
@@ -64,6 +77,59 @@ export default function CreateItemPage() {
             router.push(`/items/${result.itemId}`);
         }
     };
+
+    if (pageLoading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-gray-50">
+                <div className="text-center">
+                    <Loader2 className="w-10 h-10 animate-spin text-blue-900 mx-auto mb-4" />
+                    <p className="text-gray-500 font-medium">Checking authorization...</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (!userStatus || userStatus.verificationStatus !== "Verified") {
+        return (
+            <div className="min-h-[80vh] flex items-center justify-center bg-gray-50 px-4">
+                <div className="max-w-md w-full bg-white rounded-3xl shadow-xl border border-gray-100 p-8 text-center">
+                    <div className="w-20 h-20 bg-amber-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <ShieldAlert className="w-10 h-10 text-amber-500" />
+                    </div>
+                    <h2 className="text-2xl font-serif font-bold text-gray-900 mb-3">Verification Required</h2>
+                    <p className="text-gray-600 mb-8 leading-relaxed">
+                        To maintain a safe community, only verified sellers can list items on ReGoods. 
+                        Please complete your identity verification to start selling.
+                    </p>
+
+                    <div className="space-y-4">
+                        <div className="flex items-start bg-gray-50 p-4 rounded-2xl text-left">
+                            <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 mr-3 flex-shrink-0" />
+                            <div>
+                                <h4 className="text-sm font-bold text-gray-900">Build Trust</h4>
+                                <p className="text-xs text-gray-500">Verified sellers get 3x more sales and trust from buyers.</p>
+                            </div>
+                        </div>
+                        
+                        <Link 
+                            href={`/profile/${userStatus._id}`}
+                            className="flex items-center justify-between w-full bg-blue-900 text-white font-bold py-4 px-6 rounded-2xl hover:bg-black transition-all group"
+                        >
+                            <span>Go to Verification</span>
+                            <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                        </Link>
+
+                        <button 
+                            onClick={() => router.back()}
+                            className="w-full text-sm text-gray-500 font-medium hover:text-gray-900 transition-colors py-2"
+                        >
+                            Go Back
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">

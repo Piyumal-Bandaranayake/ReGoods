@@ -2,8 +2,8 @@
 
 import dbConnect from "@/lib/db";
 import Item from "@/lib/models/Item";
-import { writeFile } from "fs/promises";
-import path from "path";
+import User from "@/lib/models/User";
+import { uploadToCloudinary } from "@/lib/cloudinary";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
@@ -13,6 +13,12 @@ export async function createItem(formData) {
     const session = await getServerSession(authOptions);
     if (!session) {
       return { error: "You must be logged in to list an item." };
+    }
+
+    await dbConnect();
+    const user = await User.findById(session.user.id);
+    if (!user || user.verificationStatus !== "Verified") {
+        return { error: "Only verified sellers can list items. Please verify your account in the profile settings." };
     }
 
     const title = formData.get("title");
@@ -33,10 +39,8 @@ export async function createItem(formData) {
         if (item instanceof File) {
             if (item.size === 0) continue;
             const buffer = Buffer.from(await item.arrayBuffer());
-            const filename = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}-${item.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
-            const uploadDir = path.join(process.cwd(), "public", "uploads");
-            await writeFile(path.join(uploadDir, filename), buffer);
-            imageUrls.push(`/uploads/${filename}`);
+            const imageUrl = await uploadToCloudinary(buffer, "items");
+            imageUrls.push(imageUrl);
         } else if (typeof item === "string" && item.trim() !== "") {
             imageUrls.push(item);
         }
@@ -106,6 +110,11 @@ export async function updateItem(itemId, formData) {
     if (!session) return { error: "Not logged in" };
 
     await dbConnect();
+    const user = await User.findById(session.user.id);
+    if (!user || user.verificationStatus !== "Verified") {
+        return { error: "Only verified sellers can management listings. Please verify your account." };
+    }
+
     const item = await Item.findById(itemId);
     if (!item) return { error: "Item not found" };
     if (item.sellerId.toString() !== session.user.id) return { error: "Unauthorized" };
@@ -128,10 +137,8 @@ export async function updateItem(itemId, formData) {
     for (const file of rawFiles) {
          if (file instanceof File && file.size > 0) {
             const buffer = Buffer.from(await file.arrayBuffer());
-            const filename = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}-${file.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
-            const uploadDir = path.join(process.cwd(), "public", "uploads");
-            await writeFile(path.join(uploadDir, filename), buffer);
-            newImageUrls.push(`/uploads/${filename}`);
+            const imageUrl = await uploadToCloudinary(buffer, "items");
+            newImageUrls.push(imageUrl);
          }
     }
 

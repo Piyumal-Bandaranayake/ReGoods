@@ -3,15 +3,23 @@
 import dbConnect from "@/lib/db";
 import User from "@/lib/models/User";
 import Item from "@/lib/models/Item";
-import { writeFile, mkdir } from "fs/promises";
-import { existsSync } from "fs";
-import path from "path";
+import { uploadToCloudinary } from "@/lib/cloudinary";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import Report from "@/lib/models/Report";
 import Notification from "@/lib/models/Notification";
 import Verification from "@/lib/models/Verification";
+import { redirect } from "next/navigation";
+
+export async function getCurrentUserStatus() {
+    const session = await getServerSession(authOptions);
+    if (!session) return null;
+
+    await dbConnect();
+    const user = await User.findById(session.user.id).select("verificationStatus isVerified _id");
+    return JSON.parse(JSON.stringify(user));
+}
 
 export async function updateProfile(formData) {
   try {
@@ -31,11 +39,7 @@ export async function updateProfile(formData) {
 
     if (imageFile && imageFile instanceof File && imageFile.size > 0) {
         const buffer = Buffer.from(await imageFile.arrayBuffer());
-        const filename = `user-${session.user.id}-${Date.now()}-${Math.random().toString(36).substring(2, 9)}${path.extname(imageFile.name)}`;
-        const uploadDir = path.join(process.cwd(), "public", "uploads");
-        
-        await writeFile(path.join(uploadDir, filename), buffer);
-        imageUrl = `/uploads/${filename}`;
+        imageUrl = await uploadToCloudinary(buffer, "profiles");
     }
 
     await dbConnect();
@@ -189,10 +193,8 @@ export async function reportUser(formData) {
         for (const file of rawImages) {
             if (file instanceof File && file.size > 0) {
                 const buffer = Buffer.from(await file.arrayBuffer());
-                const filename = `report-${reportedUserId}-${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
-                const uploadDir = path.join(process.cwd(), "public", "uploads");
-                await writeFile(path.join(uploadDir, filename), buffer);
-                imageUrls.push(`/uploads/${filename}`);
+                const imageUrl = await uploadToCloudinary(buffer, "reports");
+                imageUrls.push(imageUrl);
             }
         }
 
@@ -234,6 +236,14 @@ export async function submitVerification(formData) {
             return { error: "Please fill in all fields and upload both NIC sides." };
         }
 
+        // NIC Validation Logic (Sri Lanka)
+        const oldNICRegex = /^[0-9]{9}[vVxX]$/;
+        const newNICRegex = /^[0-9]{12}$/;
+        
+        if (!oldNICRegex.test(nicNumber) && !newNICRegex.test(nicNumber)) {
+            return { error: "Invalid NIC number. Please enter a valid 9-digit (with V/X) or 12-digit NIC number." };
+        }
+
         await dbConnect();
 
         // Check if already pending or verified
@@ -242,28 +252,17 @@ export async function submitVerification(formData) {
             return { error: "You already have a verification request pending." };
         }
 
-        // Upload images
-        const uploadDir = path.join(process.cwd(), "public", "uploads", "verification");
-        // Ensure directory exists
-        if (!existsSync(uploadDir)) {
-            await mkdir(uploadDir, { recursive: true });
-        }
-
         let frontUrl = "";
         let backUrl = "";
 
-        if (nicFront instanceof File) {
+        if (nicFront instanceof File && nicFront.size > 0) {
             const buffer = Buffer.from(await nicFront.arrayBuffer());
-            const filename = `front-${session.user.id}-${Date.now()}${path.extname(nicFront.name)}`;
-            await writeFile(path.join(uploadDir, filename), buffer);
-            frontUrl = `/uploads/verification/${filename}`;
+            frontUrl = await uploadToCloudinary(buffer, "verification");
         }
 
-        if (nicBack instanceof File) {
+        if (nicBack instanceof File && nicBack.size > 0) {
             const buffer = Buffer.from(await nicBack.arrayBuffer());
-            const filename = `back-${session.user.id}-${Date.now()}${path.extname(nicBack.name)}`;
-            await writeFile(path.join(uploadDir, filename), buffer);
-            backUrl = `/uploads/verification/${filename}`;
+            backUrl = await uploadToCloudinary(buffer, "verification");
         }
 
         if (existing) {
