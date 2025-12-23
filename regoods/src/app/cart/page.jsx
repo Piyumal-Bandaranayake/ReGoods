@@ -37,7 +37,7 @@ export default function CartPage() {
                         <p className="text-gray-500 mb-8 max-w-sm">Looks like you haven't added anything to your cart yet. Browse our marketplace to find great deals.</p>
                         <Link
                             href="/dashboard"
-                            className="bg-black text-white px-8 py-3 rounded-full font-bold uppercase tracking-wide hover:bg-gray-800 transition shadow-lg"
+                            className="bg-blue-900 text-white px-8 py-3 rounded-full font-bold uppercase tracking-wide hover:bg-black transition shadow-lg shadow-blue-900/20"
                         >
                             Start Shopping
                         </Link>
@@ -74,7 +74,7 @@ export default function CartPage() {
                                                 </div>
 
                                                 <div className="flex justify-between items-end mt-4">
-                                                    <Link 
+                                                    <Link
                                                         href={`/items/${item._id}`}
                                                         className="text-sm font-medium text-indigo-600 hover:text-indigo-800"
                                                     >
@@ -116,21 +116,21 @@ export default function CartPage() {
                                 </div>
 
                                 <div className="space-y-3">
-                                   <p className="text-xs text-gray-500 text-center mb-4">
-                                       Checkout is currently processed per item due to marketplace structure.
-                                   </p>
-                                   {/* If we only have single item checkout, maybe just clear all or have multiple buttons? 
+                                    <p className="text-xs text-gray-500 text-center mb-4">
+                                        Checkout is currently processed per item due to marketplace structure.
+                                    </p>
+                                    {/* If we only have single item checkout, maybe just clear all or have multiple buttons? 
                                        For now I'll create a checkout button for each item or just a general button that warns or opens first item */}
-                                   
-                                   {cartItems.map(item => (
-                                     <Link
-                                        key={item._id}
-                                        href={`/checkout/${item._id}`}
-                                        className="block w-full py-3 bg-black text-white text-center font-bold text-sm uppercase tracking-widest rounded-full hover:bg-gray-800 transition mb-2"
-                                     >
-                                         Checkout {item.title}
-                                     </Link>
-                                   ))}
+
+                                    {cartItems.map(item => (
+                                        <Link
+                                            key={item._id}
+                                            href={`/checkout/${item._id}`}
+                                            className="block w-full py-3 bg-blue-900 text-white text-center font-bold text-sm uppercase tracking-widest rounded-full hover:bg-black transition mb-2 shadow-lg shadow-blue-900/20"
+                                        >
+                                            Checkout {item.title}
+                                        </Link>
+                                    ))}
 
                                 </div>
                                 <div className="mt-6 text-center">

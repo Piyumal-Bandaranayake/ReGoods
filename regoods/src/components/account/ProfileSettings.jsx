@@ -45,7 +45,7 @@ export default function ProfileSettings({ user }) {
                 <h3 className="text-xl font-serif font-bold text-gray-900 border-b border-gray-200 pb-4">Profile Settings</h3>
 
                 <div className="bg-white border border-gray-200 p-8">
-                    <h4 className="text-sm font-bold text-blue-950 uppercase tracking-widest mb-6">Personal Information</h4>
+                    <h4 className="text-sm font-bold text-blue-900 uppercase tracking-widest mb-6">Personal Information</h4>
 
                     <div className="flex items-start mb-8">
                         <div className="h-24 w-24 rounded-full border border-gray-200 overflow-hidden flex-shrink-0 bg-gray-50 flex items-center justify-center text-4xl font-serif italic text-black mr-6">
@@ -108,7 +108,7 @@ export default function ProfileSettings({ user }) {
                     <div className="mt-8 pt-6 border-t border-gray-100 flex justify-end">
                         <button
                             onClick={() => setIsEditing(true)}
-                            className="px-6 py-3 bg-blue-950 text-white text-xs font-bold uppercase tracking-widest rounded-sm hover:bg-black transition shadow-lg shadow-blue-900/20"
+                            className="px-6 py-3 bg-blue-900 text-white text-xs font-bold uppercase tracking-widest rounded-sm hover:bg-black transition shadow-lg shadow-blue-900/20"
                         >
                             Edit Details
                         </button>
@@ -232,7 +232,7 @@ export default function ProfileSettings({ user }) {
                     <button
                         type="submit"
                         disabled={loading}
-                        className="px-6 py-3 bg-blue-950 text-white text-xs font-bold uppercase tracking-widest rounded-sm hover:bg-black transition disabled:opacity-70 flex items-center shadow-lg shadow-blue-900/20"
+                        className="px-6 py-3 bg-blue-900 text-white text-xs font-bold uppercase tracking-widest rounded-sm hover:bg-black transition disabled:opacity-70 flex items-center shadow-lg shadow-blue-900/20"
                     >
                         {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
                         Save Changes

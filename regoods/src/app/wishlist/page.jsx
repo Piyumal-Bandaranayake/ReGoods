@@ -63,7 +63,7 @@ export default function WishlistPage() {
 
                                     <div className="flex items-center justify-between pt-4 border-t border-gray-50">
                                         <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">View Details</span>
-                                        <div className="p-2 bg-gray-50 rounded-full group-hover:bg-black group-hover:text-white transition">
+                                        <div className="p-2 bg-gray-50 rounded-full group-hover:bg-blue-900 group-hover:text-white transition">
                                             <ArrowRight className="w-4 h-4" />
                                         </div>
                                     </div>
@@ -80,7 +80,7 @@ export default function WishlistPage() {
                         <p className="text-gray-500 mb-8 max-w-sm mx-auto">Start exploring our unique collection and save your favorites here.</p>
                         <Link
                             href="/dashboard"
-                            className="inline-flex items-center px-8 py-3 bg-black text-white rounded-full font-bold text-sm tracking-wide hover:bg-gray-800 transition shadow-lg"
+                            className="inline-flex items-center px-8 py-3 bg-blue-900 text-white rounded-full font-bold text-sm tracking-wide hover:bg-black transition shadow-lg shadow-blue-900/20"
                         >
                             Explore Marketplace
                         </Link>

@@ -81,7 +81,7 @@ export default async function AccountPage({ searchParams }) {
                                 <div className="h-24 w-24 rounded-full border-4 border-white shadow-lg overflow-hidden bg-gray-100">
                                     {user.image ? <img src={user.image} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-3xl text-gray-300 font-serif font-bold">{user.name[0]}</div>}
                                 </div>
-                                <span className={`absolute bottom-1 right-1 h-5 w-5 rounded-full border-2 border-white ${itemsSold >= 10 ? 'bg-blue-950' : 'bg-green-500'}`} title="Verified Seller"></span>
+                                <span className={`absolute bottom-1 right-1 h-5 w-5 rounded-full border-2 border-white ${itemsSold >= 10 ? 'bg-blue-900' : 'bg-green-500'}`} title="Verified Seller"></span>
                             </div>
 
                             <div>
@@ -309,7 +309,7 @@ function StatBox({ label, value, icon }) {
 
 function TabLink({ href, active, icon, label, count }) {
     return (
-        <Link href={href} className={`flex items-center px-4 py-3 rounded-xl transition-all duration-200 group ${active ? 'bg-blue-950 text-white shadow-md shadow-blue-200' : 'text-gray-500 hover:bg-gray-100 hover:text-black'}`}>
+        <Link href={href} className={`flex items-center px-4 py-3 rounded-xl transition-all duration-200 group ${active ? 'bg-blue-900 text-white shadow-md shadow-blue-200' : 'text-gray-500 hover:bg-gray-100 hover:text-black'}`}>
             <span className={`mr-3 ${active ? 'text-white' : 'text-gray-400 group-hover:text-black transition'}`}>{icon}</span>
             <span className="font-bold text-sm tracking-wide flex-1">{label}</span>
             {count !== undefined && (
@@ -327,7 +327,7 @@ function EmptyState({ label, action, actionLabel }) {
             </div>
             <h3 className="text-gray-900 font-bold font-serif text-lg mb-2">{label}</h3>
             {action && (
-                <Link href={action} className="mt-4 px-6 py-3 bg-blue-950 text-white rounded-full text-xs font-bold uppercase tracking-widest hover:bg-black hover:scale-105 transition shadow-lg shadow-blue-900/20">
+                <Link href={action} className="mt-4 px-6 py-3 bg-blue-900 text-white rounded-full text-xs font-bold uppercase tracking-widest hover:bg-black hover:scale-105 transition shadow-lg shadow-blue-900/20">
                     {actionLabel}
                 </Link>
             )}

@@ -8,18 +8,28 @@ import WishlistDropdown from "./WishlistDropdown";
 import CartDropdown from "./CartDropdown";
 import NotificationDropdown from "./NotificationDropdown";
 
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 export default function Navbar() {
   const { data: session } = useSession();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const router = useRouter();
+  const pathname = usePathname();
+
+  // Hide Navbar on Admin Routes
+  // Note: Since this is a client component, we can use usePathname but useRouter is already imported
+  // Ideally we use usePathname hook
+  if (pathname?.startsWith('/admin')) {
+    return null;
+  }
 
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
       router.push(`/dashboard?search=${encodeURIComponent(searchQuery)}`);
+    } else {
+      router.push(`/dashboard`);
     }
   };
 
@@ -37,6 +47,7 @@ export default function Navbar() {
             </Link>
           </div>
 
+
           {/* 2. SEARCH BAR (Hidden on small mobile) */}
           <div className="hidden md:flex flex-1 items-center justify-center px-8">
             <form onSubmit={handleSearch} className="relative w-full max-w-md">
@@ -45,7 +56,7 @@ export default function Navbar() {
               </div>
               <input
                 type="text"
-                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-full leading-5 bg-gray-50 placeholder-gray-500 focus:outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500 sm:text-sm transition duration-150 ease-in-out"
+                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-full leading-5 bg-gray-50 text-gray-900 placeholder-gray-500 focus:outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500 sm:text-sm transition duration-150 ease-in-out"
                 placeholder="Search for items..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -68,7 +79,7 @@ export default function Navbar() {
                 {/* Sell Button */}
                 <Link
                   href="/items/create"
-                  className="hidden sm:flex items-center space-x-1 bg-blue-950 hover:bg-black text-white px-5 py-2 rounded-full text-sm font-bold tracking-wide transition shadow-md hover:shadow-lg hover:shadow-blue-900/20"
+                  className="hidden sm:flex items-center space-x-1 bg-blue-900 hover:bg-black text-white px-5 py-2 rounded-full text-sm font-bold tracking-wide transition shadow-md hover:shadow-lg hover:shadow-blue-900/20"
                 >
                   <PlusCircle className="w-4 h-4" />
                   <span>SELL ITEM</span>
@@ -153,15 +164,15 @@ export default function Navbar() {
                 </Link>
                 <Link
                   href="/auth/register"
-                  className="bg-black hover:bg-gray-800 text-white px-6 py-2 rounded-full text-sm font-bold tracking-wide transition"
+                  className="bg-blue-900 hover:bg-black text-white px-6 py-2 rounded-full text-sm font-bold tracking-wide transition shadow-md hover:shadow-lg hover:shadow-blue-900/20"
                 >
                   JOIN NOW
                 </Link>
               </div>
             )}
           </div>
-        </div>
-      </div>
-    </nav>
+        </div >
+      </div >
+    </nav >
   );
 }

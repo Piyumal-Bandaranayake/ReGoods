@@ -46,7 +46,7 @@ export default async function CheckoutPage({ params }) {
                     </p>
                     <Link
                         href="/dashboard"
-                        className="block w-full py-3.5 bg-black text-white font-bold rounded-xl text-xs uppercase tracking-widest hover:bg-gray-800 transition shadow-lg"
+                        className="block w-full py-3.5 bg-blue-900 text-white font-bold rounded-xl text-xs uppercase tracking-widest hover:bg-black transition shadow-lg shadow-blue-900/20"
                     >
                         Back to Dashboard
                     </Link>
@@ -61,7 +61,7 @@ export default async function CheckoutPage({ params }) {
                 <div className="bg-white p-8 rounded-xl shadow-sm text-center max-w-md w-full">
                     <h1 className="text-2xl font-bold mb-4 text-gray-900">Wait a minute</h1>
                     <p className="text-gray-600 mb-6">You cannot purchase your own item.</p>
-                    <Link href={`/items/${itemId}`} className="inline-block px-6 py-3 bg-black text-white font-bold rounded-full text-sm uppercase tracking-widest">
+                    <Link href={`/items/${itemId}`} className="inline-block px-6 py-3 bg-blue-900 text-white font-bold rounded-full text-sm uppercase tracking-widest shadow-blue-900/20">
                         Back to Item
                     </Link>
                 </div>

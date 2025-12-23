@@ -1,6 +1,6 @@
 "use client";
 
-import { signIn } from "next-auth/react";
+import { signIn, getSession } from "next-auth/react";
 import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -37,7 +37,13 @@ function LoginForm() {
       setError("Invalid email or password.");
       setLoading(false);
     } else {
-      router.push("/dashboard"); // Redirect on success
+      // Check user role for redirection
+      const session = await getSession();
+      if (session?.user?.role === 'admin') {
+        router.push("/admin");
+      } else {
+        router.push("/dashboard");
+      }
     }
   };
 
@@ -80,7 +86,7 @@ function LoginForm() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full flex justify-center rounded-full bg-blue-950 px-3 py-4 text-sm font-bold uppercase tracking-widest text-white hover:bg-black disabled:opacity-70 transition-all shadow-md hover:shadow-lg hover:shadow-blue-900/20"
+            className="w-full flex justify-center rounded-full bg-blue-900 px-3 py-4 text-sm font-bold uppercase tracking-widest text-white hover:bg-black disabled:opacity-70 transition-all shadow-md hover:shadow-lg hover:shadow-blue-900/20"
           >
             {loading ? <Loader2 className="animate-spin" /> : "Sign In"}
           </button>

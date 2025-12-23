@@ -88,7 +88,7 @@ export default function CheckoutClient({ item }) {
 
                         <button
                             onClick={handleCloseModal}
-                            className="w-full py-3.5 bg-black hover:bg-gray-800 text-white rounded-xl font-bold uppercase tracking-widest text-sm transition shadow-lg hover:shadow-xl hover:-translate-y-0.5"
+                            className="w-full py-3.5 bg-blue-900 hover:bg-black text-white rounded-xl font-bold uppercase tracking-widest text-sm transition shadow-lg hover:shadow-xl hover:-translate-y-0.5 shadow-blue-900/20"
                         >
                             View My Purchases
                         </button>
@@ -217,7 +217,7 @@ export default function CheckoutClient({ item }) {
             <button
                 onClick={handleConfirm}
                 disabled={loading}
-                className="w-full py-4 mt-3 bg-blue-950 hover:bg-black text-white font-bold rounded-lg hover:scale-[1.02] transition disabled:opacity-50 flex justify-center items-center text-sm uppercase tracking-widest shadow-md hover:shadow-lg hover:shadow-blue-900/20"
+                className="w-full py-4 mt-3 bg-blue-900 hover:bg-black text-white font-bold rounded-lg hover:scale-[1.02] transition disabled:opacity-50 flex justify-center items-center text-sm uppercase tracking-widest shadow-md hover:shadow-lg hover:shadow-blue-900/20"
             >
                 {loading ? (
                     <>

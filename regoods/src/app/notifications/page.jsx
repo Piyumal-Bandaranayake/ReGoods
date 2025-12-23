@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { Bell, Check, ExternalLink, Clock } from "lucide-react";
 import Link from "next/link";
-import { getNotifications, markAsRead } from "@/app/actions/notification";
+import { getNotifications, markAsRead, markAllAsRead } from "@/app/actions/notification";
 import { formatDistanceToNow } from "date-fns";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -19,6 +19,10 @@ export default function NotificationsPage() {
             const data = await getNotifications();
             if (!data.error) {
                 setNotifications(data);
+                // Mark all as read on serve side, but keep UI state as is for this view for "unread" look until refresh
+                if (data.some(n => !n.read)) {
+                    await markAllAsRead();
+                }
             }
         } catch (error) {
             console.error("Error fetching notifications:", error);
