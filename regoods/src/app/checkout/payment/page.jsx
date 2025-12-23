@@ -25,7 +25,7 @@ export default async function PaymentPage({ searchParams }) {
     // Create Payment Intent on the server side for security
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
     const paymentIntent = await stripe.paymentIntents.create({
-        amount: Math.round((item.price + 400) * 100),
+        amount: Math.round((item.price + 40) * 100),
         currency: "usd",
         payment_method_types: ["card"],
         metadata: { itemId: item._id.toString(), buyerId: session.user.id }
