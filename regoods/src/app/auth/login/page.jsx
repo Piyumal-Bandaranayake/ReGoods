@@ -85,7 +85,7 @@ function LoginForm() {
                </div>
                <div>
                   <p className="text-[10px] font-black uppercase tracking-widest text-blue-500">Security Standard</p>
-                  <p className="text-xs font-bold text-gray-900">End-to-end encrypted access</p>
+                  <p className="text-xs font-bold text-black-900">End-to-end encrypted access</p>
                </div>
             </div>
           </div>
@@ -118,7 +118,7 @@ function LoginForm() {
                   name="email"
                   type="email"
                   required
-                  className="block w-full pl-14 pr-6 py-4 bg-gray-50/50 border border-gray-100 rounded-[1.25rem] text-sm font-medium focus:outline-none focus:bg-white focus:ring-4 focus:ring-blue-500/5 focus:border-blue-200 transition-all placeholder:text-gray-400"
+                  className="block w-full pl-14 pr-6 py-4 bg-gray-50/50 border border-gray-100 rounded-[1.25rem] text-sm font-medium text-gray-900 focus:outline-none focus:bg-white focus:ring-4 focus:ring-blue-500/5 focus:border-blue-200 transition-all placeholder:text-gray-400"
                   placeholder="Email Address"
                 />
               </div>
@@ -131,7 +131,7 @@ function LoginForm() {
                   name="password"
                   type="password"
                   required
-                  className="block w-full pl-14 pr-6 py-4 bg-gray-50/50 border border-gray-100 rounded-[1.25rem] text-sm font-medium focus:outline-none focus:bg-white focus:ring-4 focus:ring-blue-500/5 focus:border-blue-200 transition-all placeholder:text-gray-400"
+                  className="block w-full pl-14 pr-6 py-4 bg-gray-50/50 border border-gray-100 rounded-[1.25rem] text-sm font-medium text-gray-900 focus:outline-none focus:bg-white focus:ring-4 focus:ring-blue-500/5 focus:border-blue-200 transition-all placeholder:text-gray-400"
                   placeholder="Password"
                 />
               </div>
