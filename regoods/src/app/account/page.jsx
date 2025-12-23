@@ -8,8 +8,8 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import {
     LayoutDashboard, Package, ShoppingBag, MessageCircle,
-    FileText, Star, Settings, DollarSign, Eye, Heart,
-    Inbox, PlusCircle, TrendingUp, MapPin
+    Settings, DollarSign, Eye, TrendingUp, MapPin, 
+    PlusCircle, ArrowRight, Wallet, Clock, ShieldCheck, Share2
 } from "lucide-react";
 import ProfileSettings from "@/components/account/ProfileSettings";
 import ItemActions from "@/components/account/ItemActions";
@@ -52,6 +52,8 @@ export default async function AccountPage({ searchParams }) {
     }
 
     const data = await getAccountData(session.user.id);
+    if (!data) return redirect("/auth/login");
+
     const { user, myListings, mySales, myPurchases, offersReceived } = data;
 
     // Default tab
@@ -67,87 +69,116 @@ export default async function AccountPage({ searchParams }) {
     const itemsSold = mySales.length;
     const itemsListed = myListings.length;
     const pendingOffers = offersReceived.filter(o => o.status === "Pending").length;
-    const reviewScore = 0; // Or null to hide
 
     return (
         <div className="min-h-screen bg-[#FAFAFA] pb-20">
-            {/* Header / Cover */}
-            <div className="bg-white border-b border-gray-200">
-                <div className="max-w-full mx-auto px-6 py-8">
-                    <div className="flex flex-col md:flex-row items-center md:items-end md:justify-between gap-6">
-                        {/* Profile Info */}
-                        <div className="flex flex-col md:flex-row items-center md:items-center text-center md:text-left gap-5">
-                            <div className="relative">
-                                <div className="h-24 w-24 rounded-full border-4 border-white shadow-lg overflow-hidden bg-gray-100">
-                                    {user.image ? <img src={user.image} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-3xl text-gray-300 font-serif font-bold">{user.name[0]}</div>}
-                                </div>
-                                <span className={`absolute bottom-1 right-1 h-5 w-5 rounded-full border-2 border-white ${itemsSold >= 10 ? 'bg-blue-900' : 'bg-green-500'}`} title="Verified Seller"></span>
-                            </div>
+            {/* 1. CINEMATIC HERO BANNER */}
+            <div className="relative h-[250px] md:h-[350px] overflow-hidden">
+                <img 
+                    src="https://images.unsplash.com/photo-1497215728101-856f4ea42174?q=80&w=2070&auto=format&fit=crop" 
+                    alt="Workspace Banner" 
+                    className="w-full h-full object-cover grayscale opacity-80"
+                />
+                <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-[#FAFAFA]"></div>
+            </div>
 
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                {/* 2. OVERLAPPING HEADER CARD */}
+                <div className="relative -mt-20 z-10 bg-white/80 backdrop-blur-xl shadow-2xl rounded-3xl overflow-hidden border border-white/50 p-6 md:p-8">
+                    <div className="flex flex-col md:flex-row items-center md:items-center justify-between gap-8">
+                        {/* Profile Section */}
+                        <div className="flex flex-col md:flex-row items-center gap-6 text-center md:text-left">
+                            <div className="relative">
+                                <div className="h-24 w-24 md:h-32 md:w-32 rounded-3xl border-4 border-white shadow-xl overflow-hidden bg-blue-50 flex items-center justify-center rotate-3 group-hover:rotate-0 transition-transform duration-500">
+                                    {user.image ? (
+                                        <img src={user.image} className="w-full h-full object-cover" />
+                                    ) : (
+                                        <span className="text-4xl font-serif italic text-blue-300">{user.name[0].toUpperCase()}</span>
+                                    )}
+                                </div>
+                                {user.isVerified && (
+                                    <div className="absolute -bottom-2 -right-2 bg-blue-500 p-1.5 rounded-xl border-4 border-white shadow-lg">
+                                        <ShieldCheck className="w-5 h-5 text-white" />
+                                    </div>
+                                )}
+                            </div>
                             <div>
-                                <h1 className="text-2xl font-serif font-bold text-gray-900">{user.name}</h1>
-                                <p className="text-gray-500 font-medium mb-2 text-sm">{user.email}</p>
+                                <h1 className="text-3xl font-serif font-bold text-gray-900">{user.name}</h1>
+                                <p className="text-gray-500 font-medium mb-3">{user.email}</p>
                                 <div className="flex flex-wrap justify-center md:justify-start gap-2">
-                                    <span className="px-2.5 py-0.5 bg-gray-100 text-gray-600 rounded-full text-[10px] font-bold uppercase tracking-wider">{itemsSold >= 10 ? 'Trusted Seller' : 'Member'}</span>
-                                    <span className="px-2.5 py-0.5 bg-gray-100 text-gray-600 rounded-full text-[10px] font-bold uppercase tracking-wider flex items-center"><MapPin className="w-3 h-3 mr-1" /> {user.nationality || "Global"}</span>
+                                    <span className="px-3 py-1 bg-blue-50 text-blue-500 rounded-full text-[10px] font-bold uppercase tracking-wider border border-blue-100 italic">
+                                        Personal Dashboard
+                                    </span>
+                                    <Link href={`/profile/${user._id}`} className="px-3 py-1 bg-gray-900 text-white rounded-full text-[10px] font-bold uppercase tracking-wider flex items-center hover:bg-blue-500 transition-colors">
+                                        View Public Profile <ArrowRight className="w-3 h-3 ml-1" />
+                                    </Link>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Stats */}
-                        <div className="flex items-center gap-2 sm:gap-4 bg-gray-50 p-1.5 rounded-xl border border-gray-100">
-                            <StatBox label="Sold" value={itemsSold} />
-                            <div className="w-px h-6 bg-gray-200"></div>
-                            <StatBox label="Active" value={itemsListed} />
-                            <div className="w-px h-6 bg-gray-200"></div>
-                            <StatBox label="Purchased" value={myPurchases.length} />
+                        {/* Quick Action / Total Balance Style Stats */}
+                        <div className="flex items-center justify-center md:justify-end gap-3 sm:gap-6 w-full md:w-auto">
+                            <QuickStat label="Sales" value={itemsSold} icon={<TrendingUp className="w-4 h-4" />} />
+                            <QuickStat label="Active" value={itemsListed} icon={<Package className="w-4 h-4" />} />
+                            <QuickStat label="Bought" value={myPurchases.length} icon={<ShoppingBag className="w-4 h-4" />} />
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <div className="max-w-full mx-auto px-6 py-12">
-                <div className="flex flex-col lg:flex-row gap-10">
-                    {/* Sidebar Nav */}
-                    <div className="w-full lg:w-64 flex-shrink-0">
-                        <div className="sticky top-24 space-y-1">
-                            <TabLink href="?tab=listings" active={currentTab === 'listings'} icon={<LayoutDashboard className="w-4 h-4" />} label="My Listings" count={itemsListed} />
-                            <TabLink href="?tab=sales" active={currentTab === 'sales'} icon={<TrendingUp className="w-4 h-4" />} label="My Sales" count={itemsSold} />
-                            <TabLink href="?tab=purchases" active={currentTab === 'purchases'} icon={<ShoppingBag className="w-4 h-4" />} label="Purchases" count={myPurchases.length} />
-                            <TabLink href="?tab=offers" active={currentTab === 'offers'} icon={<DollarSign className="w-4 h-4" />} label="Offers" count={pendingOffers} />
-                            <TabLink href="?tab=messages" active={currentTab === 'messages'} icon={<MessageCircle className="w-4 h-4" />} label="Messages" />
-                            <div className="h-px bg-gray-200 my-4 mx-4"></div>
-                            <TabLink href="?tab=settings" active={currentTab === 'settings'} icon={<Settings className="w-4 h-4" />} label="Settings" />
+                <div className="mt-8 md:mt-12 flex flex-col lg:flex-row gap-8 lg:gap-12">
+                    {/* 3. SIDEBAR NAVIGATION - Responsive (Horizontal on Mobile, Vertical on Desktop) */}
+                    <aside className="w-full lg:w-72 shrink-0">
+                        <div className="lg:sticky lg:top-28">
+                            <h3 className="hidden lg:block text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] px-4 mb-4">Management</h3>
+                            
+                            <div className="flex lg:flex-col overflow-x-auto lg:overflow-visible pb-4 lg:pb-0 gap-2 no-scrollbar scroll-smooth">
+                                <DashboardLink href="?tab=listings" active={currentTab === 'listings'} icon={<LayoutDashboard />} label="Inventory" count={itemsListed} />
+                                <DashboardLink href="?tab=sales" active={currentTab === 'sales'} icon={<TrendingUp />} label="Sales" count={itemsSold} />
+                                <DashboardLink href="?tab=purchases" active={currentTab === 'purchases'} icon={<ShoppingBag />} label="Orders" count={myPurchases.length} />
+                                <DashboardLink href="?tab=offers" active={currentTab === 'offers'} icon={<DollarSign />} label="Offers" count={pendingOffers} />
+                                <DashboardLink href="?tab=messages" active={currentTab === 'messages'} icon={<MessageCircle />} label="Messages" />
+                                <DashboardLink href="?tab=settings" active={currentTab === 'settings'} icon={<Settings />} label="Settings" />
+                            </div>
+                            
+                            {/* Create Listing Shortcut */}
+                            <Link href="/items/create" className="mt-8 flex items-center justify-center gap-3 w-full py-4 bg-blue-500 text-white rounded-2xl font-bold text-xs uppercase tracking-widest hover:bg-black transition-all shadow-xl shadow-blue-500/20 group">
+                                <PlusCircle className="w-5 h-5 group-hover:rotate-90 transition-transform" />
+                                Add New Item
+                            </Link>
                         </div>
-                    </div>
+                    </aside>
 
-                    {/* Content Area */}
-                    <div className="flex-1 min-w-0">
+                    {/* 4. MAIN CONTENT AREA */}
+                    <main className="flex-1 min-w-0">
                         {currentTab === 'listings' && (
-                            <div className="space-y-6 animate-fade-in">
-                                <div className="flex justify-between items-end mb-6">
-                                    <div>
-                                        <h2 className="text-2xl font-serif font-bold text-gray-900">Active Listings</h2>
-                                        <p className="text-gray-500 text-sm mt-1">Manage your items currently for sale</p>
-                                    </div>
+                            <div className="space-y-8 animate-fade-in-up">
+                                <div className="flex items-center justify-between mb-2">
+                                    <h2 className="text-2xl font-serif font-bold text-gray-900">My Inventory</h2>
+                                    <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">{itemsListed} Items Live</span>
                                 </div>
+
                                 {myListings.length > 0 ? (
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                         {myListings.map(item => (
-                                            <div key={item._id} className="bg-white rounded-xl border border-gray-100 overflow-hidden hover:shadow-lg transition group">
-                                                <div className="relative aspect-[4/3] bg-gray-100 overflow-hidden">
-                                                    {item.images?.[0] && <img src={item.images[0]} className="w-full h-full object-cover group-hover:scale-105 transition duration-500" />}
-                                                    <div className="absolute top-3 right-3 bg-white/90 backdrop-blur px-2 py-1 rounded text-xs font-bold shadow-sm">
+                                            <div key={item._id} className="bg-white rounded-3xl border border-gray-100 overflow-hidden hover:shadow-2xl transition-all duration-500 group">
+                                                <div className="relative aspect-[16/10] bg-gray-50 overflow-hidden">
+                                                    {item.images?.[0] && (
+                                                        <img 
+                                                            src={item.images[0]} 
+                                                            className="w-full h-full object-cover group-hover:scale-110 transition duration-700" 
+                                                        />
+                                                    )}
+                                                    <div className="absolute top-4 left-4 bg-white/90 backdrop-blur px-3 py-1.5 rounded-xl text-sm font-bold shadow-lg text-blue-500">
                                                         ${item.price}
                                                     </div>
                                                 </div>
-                                                <div className="p-4">
-                                                    <h3 className="font-bold text-gray-900 truncate mb-1">{item.title}</h3>
-                                                    <div className="flex justify-between items-center text-xs text-gray-500 mb-4">
-                                                        <span>{new Date(item.createdAt).toLocaleDateString()}</span>
-                                                        <span className="flex items-center"><Eye className="w-3 h-3 mr-1" /> 0</span>
+                                                <div className="p-6">
+                                                    <h3 className="font-bold text-gray-900 text-lg truncate mb-3 group-hover:text-blue-500 transition-colors uppercase tracking-tight">{item.title}</h3>
+                                                    <div className="flex justify-between items-center text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-6">
+                                                        <span className="flex items-center"><Clock className="w-3 h-3 mr-1" /> {new Date(item.createdAt).toLocaleDateString()}</span>
+                                                        <span className="flex items-center"><Eye className="w-3 h-3 mr-2" /> Views: 12</span>
                                                     </div>
-                                                    <div className="pt-3 border-t border-gray-50">
+                                                    <div className="pt-4 border-t border-gray-50">
                                                         <ItemActions item={item} />
                                                     </div>
                                                 </div>
@@ -155,16 +186,16 @@ export default async function AccountPage({ searchParams }) {
                                         ))}
                                     </div>
                                 ) : (
-                                    <EmptyState label="You haven't listed anything yet." action="/items/create" actionLabel="Start Selling" />
+                                    <EmptyDashboard label="Your inventory is empty" sublabel="Turn your unused goods into cash today." action="/items/create" actionLabel="Start Selling" />
                                 )}
                             </div>
                         )}
 
-                        {/* Messages */}
                         {currentTab === 'messages' && (
-                            <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm min-h-[500px]">
-                                <div className="p-6 border-b border-gray-100">
-                                    <h2 className="text-xl font-bold font-serif">Messages</h2>
+                            <div className="bg-white rounded-[2rem] border border-gray-100 shadow-xl overflow-hidden min-h-[600px] animate-fade-in-up">
+                                <div className="p-8 border-b border-gray-50 flex items-center justify-between bg-gray-50/50">
+                                    <h2 className="text-xl font-bold font-serif text-gray-900">Connections</h2>
+                                    <span className="text-[10px] font-bold text-blue-500 bg-blue-50 px-3 py-1 rounded-full uppercase tracking-widest">Active Chats</span>
                                 </div>
                                 {conversations.length > 0 ? (
                                     <div className="divide-y divide-gray-50">
@@ -172,165 +203,173 @@ export default async function AccountPage({ searchParams }) {
                                             <Link
                                                 key={conv.user.id}
                                                 href={`/inbox/${conv.user.id}`}
-                                                className="flex items-center p-4 hover:bg-gray-50 transition group"
+                                                className="flex items-center p-6 hover:bg-blue-50/30 transition-all group"
                                             >
-                                                <div className="h-12 w-12 rounded-full bg-gray-100 mr-4 overflow-hidden border border-gray-100">
-                                                    {conv.user.image ? <img src={conv.user.image} className="w-full h-full object-cover" /> : null}
+                                                <div className="h-14 w-14 rounded-2xl bg-blue-50 mr-5 overflow-hidden border-2 border-white shadow-md flex-shrink-0">
+                                                    {conv.user.image ? <img src={conv.user.image} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-xl font-serif italic text-blue-300">{conv.user.name[0]}</div>}
                                                 </div>
-                                                <div className="flex-1">
-                                                    <div className="flex justify-between">
-                                                        <span className="font-bold text-gray-900 group-hover:text-black">{conv.user.name}</span>
-                                                        <span className="text-xs text-gray-400">{new Date(conv.lastMessage.createdAt).toLocaleDateString()}</span>
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="flex justify-between items-center mb-1">
+                                                        <span className="font-bold text-gray-950 text-lg truncate">{conv.user.name}</span>
+                                                        <span className="text-[10px] font-bold text-gray-400 uppercase">{new Date(conv.lastMessage.createdAt).toLocaleDateString()}</span>
                                                     </div>
-                                                    <p className={`text-sm mt-1 truncate ${!conv.lastMessage.read && !conv.lastMessage.isOwn ? 'font-bold text-gray-900' : 'text-gray-500'}`}>
-                                                        {conv.lastMessage.isOwn && <span className="text-gray-400">You: </span>}
-                                                        {conv.lastMessage.content || "Sent an attachment"}
+                                                    <p className={`text-sm truncate pr-10 ${!conv.lastMessage.read && !conv.lastMessage.isOwn ? 'font-bold text-blue-500' : 'text-gray-500'}`}>
+                                                        {conv.lastMessage.isOwn && <span className="text-gray-300 mr-1 italic">Sent: </span>}
+                                                        {conv.lastMessage.content || "Image attachment"}
                                                     </p>
+                                                </div>
+                                                <div className="opacity-0 group-hover:opacity-100 transform translate-x-4 group-hover:translate-x-0 transition-all">
+                                                    <ArrowRight className="w-5 h-5 text-blue-500" />
                                                 </div>
                                             </Link>
                                         ))}
                                     </div>
                                 ) : (
-                                    <EmptyState label="No messages found." />
+                                    <EmptyDashboard label="No conversations yet" sublabel="Message sellers or buyers to start negotiating." />
                                 )}
                             </div>
                         )}
 
-                        {currentTab === 'settings' && <div className="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm"><ProfileSettings user={user} /></div>}
+                        {currentTab === 'settings' && (
+                            <div className="bg-white p-8 rounded-[2rem] border border-gray-100 shadow-xl animate-fade-in-up">
+                                <ProfileSettings user={user} />
+                            </div>
+                        )}
 
                         {currentTab === 'offers' && (
-                            <div className="space-y-6 animate-fade-in">
-                                <div>
-                                    <h2 className="text-2xl font-serif font-bold text-gray-900">Price Offers</h2>
-                                    <p className="text-gray-500 text-sm mt-1">Manage negotiation requests from buyers</p>
+                            <div className="space-y-8 animate-fade-in-up">
+                                <h2 className="text-2xl font-serif font-bold text-gray-900">Offer Inbox</h2>
+                                <div className="bg-white rounded-[2rem] border border-gray-100 shadow-xl p-8">
+                                    <OfferList offers={offersReceived} />
                                 </div>
-                                <OfferList offers={offersReceived} />
                             </div>
                         )}
 
                         {currentTab === 'purchases' && (
-                            <div className="space-y-6 animate-fade-in">
-                                <div>
-                                    <h2 className="text-2xl font-serif font-bold text-gray-900">My Purchases</h2>
-                                    <p className="text-gray-500 text-sm mt-1">History of items you have bought</p>
-                                </div>
+                            <div className="space-y-8 animate-fade-in-up">
+                                <h2 className="text-2xl font-serif font-bold text-gray-900">Order History</h2>
                                 {myPurchases.length > 0 ? (
-                                    <div className="space-y-4">
+                                    <div className="grid grid-cols-1 gap-4">
                                         {myPurchases.map((item) => (
-                                            <div key={item._id} className="bg-white p-5 rounded-xl border border-gray-200 flex flex-col sm:flex-row gap-5 items-center">
-                                                <Link href={`/items/${item._id}`} className="block w-20 h-20 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
+                                            <Link key={item._id} href={`/items/${item._id}`} className="bg-white p-6 rounded-3xl border border-gray-100 flex flex-col md:flex-row gap-6 items-center hover:shadow-2xl transition-all duration-300 group">
+                                                <div className="w-24 h-24 bg-gray-50 rounded-2xl overflow-hidden flex-shrink-0 shadow-sm">
                                                     {item.images?.[0] && <img src={item.images[0]} className="w-full h-full object-cover" />}
-                                                </Link>
-                                                <div className="flex-1 text-center sm:text-left">
-                                                    <h3 className="font-bold text-gray-900 truncate">{item.title}</h3>
-                                                    <p className="text-sm text-gray-500 mt-0.5">Bought from <span className="font-bold text-black">{item.sellerId?.name || "Seller"}</span></p>
-                                                    <p className="text-xs text-gray-400 mt-2">Placed on {new Date(item.updatedAt).toLocaleDateString()}</p>
                                                 </div>
-                                                <div className="text-right">
-                                                    <div className="text-lg font-bold text-gray-900 mb-2">${item.price}</div>
-                                                    <span className="inline-block px-3 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-full uppercase tracking-wide">
-                                                        {item.paymentMethod === 'COD' ? 'Pending (COD)' : 'Paid'}
-                                                    </span>
+                                                <div className="flex-1 text-center md:text-left">
+                                                    <div className="flex items-center justify-center md:justify-start gap-2 mb-1">
+                                                        <span className="text-[10px] font-black bg-blue-50 text-blue-500 px-2 py-0.5 rounded-full uppercase tracking-tighter border border-blue-100">Verified Buy</span>
+                                                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{new Date(item.updatedAt).toLocaleDateString()}</span>
+                                                    </div>
+                                                    <h3 className="font-bold text-gray-900 text-xl group-hover:text-blue-500 transition-colors uppercase tracking-tight">{item.title}</h3>
+                                                    <p className="text-sm text-gray-500 mt-1">Acquired from <span className="font-bold text-gray-900">{item.sellerId?.name || "Premium Seller"}</span></p>
                                                 </div>
-                                            </div>
+                                                <div className="text-center md:text-right">
+                                                    <div className="text-2xl font-serif font-bold text-gray-900 mb-2">${item.price}</div>
+                                                    <div className="flex items-center justify-center md:justify-end gap-2">
+                                                        <div className="h-2 w-2 rounded-full bg-blue-500"></div>
+                                                        <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Order Complete</span>
+                                                    </div>
+                                                </div>
+                                            </Link>
                                         ))}
                                     </div>
                                 ) : (
-                                    <EmptyState label="You haven't purchased anything yet." action="/dashboard" actionLabel="Browse Marketplace" />
+                                    <EmptyDashboard label="No purchases yet" sublabel="Everything you buy will appear here." action="/dashboard" actionLabel="Explore Market" />
                                 )}
                             </div>
                         )}
 
-                        {/* Placeholders for Sales (Styled Basic) */}
                         {currentTab === 'sales' && (
-                            <div className="space-y-6 animate-fade-in">
-                                <div>
-                                    <h2 className="text-2xl font-serif font-bold text-gray-900">My Sales</h2>
-                                    <p className="text-gray-500 text-sm mt-1">History of items you have sold</p>
-                                </div>
+                            <div className="space-y-8 animate-fade-in-up">
+                                <h2 className="text-2xl font-serif font-bold text-gray-900">Successful Sales</h2>
                                 {mySales.length > 0 ? (
-                                    <div className="space-y-4">
+                                    <div className="grid grid-cols-1 gap-4">
                                         {mySales.map((item) => (
-                                            <div key={item._id} className="bg-white p-5 rounded-xl border border-gray-200 flex flex-col sm:flex-row gap-5 items-center">
-                                                <Link href={`/items/${item._id}`} className="block w-20 h-20 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0 relative">
-                                                    {item.images?.[0] && <img src={item.images[0]} className="w-full h-full object-cover grayscale" />}
-                                                    <div className="absolute inset-0 flex items-center justify-center bg-black/10">
-                                                        <span className="text-[10px] bg-black text-white px-1.5 py-0.5 rounded font-bold uppercase tracking-widest">Sold</span>
+                                            <div key={item._id} className="bg-white p-6 rounded-3xl border border-gray-100 flex flex-col md:flex-row gap-6 items-center hover:shadow-2xl transition-all duration-300 group">
+                                                <div className="w-24 h-24 bg-gray-50 rounded-2xl overflow-hidden flex-shrink-0 relative shadow-sm">
+                                                    {item.images?.[0] && <img src={item.images[0]} className="w-full h-full object-cover grayscale opacity-50" />}
+                                                    <div className="absolute inset-0 flex items-center justify-center bg-gray-900/10">
+                                                        <span className="text-[8px] bg-black text-white px-2 py-1 rounded-lg font-black uppercase tracking-[0.2em] shadow-lg">SOLD</span>
                                                     </div>
-                                                </Link>
-                                                <div className="flex-1 text-center sm:text-left">
-                                                    <h3 className="font-bold text-gray-900 truncate">{item.title}</h3>
-                                                    <p className="text-sm text-gray-500 mt-0.5">Sold on {new Date(item.updatedAt).toLocaleDateString()}</p>
-
+                                                </div>
+                                                <div className="flex-1 text-center md:text-left min-w-0">
+                                                    <div className="flex items-center justify-center md:justify-start gap-2 mb-1">
+                                                        <span className="text-[10px] font-bold bg-green-50 text-green-600 px-2 py-0.5 rounded-full uppercase tracking-tighter border border-green-100">Payout Sent</span>
+                                                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Closed {new Date(item.updatedAt).toLocaleDateString()}</span>
+                                                    </div>
+                                                    <h3 className="font-bold text-gray-900 text-xl truncate uppercase tracking-tight">{item.title}</h3>
                                                     {item.deliveryDetails && (
-                                                        <div className="mt-2 text-xs bg-gray-50 p-2 rounded border border-gray-100 inline-block text-left">
-                                                            <p className="font-bold text-gray-700 mb-0.5">Ship to:</p>
-                                                            <p className="text-gray-500">{item.deliveryDetails.fullName}</p>
-                                                            <p className="text-gray-500">{item.deliveryDetails.address}, {item.deliveryDetails.city}</p>
+                                                        <div className="mt-3 flex items-center gap-2 text-[10px] text-gray-500 font-bold uppercase tracking-widest">
+                                                            <MapPin className="w-3 h-3 text-blue-500" />
+                                                            Shipped to {item.deliveryDetails.city}
                                                         </div>
                                                     )}
                                                 </div>
-                                                <div className="text-right">
-                                                    <div className="text-lg font-bold text-gray-900 mb-2">${item.price}</div>
-                                                    <div className="flex flex-col items-end gap-1">
-                                                        <span className="inline-block px-3 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-full uppercase tracking-wide">
-                                                            Sold
-                                                        </span>
-                                                        <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
-                                                            {item.paymentMethod || "COD"}
-                                                        </span>
+                                                <div className="text-center md:text-right">
+                                                    <div className="text-2xl font-serif font-bold text-gray-900 mb-2">${item.price}</div>
+                                                    <div className="flex items-center justify-center md:justify-end gap-2 text-green-600">
+                                                        <Wallet className="w-4 h-4" />
+                                                        <span className="text-[10px] font-bold uppercase tracking-[0.2em]">Earnt</span>
                                                     </div>
                                                 </div>
                                             </div>
                                         ))}
                                     </div>
                                 ) : (
-                                    <EmptyState label="You haven't sold anything yet." action="/items/create" actionLabel="List an Item" />
+                                    <EmptyDashboard label="No sales yet" sublabel="Your store history will appear here once items sell." action="/items/create" actionLabel="Post First Item" />
                                 )}
                             </div>
                         )}
-                    </div>
+                    </main>
                 </div>
             </div>
         </div>
     );
 }
 
-function StatBox({ label, value, icon }) {
+function QuickStat({ label, value, icon }) {
     return (
-        <div className="px-4 py-2 text-center min-w-[80px]">
-            <div className="text-xl font-bold text-gray-900 flex items-center justify-center font-serif leading-none mb-1">
-                {value} {icon}
+        <div className="flex flex-col items-center justify-center p-2.5 sm:px-4 sm:py-3 bg-white/50 backdrop-blur rounded-2xl border border-white/50 shadow-sm min-w-[70px] sm:min-w-[80px]">
+            <div className="text-base sm:text-xl font-bold text-gray-900 font-serif leading-none mb-1">
+                {value}
             </div>
-            <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{label}</div>
+            <div className="flex items-center text-[7px] sm:text-[8px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap">
+                <span className="mr-1 text-blue-500">{icon}</span>
+                {label}
+            </div>
         </div>
     );
 }
 
-function TabLink({ href, active, icon, label, count }) {
+function DashboardLink({ href, active, icon, label, count }) {
     return (
-        <Link href={href} className={`flex items-center px-4 py-3 rounded-xl transition-all duration-200 group ${active ? 'bg-blue-900 text-white shadow-md shadow-blue-200' : 'text-gray-500 hover:bg-gray-100 hover:text-black'}`}>
-            <span className={`mr-3 ${active ? 'text-white' : 'text-gray-400 group-hover:text-black transition'}`}>{icon}</span>
-            <span className="font-bold text-sm tracking-wide flex-1">{label}</span>
+        <Link href={href} className={`flex items-center shrink-0 px-4 md:px-5 py-3 md:py-4 rounded-xl md:rounded-[1.25rem] transition-all duration-300 group ${active ? 'bg-blue-500 text-white shadow-xl shadow-blue-500/20 translate-x-0 lg:translate-x-1' : 'text-gray-500 hover:bg-white hover:text-blue-500 hover:shadow-lg bg-gray-50 lg:bg-transparent'}`}>
+            <span className={`mr-3 md:mr-4 ${active ? 'text-white' : 'text-gray-400 group-hover:text-blue-500 transition-colors'}`}>
+                {icon && typeof icon === 'object' ? React.cloneElement(icon, { className: "w-4 h-4 md:w-5 md:h-5" }) : icon}
+            </span>
+            <span className="font-bold text-[11px] md:text-[13px] tracking-wide flex-1 whitespace-nowrap">{label}</span>
             {count !== undefined && (
-                <span className={`ml-2 text-[10px] font-bold px-2 py-0.5 rounded-full ${active ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-500 group-hover:bg-gray-200 group-hover:text-black'}`}>{count}</span>
+                <span className={`ml-2 text-[9px] md:text-[10px] font-bold px-1.5 md:px-2 py-0.5 rounded-lg ${active ? 'bg-white/20 text-white' : 'bg-gray-200 text-gray-400 group-hover:bg-blue-50 group-hover:text-blue-500'}`}>{count}</span>
             )}
         </Link>
     );
 }
 
-function EmptyState({ label, action, actionLabel }) {
+function EmptyDashboard({ label, sublabel, action, actionLabel }) {
     return (
-        <div className="flex flex-col items-center justify-center py-16 text-center">
-            <div className="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center mb-4 rotate-3">
-                <Package className="w-8 h-8 text-gray-300" />
+        <div className="flex flex-col items-center justify-center py-24 px-6 text-center bg-white rounded-[2.5rem] border border-gray-100 shadow-sm border-dashed">
+            <div className="w-20 h-20 bg-blue-50 rounded-3xl flex items-center justify-center mb-6 rotate-6 group-hover:rotate-0 transition-transform">
+                <Package className="w-10 h-10 text-blue-200" />
             </div>
-            <h3 className="text-gray-900 font-bold font-serif text-lg mb-2">{label}</h3>
+            <h3 className="text-gray-900 font-bold font-serif text-2xl mb-2">{label}</h3>
+            <p className="text-gray-500 max-w-xs mx-auto text-sm mb-8 leading-relaxed">{sublabel}</p>
             {action && (
-                <Link href={action} className="mt-4 px-6 py-3 bg-blue-900 text-white rounded-full text-xs font-bold uppercase tracking-widest hover:bg-black hover:scale-105 transition shadow-lg shadow-blue-900/20">
+                <Link href={action} className="px-8 py-4 bg-gray-900 text-white rounded-2xl text-[10px] font-bold uppercase tracking-widest hover:bg-blue-500 hover:scale-105 transition shadow-2xl shadow-blue-500/10">
                     {actionLabel}
                 </Link>
             )}
         </div>
     );
 }
+
+import React from "react";

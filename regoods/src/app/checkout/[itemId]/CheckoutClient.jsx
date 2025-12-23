@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { purchaseItem } from "@/app/actions/item";
 import { useRouter } from "next/navigation";
+import { Loader2, CheckCircle, Package, ArrowRight, User, Mail, Phone, MapPin, CreditCard, Truck } from "lucide-react";
 
 export default function CheckoutClient({ item }) {
     const [loading, setLoading] = useState(false);
@@ -24,8 +25,8 @@ export default function CheckoutClient({ item }) {
 
     const handleConfirm = async () => {
         // Validation
-        if (!deliveryDetails.fullName || !deliveryDetails.email || !deliveryDetails.address || !deliveryDetails.city || !deliveryDetails.phone) {
-            alert("Please fill in all delivery details.");
+        if (!deliveryDetails.fullName || !deliveryDetails.phone || !deliveryDetails.address || !deliveryDetails.city) {
+            alert("Please provide the essential delivery information.");
             return;
         }
 
@@ -38,7 +39,7 @@ export default function CheckoutClient({ item }) {
         });
 
         if (result.success) {
-            setSuccessMessage("Success! Your order has been placed via Cash on Delivery.");
+            setSuccessMessage("Your order has been authorized and placed for delivery.");
             setShowSuccessModal(true);
         } else {
             alert(result.error);
@@ -56,190 +57,206 @@ export default function CheckoutClient({ item }) {
         router.push("/account?tab=purchases");
     };
 
-    const inputClasses = "w-full p-2.5 border border-gray-200 rounded-lg text-sm text-black font-medium focus:outline-none focus:border-black transition placeholder-gray-400";
+    const inputClasses = "w-full py-4 px-5 bg-gray-50 border border-gray-100 rounded-2xl text-[13px] font-bold text-gray-900 placeholder:text-gray-300 focus:outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500/30 transition-all duration-300";
 
     return (
-        <div className="flex flex-col relative">
-            {/* Success Modal */}
+        <div className="flex flex-col relative animate-fade-in-up">
+            {/* 1. SUCCESS MODAL */}
             {showSuccessModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
-                    <div className="bg-white rounded-2xl p-8 max-w-sm w-full shadow-2xl transform transition-all scale-100 animate-scale-in text-center relative overflow-hidden">
-                        <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-900 via-indigo-800 to-blue-900"></div>
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-950/80 backdrop-blur-xl animate-fade-in">
+                    <div className="bg-white rounded-[3rem] p-12 max-w-sm w-full shadow-2xl transform transition-all animate-scale-in text-center relative overflow-hidden">
+                        <div className="absolute top-0 left-0 w-full h-2 bg-blue-500"></div>
 
-                        <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-5 animate-bounce-slow">
-                            <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path>
-                            </svg>
+                        <div className="w-24 h-24 bg-blue-50 rounded-[2rem] flex items-center justify-center mx-auto mb-8 rotate-12">
+                            <CheckCircle className="w-12 h-12 text-blue-500" />
                         </div>
 
-                        <h3 className="text-2xl font-serif font-bold text-gray-900 mb-2">Order Confirmed!</h3>
-                        <p className="text-gray-600 mb-8 leading-relaxed text-sm">
+                        <h3 className="text-3xl font-serif font-bold text-gray-900 mb-4">Transaction <br/> Complete</h3>
+                        <p className="text-gray-500 mb-10 leading-relaxed text-sm italic">
                             {successMessage}
                         </p>
 
                         <button
                             onClick={handleCloseModal}
-                            className="w-full py-3.5 bg-blue-900 hover:bg-black text-white rounded-xl font-bold uppercase tracking-widest text-sm transition shadow-lg hover:shadow-xl hover:-translate-y-0.5 shadow-blue-900/20"
+                            className="group w-full py-5 bg-gray-900 hover:bg-blue-500 text-white rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] transition-all shadow-xl shadow-blue-500/10 flex items-center justify-center gap-3"
                         >
-                            View My Purchases
+                            View Order History
+                            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                         </button>
                     </div>
                 </div>
             )}
 
-            <div className="space-y-3">
-                {/* Delivery Details Section */}
-                <div className="bg-gray-50 p-5 rounded-xl border border-gray-200">
-                    <span className="text-xs font-bold text-gray-400 uppercase tracking-widest block mb-3">Delivery Details</span>
+            <div className="space-y-10">
+                {/* 2. DELIVERY INFORMATION SECTION */}
+                <section className="space-y-6">
+                    <div className="flex items-center gap-2 mb-4">
+                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em]">Logistics Identity</span>
+                    </div>
 
-                    <div className="grid grid-cols-6 gap-3">
-                        <div className="col-span-3">
-                            <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Full Name</label>
-                            <input
-                                type="text"
-                                name="fullName"
-                                value={deliveryDetails.fullName}
-                                onChange={handleInputChange}
-                                className={inputClasses}
-                                placeholder="John Doe"
-                            />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="md:col-span-2">
+                             <div className="relative">
+                                <User className="absolute top-1/2 -translate-y-1/2 left-5 w-4 h-4 text-gray-300" />
+                                <input
+                                    type="text"
+                                    name="fullName"
+                                    value={deliveryDetails.fullName}
+                                    onChange={handleInputChange}
+                                    className={`${inputClasses} pl-12`}
+                                    placeholder="Recipient Name"
+                                />
+                             </div>
                         </div>
 
-                        <div className="col-span-3">
-                            <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Email Address</label>
+                        <div className="relative">
+                            <Mail className="absolute top-1/2 -translate-y-1/2 left-5 w-4 h-4 text-gray-300" />
                             <input
                                 type="email"
                                 name="email"
                                 value={deliveryDetails.email}
                                 onChange={handleInputChange}
-                                className={inputClasses}
-                                placeholder="john@example.com"
+                                className={`${inputClasses} pl-12`}
+                                placeholder="Contact Email"
                             />
                         </div>
 
-                        <div className="col-span-2">
-                            <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Phone Number</label>
+                        <div className="relative">
+                            <Phone className="absolute top-1/2 -translate-y-1/2 left-5 w-4 h-4 text-gray-300" />
                             <input
                                 type="tel"
                                 name="phone"
                                 value={deliveryDetails.phone}
                                 onChange={handleInputChange}
-                                className={inputClasses}
-                                placeholder="+1 (555) 000-0000"
+                                className={`${inputClasses} pl-12`}
+                                placeholder="Phone Number"
                             />
                         </div>
 
-                        <div className="col-span-2">
-                            <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">City</label>
+                        <div className="md:col-span-2 relative">
+                            <MapPin className="absolute top-1/2 -translate-y-1/2 left-5 w-4 h-4 text-gray-300" />
+                            <input
+                                type="text"
+                                name="address"
+                                value={deliveryDetails.address}
+                                onChange={handleInputChange}
+                                className={`${inputClasses} pl-12`}
+                                placeholder="Residential Address"
+                            />
+                        </div>
+
+                        <div className="relative">
                             <input
                                 type="text"
                                 name="city"
                                 value={deliveryDetails.city}
                                 onChange={handleInputChange}
                                 className={inputClasses}
-                                placeholder="New York"
+                                placeholder="City"
                             />
                         </div>
 
-                        <div className="col-span-2">
-                            <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Postal Code</label>
+                        <div className="relative">
                             <input
                                 type="text"
                                 name="postalCode"
                                 value={deliveryDetails.postalCode}
                                 onChange={handleInputChange}
                                 className={inputClasses}
-                                placeholder="10001"
-                            />
-                        </div>
-
-                        <div className="col-span-6">
-                            <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Address</label>
-                            <input
-                                type="text"
-                                name="address"
-                                value={deliveryDetails.address}
-                                onChange={handleInputChange}
-                                className={inputClasses}
-                                placeholder="123 Street Name"
+                                placeholder="Postcode"
                             />
                         </div>
                     </div>
-                </div>
+                </section>
 
-                {/* Payment Method Section */}
-                <div className="bg-gray-50 p-5 rounded-xl border border-gray-200">
-                    <span className="text-xs font-bold text-gray-400 uppercase tracking-widest block mb-3">Payment Method</span>
-
-                    <div className="grid grid-cols-2 gap-3 mb-4">
-                        <label className={`flex items-center p-3 border rounded-lg cursor-pointer transition ${paymentMethod === 'COD' ? 'border-black bg-white shadow-sm' : 'border-gray-200 hover:border-gray-300'}`}>
-                            <input
-                                type="radio"
-                                name="payment"
-                                value="COD"
-                                checked={paymentMethod === 'COD'}
-                                onChange={(e) => setPaymentMethod(e.target.value)}
-                                className="w-4 h-4 text-black border-gray-300 focus:ring-black"
-                            />
-                            <div className="ml-3">
-                                <span className="block font-bold text-gray-900 text-sm">COD</span>
-                                <span className="block text-xs text-gray-500">Pay on delivery</span>
-                            </div>
-                        </label>
-
-                        <label className={`flex items-center p-3 border rounded-lg cursor-pointer transition ${paymentMethod === 'Online' ? 'border-black bg-white shadow-sm' : 'border-gray-200 hover:border-gray-300'}`}>
-                            <input
-                                type="radio"
-                                name="payment"
-                                value="Online"
-                                checked={paymentMethod === 'Online'}
-                                onChange={(e) => setPaymentMethod(e.target.value)}
-                                className="w-4 h-4 text-black border-gray-300 focus:ring-black"
-                            />
-                            <div className="ml-3">
-                                <span className="block font-bold text-gray-900 text-sm">Online</span>
-                                <span className="block text-xs text-gray-500">Card / Digital</span>
-                            </div>
-                        </label>
+                {/* 3. PAYMENT ARCHITECTURE SECTION */}
+                <section className="space-y-6">
+                    <div className="flex items-center gap-2">
+                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em]">Settlement Method</span>
                     </div>
 
-                    {paymentMethod === 'Online' ? (
-                        <div className="mt-4 border-t border-gray-100 pt-4">
-                            <p className="text-sm text-gray-500 mb-4">You will be redirected to a secure payment page to complete your purchase.</p>
-                            <button
-                                onClick={() => {
-                                    if (!deliveryDetails.fullName || !deliveryDetails.phone || !deliveryDetails.address || !deliveryDetails.city) {
-                                        alert("Please fill in delivery details first.");
-                                        return;
-                                    }
-                                    router.push(`/checkout/payment?itemId=${item._id}`);
-                                }}
-                                className="w-full py-4 bg-blue-900 hover:bg-black text-white font-bold rounded-lg hover:scale-[1.02] transition shadow-md flex justify-center items-center text-sm uppercase tracking-widest"
-                            >
-                                Proceed to Payment
-                            </button>
-                        </div>
-                    ) : (
-                        <div className="mt-4 border-t border-gray-100 pt-4">
-                            <p className="text-sm text-gray-500 mb-4">You will pay securely upon delivery of the item.</p>
-                            <button
-                                onClick={handleConfirm}
-                                disabled={loading}
-                                className="w-full py-4 bg-blue-900 hover:bg-black text-white font-bold rounded-lg hover:scale-[1.02] transition disabled:opacity-50 flex justify-center items-center text-sm uppercase tracking-widest shadow-md"
-                            >
-                                {loading ? (
-                                    <>
-                                        <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2"></span>
-                                        Wait...
-                                    </>
-                                ) : (
-                                    `Confirm Order • $${(item.price + 400).toLocaleString()}`
-                                )}
-                            </button>
-                        </div>
-                    )}
-                </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <PaymentOption 
+                            id="COD" 
+                            label="Pay on Arrival" 
+                            sub="Cash / Local Payment" 
+                            icon={<Truck />} 
+                            active={paymentMethod === 'COD'} 
+                            onChange={() => setPaymentMethod('COD')} 
+                        />
+                        <PaymentOption 
+                            id="Online" 
+                            label="Digital Gateway" 
+                            sub="Card / Secure Credit" 
+                            icon={<CreditCard />} 
+                            active={paymentMethod === 'Online'} 
+                            onChange={() => setPaymentMethod('Online')} 
+                        />
+                    </div>
+
+                    <div className="mt-8 pt-8 border-t border-gray-50 text-center sm:text-left">
+                        {paymentMethod === 'Online' ? (
+                            <div className="animate-fade-in">
+                                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest leading-relaxed mb-6">
+                                    You will be redirected to our encrypted digital vault to finalize the transaction.
+                                </p>
+                                <button
+                                    onClick={() => {
+                                        if (!deliveryDetails.fullName || !deliveryDetails.phone || !deliveryDetails.address || !deliveryDetails.city) {
+                                            alert("Please finalize your delivery coordinates first.");
+                                            return;
+                                        }
+                                        router.push(`/checkout/payment?itemId=${item._id}`);
+                                    }}
+                                    className="group w-full py-5 bg-blue-500 hover:bg-gray-900 text-white rounded-[2rem] font-black uppercase tracking-[0.2em] text-[10px] transition-all shadow-xl shadow-blue-500/20 flex items-center justify-center gap-3"
+                                >
+                                    Initalize Secure Payment
+                                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                                </button>
+                            </div>
+                        ) : (
+                            <div className="animate-fade-in">
+                                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest leading-relaxed mb-6">
+                                    No immediate deduction. Total payable upon physical exchange of the item.
+                                </p>
+                                <button
+                                    onClick={handleConfirm}
+                                    disabled={loading}
+                                    className="group w-full py-5 bg-gray-900 hover:bg-blue-500 text-white rounded-[2rem] font-black uppercase tracking-[0.2em] text-[10px] transition-all shadow-xl shadow-blue-500/10 flex items-center justify-center gap-3 disabled:opacity-50"
+                                >
+                                    {loading ? (
+                                        <Loader2 className="w-4 h-4 animate-spin" />
+                                    ) : (
+                                        <>
+                                            Authorize Order • ${(item.price + 40).toLocaleString()}
+                                            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                                        </>
+                                    )}
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                </section>
             </div>
         </div>
     );
 }
+
+function PaymentOption({ id, label, sub, icon, active, onChange }) {
+    return (
+        <label onClick={onChange} className={`relative flex items-center p-6 rounded-3xl cursor-pointer transition-all duration-500 group overflow-hidden ${active ? 'bg-blue-50 border-2 border-blue-500 shadow-xl shadow-blue-500/5' : 'bg-gray-50/50 border-2 border-transparent hover:bg-white hover:border-gray-100'}`}>
+            <div className={`p-4 rounded-2xl transition-colors ${active ? 'bg-blue-500 text-white' : 'bg-white text-gray-300 group-hover:text-blue-500 shadow-sm'}`}>
+                {icon && typeof icon === 'object' ? React.cloneElement(icon, { className: "w-6 h-6" }) : icon}
+            </div>
+            <div className="ml-5">
+                <span className={`block font-serif font-bold text-lg leading-none mb-1 ${active ? 'text-gray-900' : 'text-gray-400'}`}>{label}</span>
+                <span className={`block text-[10px] font-bold uppercase tracking-widest ${active ? 'text-blue-400' : 'text-gray-300'}`}>{sub}</span>
+            </div>
+            {active && (
+                <div className="absolute top-4 right-4 h-2 w-2 rounded-full bg-blue-500 animate-pulse"></div>
+            )}
+        </label>
+    );
+}
+
+import React from "react";

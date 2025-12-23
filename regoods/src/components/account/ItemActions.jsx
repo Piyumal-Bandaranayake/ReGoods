@@ -40,13 +40,13 @@ export default function ItemActions({ item, hideView = false }) {
 
     return (
         <>
-            <div className="ml-4 flex space-x-2">
+            <div className="flex flex-wrap gap-2">
                 {!hideView && (
                     <Link
                         href={`/items/${item._id}`}
-                        className="px-4 py-2 border border-gray-200 text-xs font-bold uppercase hover:border-black hover:bg-black hover:text-white transition flex items-center"
+                        className="px-4 py-2 bg-gray-100 text-[10px] font-black uppercase tracking-widest text-gray-500 rounded-xl hover:bg-blue-500 hover:text-white transition-all flex items-center"
                     >
-                        View
+                        Preview
                     </Link>
                 )}
 
@@ -54,28 +54,28 @@ export default function ItemActions({ item, hideView = false }) {
                     <button
                         onClick={handleMarkAsSold}
                         disabled={loading}
-                        className="px-4 py-2 border border-gray-200 text-xs font-bold uppercase hover:border-green-600 hover:bg-green-600 hover:text-white transition flex items-center text-green-600"
+                        className="px-4 py-2 bg-green-50 text-[10px] font-black uppercase tracking-widest text-green-600 rounded-xl hover:bg-green-600 hover:text-white transition-all flex items-center"
                     >
-                        <CheckCircle className="w-3 h-3 md:mr-1" />
-                        <span className="hidden md:inline">Mark Sold</span>
+                        <CheckCircle className="w-3.5 h-3.5 mr-1.5" />
+                        Mark Sold
                     </button>
                 )}
 
                 <button
                     onClick={() => setIsEditing(true)}
-                    className="px-4 py-2 border border-gray-200 text-xs font-bold uppercase hover:border-black hover:bg-black hover:text-white transition flex items-center"
+                    className="px-4 py-2 bg-blue-50 text-[10px] font-black uppercase tracking-widest text-blue-500 rounded-xl hover:bg-blue-500 hover:text-white transition-all flex items-center"
                 >
-                    <Edit className="w-3 h-3 md:mr-1" />
-                    <span className="hidden md:inline">Edit</span>
+                    <Edit className="w-3.5 h-3.5 mr-1.5" />
+                    Modify
                 </button>
 
                 <button
                     onClick={handleDelete}
                     disabled={loading}
-                    className="px-4 py-2 border border-gray-200 text-xs font-bold uppercase hover:border-red-600 hover:bg-red-600 hover:text-white transition flex items-center text-red-600"
+                    className="px-4 py-2 bg-red-50 text-[10px] font-black uppercase tracking-widest text-red-500 rounded-xl hover:bg-red-600 hover:text-white transition-all flex items-center"
                 >
-                    <Trash2 className="w-3 h-3 md:mr-1" />
-                    <span className="hidden md:inline">Delete</span>
+                    <Trash2 className="w-3.5 h-3.5 mr-1.5" />
+                    Drop
                 </button>
             </div>
 

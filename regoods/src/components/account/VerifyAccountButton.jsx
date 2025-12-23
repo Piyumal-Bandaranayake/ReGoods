@@ -13,7 +13,7 @@ export default function VerifyAccountButton({ currentStatus }) {
 
     if (currentStatus === "Pending") {
         return (
-            <div className="flex items-center px-4 py-2 bg-amber-50 text-amber-600 rounded-full border border-amber-100 shadow-sm">
+            <div className="flex items-center justify-center px-6 py-4 bg-amber-50 text-amber-700 rounded-xl border border-amber-100 shadow-sm w-full">
                 <Clock className="w-4 h-4 mr-2" />
                 <span className="text-[10px] font-bold uppercase tracking-widest">Verification Pending</span>
             </div>
@@ -24,12 +24,12 @@ export default function VerifyAccountButton({ currentStatus }) {
         <>
             <button
                 onClick={() => setIsModalOpen(true)}
-                className="flex items-center px-6 py-3 bg-blue-900 text-white rounded-sm text-xs font-bold uppercase tracking-widest hover:bg-black transition shadow-lg shadow-blue-900/20"
+                className="w-full flex items-center justify-center px-8 py-4 bg-blue-500 text-white rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-blue-600 transition shadow-xl shadow-blue-500/20"
             >
                 <ShieldCheck className="w-4 h-4 mr-2" />
-                Verify Account
+                Verify Identity
                 {currentStatus === "Rejected" && (
-                    <span className="ml-2 bg-red-500 text-white px-1.5 py-0.5 rounded text-[8px]">Rejected</span>
+                    <span className="ml-2 bg-red-600 text-white px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-tighter">Action Required</span>
                 )}
             </button>
 

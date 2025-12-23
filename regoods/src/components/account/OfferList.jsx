@@ -38,7 +38,7 @@ export default function OfferList({ offers }) {
         return (
             <div className="bg-white rounded-2xl border border-gray-100 p-12 text-center shadow-sm">
                 <div className="inline-flex p-4 bg-gray-50 rounded-full mb-4">
-                    <DollarSign className="w-6 h-6 text-gray-400" />
+                    <DollarSign className="w-6 h-6 text-gray-500" />
                 </div>
                 <h3 className="text-lg font-bold text-gray-900 mb-2">No offers yet</h3>
                 <p className="text-gray-500 max-w-sm mx-auto">When buyers make offers on your negotiable items, they will appear here.</p>
@@ -66,14 +66,14 @@ export default function OfferList({ offers }) {
                                 <Link href={`/items/${offer.itemId?._id}`} className="font-bold text-gray-900 truncate block hover:underline">
                                     {offer.itemId?.title || "Unknown Item"}
                                 </Link>
-                                <p className="text-xs text-gray-400 mt-1 uppercase tracking-widest font-bold">Original: ${offer.itemId?.price}</p>
+                                <p className="text-xs text-gray-600 mt-1 uppercase tracking-widest font-bold">Original Price: ${offer.itemId?.price}</p>
                             </div>
                         </div>
 
                         {/* Offer Amount */}
-                        <div className="bg-blue-50/50 px-6 py-3 rounded-2xl border border-blue-100 text-center flex-shrink-0">
-                            <span className="block text-[10px] uppercase font-bold text-blue-400 tracking-wider mb-1">Offered Price</span>
-                            <span className="text-2xl font-bold text-blue-900 font-serif">${offer.offerAmount}</span>
+                        <div className="bg-blue-50 px-6 py-3 rounded-2xl border border-blue-100 text-center flex-shrink-0">
+                            <span className="block text-[10px] uppercase font-bold text-blue-500 tracking-wider mb-1">Offered Price</span>
+                            <span className="text-2xl font-bold text-blue-500 font-serif">${offer.offerAmount}</span>
                         </div>
 
                         {/* Buyer Info */}
@@ -82,8 +82,8 @@ export default function OfferList({ offers }) {
                                 {offer.buyerId?.image ? <img src={offer.buyerId.image} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-gray-400"><User className="w-4 h-4" /></div>}
                             </div>
                             <div className="text-sm">
-                                <span className="block font-bold text-gray-900 truncate max-w-[100px]">{offer.buyerId?.name}</span>
-                                <span className="text-[10px] text-gray-400 uppercase font-bold">{new Date(offer.createdAt).toLocaleDateString()}</span>
+                                <span className="block font-bold text-gray-950 truncate max-w-[100px]">{offer.buyerId?.name}</span>
+                                <span className="text-[10px] text-gray-500 uppercase font-bold">{new Date(offer.createdAt).toLocaleDateString()}</span>
                             </div>
                         </div>
 
@@ -102,11 +102,11 @@ export default function OfferList({ offers }) {
                                     <button
                                         onClick={() => handleAccept(offer._id)}
                                         disabled={loadingId === offer._id}
-                                        className="px-6 py-3 bg-blue-900 text-white rounded-full font-bold text-xs uppercase tracking-widest hover:bg-black transition shadow-lg shadow-blue-900/20 flex items-center gap-2 disabled:opacity-50"
+                                        className="px-6 py-3 bg-blue-500 text-white rounded-xl font-bold text-[10px] uppercase tracking-widest hover:bg-gray-900 transition shadow-lg shadow-blue-500/20 flex items-center gap-2 disabled:opacity-50"
                                     >
                                         {loadingId === offer._id ? "Processing..." : (
                                             <>
-                                                <Check className="w-4 h-4" /> Accept
+                                                <Check className="w-4 h-4" /> Accept Offer
                                             </>
                                         )}
                                     </button>

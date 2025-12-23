@@ -24,7 +24,7 @@ export default function ItemCard({ item }) {
         )}
         {/* Overlay Button */}
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 w-[90%]">
-          <button className="w-full bg-white text-blue-900 py-3 text-xs font-bold uppercase tracking-wider shadow-lg hover:bg-blue-900 hover:text-white transition-colors">
+          <button className="w-full bg-white text-blue-500 py-3 text-xs font-bold uppercase tracking-wider shadow-lg hover:bg-blue-500 hover:text-white transition-colors">
             View details
           </button>
         </div>

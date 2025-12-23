@@ -36,10 +36,10 @@ export default function InboxLayoutClient({ conversations: initialConversations,
     }, [pathname]);
 
     return (
-        <div className="flex h-[calc(100vh-64px)] bg-white max-w-7xl mx-auto border-x border-gray-100 shadow-sm my-0 lg:my-8 rounded-none lg:rounded-xl overflow-hidden">
+        <div className="flex h-[calc(100vh-64px)] bg-white max-w-7xl mx-auto border-x border-gray-100 shadow-2xl shadow-blue-500/10 my-0 lg:my-10 rounded-none lg:rounded-[2.5rem] overflow-hidden border-t border-gray-100/50">
             {/* Sidebar: Visible on desktop, visible on mobile ONLY if on root inbox */}
             <div className={`
-                w-full md:w-80 lg:w-96 border-r border-gray-100 flex-shrink-0 bg-white
+                w-full md:w-80 lg:w-96 border-r border-gray-100/50 flex-shrink-0 bg-white
                 ${isRootInbox ? 'block' : 'hidden md:block'}
             `}>
                 <InboxSidebar conversations={conversations} />
@@ -47,7 +47,7 @@ export default function InboxLayoutClient({ conversations: initialConversations,
 
             {/* Content Area: Visible on desktop, visible on mobile ONLY if NOT on root inbox */}
             <div className={`
-                flex-1 bg-white flex flex-col md:bg-gray-50
+                flex-1 bg-white flex flex-col md:bg-blue-50/10
                 ${isRootInbox ? 'hidden md:flex' : 'flex w-full'}
             `}>
                 {children}
