@@ -25,6 +25,17 @@ export default function VerifyAccountModal({ isOpen, onClose, currentStatus }) {
         setLoading(true);
 
         const formData = new FormData(e.currentTarget);
+        const nicNumber = formData.get("nicNumber");
+
+        // Client-side validation
+        const oldNICRegex = /^[0-9]{9}[vVxX]$/;
+        const newNICRegex = /^[0-9]{12}$/;
+        
+        if (!oldNICRegex.test(nicNumber) && !newNICRegex.test(nicNumber)) {
+            alert("Invalid NIC number format. Use 123456789V or 200012345678 format.");
+            setLoading(false);
+            return;
+        }
         
         try {
             const result = await submitVerification(formData);
@@ -68,12 +79,15 @@ export default function VerifyAccountModal({ isOpen, onClose, currentStatus }) {
                         </div>
 
                         <div>
-                            <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">NIC Number</label>
+                            <div className="flex justify-between items-center mb-2">
+                                <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-400">NIC Number</label>
+                                <span className="text-[10px] text-gray-400 font-medium">9 characters + V/X or 12 digits</span>
+                            </div>
                             <input 
                                 name="nicNumber"
                                 type="text"
                                 required
-                                placeholder="Enter your NIC card number"
+                                placeholder="e.g. 199512345678 or 123456789V"
                                 className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-black transition"
                             />
                         </div>

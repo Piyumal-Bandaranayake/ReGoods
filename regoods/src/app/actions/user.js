@@ -236,6 +236,14 @@ export async function submitVerification(formData) {
             return { error: "Please fill in all fields and upload both NIC sides." };
         }
 
+        // NIC Validation Logic (Sri Lanka)
+        const oldNICRegex = /^[0-9]{9}[vVxX]$/;
+        const newNICRegex = /^[0-9]{12}$/;
+        
+        if (!oldNICRegex.test(nicNumber) && !newNICRegex.test(nicNumber)) {
+            return { error: "Invalid NIC number. Please enter a valid 9-digit (with V/X) or 12-digit NIC number." };
+        }
+
         await dbConnect();
 
         // Check if already pending or verified
