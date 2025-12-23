@@ -1,7 +1,6 @@
 "use server";
 
-import { writeFile, mkdir } from "fs/promises";
-import { join } from "path";
+import { uploadToCloudinary } from "@/lib/cloudinary";
 import dbConnect from "@/lib/db";
 import Message from "@/lib/models/Message";
 import User from "@/lib/models/User";
@@ -32,16 +31,9 @@ export async function sendMessage(formData) {
     }
 
     let imagePath = null;
-    if (imageFile && imageFile.size > 0) {
-        const bytes = await imageFile.arrayBuffer();
-        const buffer = Buffer.from(bytes);
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        const ext = imageFile.name.split('.').pop() || "jpg";
-        const filename = `msg-${uniqueSuffix}.${ext}`;
-        const uploadDir = join(process.cwd(), "public", "uploads", "messages");
-        await mkdir(uploadDir, { recursive: true });
-        await writeFile(join(uploadDir, filename), buffer);
-        imagePath = `/uploads/messages/${filename}`;
+    if (imageFile && imageFile instanceof File && imageFile.size > 0) {
+        const buffer = Buffer.from(await imageFile.arrayBuffer());
+        imagePath = await uploadToCloudinary(buffer, "messages");
     }
 
     await Message.create({

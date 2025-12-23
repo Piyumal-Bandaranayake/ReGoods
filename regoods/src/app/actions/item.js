@@ -2,8 +2,7 @@
 
 import dbConnect from "@/lib/db";
 import Item from "@/lib/models/Item";
-import { writeFile } from "fs/promises";
-import path from "path";
+import { uploadToCloudinary } from "@/lib/cloudinary";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
@@ -33,10 +32,8 @@ export async function createItem(formData) {
         if (item instanceof File) {
             if (item.size === 0) continue;
             const buffer = Buffer.from(await item.arrayBuffer());
-            const filename = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}-${item.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
-            const uploadDir = path.join(process.cwd(), "public", "uploads");
-            await writeFile(path.join(uploadDir, filename), buffer);
-            imageUrls.push(`/uploads/${filename}`);
+            const imageUrl = await uploadToCloudinary(buffer, "items");
+            imageUrls.push(imageUrl);
         } else if (typeof item === "string" && item.trim() !== "") {
             imageUrls.push(item);
         }
@@ -128,10 +125,8 @@ export async function updateItem(itemId, formData) {
     for (const file of rawFiles) {
          if (file instanceof File && file.size > 0) {
             const buffer = Buffer.from(await file.arrayBuffer());
-            const filename = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}-${file.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
-            const uploadDir = path.join(process.cwd(), "public", "uploads");
-            await writeFile(path.join(uploadDir, filename), buffer);
-            newImageUrls.push(`/uploads/${filename}`);
+            const imageUrl = await uploadToCloudinary(buffer, "items");
+            newImageUrls.push(imageUrl);
          }
     }
 
