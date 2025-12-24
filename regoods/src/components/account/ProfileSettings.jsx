@@ -2,8 +2,9 @@
 
 import { useState, useRef } from "react";
 import { updateProfile } from "@/app/actions/user";
-import { Loader2, Camera, Upload, User, Mail, Phone, Globe, FileText, CheckCircle } from "lucide-react";
+import { Loader2, Camera, Upload, User, Mail, Phone, Globe, FileText, CheckCircle, Shield, ArrowRight } from "lucide-react";
 import { useRouter } from "next/navigation";
+import React from "react";
 
 export default function ProfileSettings({ user }) {
     const router = useRouter();
@@ -41,47 +42,56 @@ export default function ProfileSettings({ user }) {
 
     if (!isEditing) {
         return (
-            <div className="space-y-10 animate-fade-in-up">
-                <div className="flex items-center justify-between border-b border-gray-50 pb-6">
-                    <h3 className="text-2xl font-serif font-bold text-gray-900">Personal Identity</h3>
+            <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div className="flex items-center justify-between">
+                    <div>
+                        <h3 className="text-xl font-bold text-gray-900">Personal Identity</h3>
+                        <p className="text-xs text-gray-400 font-bold uppercase tracking-widest mt-1">Manage your public persona</p>
+                    </div>
                     <button
                         onClick={() => setIsEditing(true)}
-                        className="px-6 py-2.5 bg-blue-50 text-blue-500 text-[10px] font-bold uppercase tracking-widest rounded-xl hover:bg-blue-500 hover:text-white transition-all shadow-sm"
+                        className="px-6 py-2.5 bg-sky-500 text-white text-[10px] font-bold uppercase tracking-[0.2em] rounded-2xl hover:bg-zinc-900 transition-all shadow-lg shadow-sky-200/50"
                     >
                         Modify Details
                     </button>
                 </div>
 
-                <div className="flex flex-col md:flex-row items-center md:items-start gap-8 md:gap-10">
+                <div className="flex flex-col md:flex-row items-center md:items-start gap-10 lg:gap-14">
                     {/* Avatar Display */}
                     <div className="flex flex-col items-center shrink-0">
-                        <div className="h-32 w-32 md:h-40 md:w-40 rounded-[2rem] border-4 border-white shadow-xl overflow-hidden bg-blue-50 flex items-center justify-center md:rotate-2 transition-transform duration-500">
-                            {user.image ? (
-                                <img src={user.image} className="w-full h-full object-cover" />
-                            ) : (
-                                <span className="text-4xl md:text-5xl font-serif italic text-blue-200">{user.name[0].toUpperCase()}</span>
+                        <div className="relative group">
+                            <div className="h-32 w-32 md:h-44 md:w-44 rounded-[2.5rem] border-4 border-white shadow-xl overflow-hidden bg-sky-50 flex items-center justify-center transition-transform hover:scale-105 duration-500">
+                                {user.image ? (
+                                    <img src={user.image} className="w-full h-full object-cover" />
+                                ) : (
+                                    <span className="text-5xl font-bold text-sky-200">{user.name[0].toUpperCase()}</span>
+                                )}
+                            </div>
+                            {user.isVerified && (
+                                <div className="absolute -bottom-2 -right-2 bg-sky-500 p-2 rounded-2xl border-4 border-white shadow-lg">
+                                    <Shield className="w-5 h-5 text-white" />
+                                </div>
                             )}
                         </div>
-                        <p className="mt-4 md:hidden text-[10px] font-bold text-gray-400 uppercase tracking-widest">Active Identity</p>
                     </div>
 
                     {/* Info Grid */}
-                    <div className="flex-1 w-full space-y-8 text-center md:text-left">
-                        <section className="bg-gray-50/50 p-6 rounded-2xl md:bg-transparent md:p-0">
-                            <label className="flex items-center justify-center md:justify-start text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] mb-4">
-                                <FileText className="w-3 h-3 mr-2 text-blue-500" />
-                                Account Bio
+                    <div className="flex-1 w-full space-y-10">
+                        <section className="bg-sky-50/50 p-8 rounded-[2rem] border border-sky-100/50">
+                            <label className="flex items-center text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">
+                                <FileText className="w-3.5 h-3.5 mr-2 text-sky-500" />
+                                Personal Bio
                             </label>
-                            <p className="text-gray-600 text-sm leading-relaxed max-w-xl italic">
-                                "{user.bio || "No biography provided. Use the modify button to introduce yourself to the community."}"
+                            <p className="text-gray-600 text-[15px] leading-relaxed italic font-medium">
+                                "{user.bio || "No biography provided. Share a bit about your journey to build trust within the ReGoods community."}"
                             </p>
                         </section>
 
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-8 pt-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-10 px-2 lg:px-4">
                             <InfoField label="Full Name" value={user.name} icon={<User />} />
                             <InfoField label="Email Status" value={user.email} icon={<Mail />} verified />
                             <InfoField label="Phone Contact" value={user.phone || "Not provided"} icon={<Phone />} />
-                            <InfoField label="Primary Region" value={user.nationality || "Global"} icon={<Globe />} />
+                            <InfoField label="Primary Region" value={user.nationality || "International"} icon={<Globe />} />
                         </div>
                     </div>
                 </div>
@@ -90,9 +100,12 @@ export default function ProfileSettings({ user }) {
     }
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-10 animate-fade-in-up">
-            <div className="flex items-center justify-between border-b border-gray-50 pb-6">
-                <h3 className="text-2xl font-serif font-bold text-gray-900">Edit Identity</h3>
+        <form onSubmit={handleSubmit} className="space-y-12 animate-in fade-in duration-500">
+            <div className="flex items-center justify-between">
+                <div>
+                    <h3 className="text-xl font-bold text-gray-900">Edit Identity</h3>
+                    <p className="text-xs text-gray-400 font-bold uppercase tracking-widest mt-1">Update your information</p>
+                </div>
                 <button
                     type="button"
                     onClick={() => setIsEditing(false)}
@@ -102,24 +115,24 @@ export default function ProfileSettings({ user }) {
                 </button>
             </div>
 
-            <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
+            <div className="flex flex-col lg:flex-row gap-10 lg:gap-14">
                 {/* Photo Upload Section */}
                 <div className="flex flex-col items-center shrink-0">
                     <div 
-                        className="group relative h-40 w-40 md:h-48 md:w-48 rounded-[2.5rem] border-4 border-dashed border-gray-200 overflow-hidden bg-gray-50 flex items-center justify-center cursor-pointer hover:border-blue-500 hover:bg-blue-50/30 transition-all duration-500"
+                        className="group relative h-40 w-40 md:h-52 md:w-52 rounded-[3rem] border-4 border-dashed border-sky-100 overflow-hidden bg-sky-50/50 flex items-center justify-center cursor-pointer hover:border-sky-500 hover:bg-sky-50 transition-all duration-500"
                         onClick={() => fileInputRef.current?.click()}
                     >
                         {previewImage ? (
                             <>
                                 <img src={previewImage} className="w-full h-full object-cover group-hover:scale-110 transition duration-500" />
-                                <div className="absolute inset-0 bg-blue-500/20 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300">
+                                <div className="absolute inset-0 bg-sky-500/20 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300">
                                     <Camera className="w-10 h-10 text-white" />
                                 </div>
                             </>
                         ) : (
-                            <div className="flex flex-col items-center text-gray-400 group-hover:text-blue-500 transition-colors">
+                            <div className="flex flex-col items-center text-sky-200 group-hover:text-sky-500 transition-colors">
                                 <Upload className="w-8 h-8 mb-2" />
-                                <span className="text-[10px] font-black uppercase tracking-tighter">New Photo</span>
+                                <span className="text-[10px] font-black uppercase tracking-widest">Add Photo</span>
                             </div>
                         )}
                         <input
@@ -131,75 +144,75 @@ export default function ProfileSettings({ user }) {
                             onChange={handleImageChange}
                         />
                     </div>
-                    <p className="mt-4 text-center text-[10px] font-bold text-gray-400 uppercase tracking-widest lg:w-40 leading-relaxed px-4 lg:px-0">
-                        Square format recommended. <br className="hidden lg:block"/> JPG or PNG only.
+                    <p className="mt-6 text-center text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] leading-relaxed">
+                        JPG/PNG RECOMMENDED
                     </p>
                 </div>
 
                 {/* Form Fields Section */}
-                <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-8">
                     <div className="md:col-span-2">
-                        <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 px-1">Display Name</label>
+                        <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3 px-1">Display Name</label>
                         <input
                             name="name"
                             type="text"
                             defaultValue={user.name}
                             required
-                            className="block w-full rounded-2xl border border-gray-100 py-4 px-5 text-gray-900 placeholder:text-gray-300 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none bg-gray-50/50 transition-all"
-                            placeholder="How should we address you?"
+                            className="block w-full rounded-2xl border border-sky-50 py-4 px-6 text-gray-900 placeholder:text-gray-300 focus:ring-4 focus:ring-sky-500/5 focus:border-sky-300 outline-none bg-sky-50/30 transition-all text-sm font-medium"
+                            placeholder="Full Name"
                         />
                     </div>
 
                     <div>
-                        <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 px-1">Primary Email (Locked)</label>
-                        <div className="block w-full rounded-2xl border border-gray-50 py-4 px-5 text-gray-400 bg-gray-50 cursor-not-allowed text-sm font-medium">
+                        <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3 px-1">Email Address (Read-only)</label>
+                        <div className="block w-full rounded-2xl border border-sky-50 py-4 px-6 text-gray-400 bg-sky-50/50 cursor-not-allowed text-xs font-bold uppercase tracking-wider">
                             {user.email}
                         </div>
                     </div>
 
                     <div>
-                        <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 px-1">Phone Number</label>
+                        <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3 px-1">Contact Number</label>
                         <input
                             name="phone"
                             type="tel"
                             defaultValue={user.phone}
-                            className="block w-full rounded-2xl border border-gray-100 py-4 px-5 text-gray-900 placeholder:text-gray-300 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none bg-gray-50/50 transition-all"
-                            placeholder="+1 (555) 000-0000"
+                            className="block w-full rounded-2xl border border-sky-50 py-4 px-6 text-gray-900 placeholder:text-gray-300 focus:ring-4 focus:ring-sky-500/5 focus:border-sky-300 outline-none bg-sky-50/30 transition-all text-sm font-medium"
+                            placeholder="+1 234 567 890"
                         />
                     </div>
 
                     <div className="md:col-span-2">
-                        <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 px-1">Nationality / Region</label>
+                        <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3 px-1">Nationality / Primary Region</label>
                         <input
                             name="nationality"
                             type="text"
                             defaultValue={user.nationality}
-                            className="block w-full rounded-2xl border border-gray-100 py-4 px-5 text-gray-900 placeholder:text-gray-300 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none bg-gray-50/50 transition-all"
-                            placeholder="e.g. United Kingdom, Tokyo based, etc."
+                            className="block w-full rounded-2xl border border-sky-50 py-4 px-6 text-gray-900 placeholder:text-gray-300 focus:ring-4 focus:ring-sky-500/5 focus:border-sky-300 outline-none bg-sky-50/30 transition-all text-sm font-medium"
+                            placeholder="e.g. United Kingdom"
                         />
                     </div>
 
                     <div className="md:col-span-2">
-                        <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 px-1">Personal Bio</label>
+                        <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3 px-1">Identity Bio</label>
                         <textarea
                             name="bio"
                             rows={4}
                             defaultValue={user.bio}
-                            className="block w-full rounded-2xl border border-gray-100 py-4 px-5 text-gray-900 placeholder:text-gray-300 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none bg-gray-50/50 transition-all resize-none"
-                            placeholder="Tell your story. Shared interests build trust in our community."
+                            className="block w-full rounded-2xl border border-sky-50 py-4 px-6 text-gray-900 placeholder:text-gray-300 focus:ring-4 focus:ring-sky-500/5 focus:border-sky-300 outline-none bg-sky-50/30 transition-all resize-none text-sm font-medium leading-relaxed"
+                            placeholder="Tell us about yourself..."
                         />
                     </div>
                 </div>
             </div>
 
-            <div className="pt-8 border-t border-gray-50 flex flex-col sm:flex-row justify-end gap-3">
+            <div className="pt-8 border-t border-sky-50 flex justify-end">
                 <button
                     type="submit"
                     disabled={loading}
-                    className="group w-full sm:w-auto px-10 py-4 bg-blue-500 text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl hover:bg-gray-900 transition-all disabled:opacity-70 flex items-center justify-center shadow-xl shadow-blue-500/20 order-1 sm:order-2"
+                    className="flex items-center justify-center gap-3 px-10 py-4 bg-sky-500 text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl hover:bg-zinc-900 transition-all disabled:opacity-70 shadow-xl shadow-sky-500/20 active:scale-95"
                 >
-                    {loading ? <Loader2 className="w-4 h-4 animate-spin mr-3" /> : <div className="w-2 h-2 rounded-full bg-white mr-3 group-hover:scale-150 transition-transform" />}
-                    Confirm Identity Update
+                    {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Verify & Save Changes"}
+                    {!loading && <ArrowRight className="w-4 h-4 ml-2" />}
                 </button>
             </div>
         </form>
@@ -208,17 +221,15 @@ export default function ProfileSettings({ user }) {
 
 function InfoField({ label, value, icon, verified }) {
     return (
-        <div className="group text-center sm:text-left bg-white p-4 sm:p-0 rounded-2xl sm:rounded-none">
-            <label className="flex items-center justify-center sm:justify-start text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">
-                <span className="text-blue-500 mr-2 opacity-50 group-hover:opacity-100 transition-opacity">{icon && typeof icon === 'object' ? React.cloneElement(icon, { className: "w-3 h-3" }) : icon}</span>
+        <div className="group">
+            <label className="flex items-center text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3">
+                <span className="text-sky-500 mr-2 opacity-50 group-hover:opacity-100 transition-opacity">{React.cloneElement(icon, { className: "w-3.5 h-3.5" })}</span>
                 {label}
             </label>
-            <div className="flex items-center justify-center sm:justify-start">
-                <p className="text-gray-900 font-bold text-base md:text-lg break-all">{value}</p>
-                {verified && <CheckCircle className="w-4 h-4 ml-2 text-green-500 flex-shrink-0" />}
+            <div className="flex items-center">
+                <p className="text-gray-950 font-bold text-base md:text-lg tracking-tight truncate">{value}</p>
+                {verified && <CheckCircle className="w-4 h-4 ml-2.5 text-sky-500 flex-shrink-0" />}
             </div>
         </div>
     );
 }
-
-import React from "react";
