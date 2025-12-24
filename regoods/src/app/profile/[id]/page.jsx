@@ -15,6 +15,7 @@ import VerifyAccountButton from "@/components/account/VerifyAccountButton";
 import { getSellerReviews, getSellerRating } from "@/app/actions/review";
 import ReviewSection from "@/components/account/ReviewSection";
 import ItemCard from "@/components/items/ItemCard";
+import SoldItemCard from "@/components/profile/SoldItemCard";
 
 async function getProfileData(userId) {
     await dbConnect();
@@ -42,6 +43,27 @@ export default async function ProfilePage({ params, searchParams }) {
 
     const { user, activeItems, soldItems } = data;
     const session = await getServerSession(authOptions);
+
+    const isOwner = session?.user?.id === user._id;
+
+    if (!user.isVerified && !isOwner) {
+        return (
+            <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4 font-inter">
+                <div className="bg-white rounded-3xl p-8 shadow-xl text-center max-w-md w-full border border-gray-100">
+                    <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6 text-gray-400">
+                        <Shield className="w-10 h-10" />
+                    </div>
+                    <h1 className="text-2xl font-bold text-gray-900 mb-2">Profile Not Public</h1>
+                    <p className="text-gray-600 mb-8 font-medium">
+                        This user has not verified their seller profile yet.
+                    </p>
+                    <Link href="/" className="inline-flex items-center justify-center w-full py-3.5 bg-sky-500 hover:bg-sky-600 text-white rounded-2xl font-bold transition-all">
+                        Return to Home
+                    </Link>
+                </div>
+            </div>
+        );
+    }
 
     const [reviews, ratingData] = await Promise.all([
         getSellerReviews(id),
@@ -137,63 +159,87 @@ export default async function ProfilePage({ params, searchParams }) {
 
                     {/* 3. CENTER COLUMN: TABS & CONTENT */}
                     <div className="lg:col-span-6 mt-8 lg:mt-6">
-                        {/* Tab Navigation */}
-                        <div className="flex border-b border-gray-200 mb-8 sticky top-0 bg-slate-50/50 backdrop-blur-md z-30 px-2 overflow-x-auto no-scrollbar">
-                            <TabTrigger id="active" label="Storefront" active={currentTab === 'active'} count={activeItems.length} />
-                            <TabTrigger id="sold" label="Sold Out" active={currentTab === 'sold'} count={soldItems.length} />
-                            <TabTrigger id="reviews" label="Reviews" active={currentTab === 'reviews'} count={ratingData.count} />
-                        </div>
+                        {!user.isVerified ? (
+                            <div className="bg-white rounded-[2rem] p-8 shadow-sm border border-white text-center py-20">
+                                <div className="w-20 h-20 bg-sky-50 rounded-full flex items-center justify-center mx-auto mb-6 text-sky-400">
+                                    <Shield className="w-10 h-10" />
+                                </div>
+                                <h2 className="text-xl font-bold text-gray-900 mb-2">Complete Verification to Enable Storefront</h2>
+                                <p className="text-gray-500 max-w-md mx-auto mb-8 font-medium">
+                                    Your public seller profile is currently hidden. Verify your identity to unlock selling features, reviews, and your public store URL.
+                                </p>
+                            </div>
+                        ) : (
+                            <>
+                                {/* Tab Navigation */}
+                                <div className="flex border-b border-gray-200 mb-8 sticky top-0 bg-slate-50/50 backdrop-blur-md z-30 px-2 overflow-x-auto no-scrollbar">
+                                    <TabTrigger id="active" label="Storefront" active={currentTab === 'active'} count={activeItems.length} />
+                                    <TabTrigger id="sold" label="Sold Out" active={currentTab === 'sold'} count={soldItems.length} />
+                                    <TabTrigger id="reviews" label="Reviews" active={currentTab === 'reviews'} count={ratingData.count} />
+                                </div>
 
-                        {/* Content Area */}
-                        <div className="space-y-8 min-h-[600px]">
-                            {currentTab === 'active' && (
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pb-20">
-                                    {activeItems.length > 0 ? activeItems.map(item => (
-                                        <ItemCard key={item._id} item={item} />
-                                    )) : (
-                                        <EmptyState icon={<Package className="w-16 h-16" />} message="No active items available right now." />
+                                {/* Content Area */}
+                                <div className="space-y-8 min-h-[600px]">
+                                    {currentTab === 'active' && (
+                                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 pb-20">
+                                            {activeItems.length > 0 ? activeItems.map(item => (
+                                                <ItemCard key={item._id} item={item} />
+                                            )) : (
+                                                <EmptyState icon={<Package className="w-16 h-16" />} message="No active items available right now." />
+                                            )}
+                                        </div>
+                                    )}
+
+                                    {currentTab === 'sold' && (
+                                        <div className="space-y-4 pb-20">
+                                            {soldItems.length > 0 ? soldItems.map(item => (
+                                                <SoldItemCard key={item._id} item={item} disableModal={true} />
+                                            )) : (
+                                                <EmptyState icon={<TrendingUp className="w-16 h-16" />} message="No items sold yet." />
+                                            )}
+                                        </div>
+                                    )}
+
+                                    {currentTab === 'reviews' && (
+                                        <div className="bg-white rounded-[2rem] p-8 shadow-sm border border-white mb-20">
+                                            <ReviewSection
+                                                sellerId={id}
+                                                reviews={reviews}
+                                                currentUserId={session?.user?.id}
+                                            />
+                                        </div>
                                     )}
                                 </div>
-                            )}
-
-                            {currentTab === 'sold' && (
-                                <div className="space-y-4 pb-20">
-                                    {soldItems.length > 0 ? soldItems.map(item => (
-                                        <SoldItemCard key={item._id} item={item} />
-                                    )) : (
-                                        <EmptyState icon={<TrendingUp className="w-16 h-16" />} message="No items sold yet." />
-                                    )}
-                                </div>
-                            )}
-
-                            {currentTab === 'reviews' && (
-                                <div className="bg-white rounded-[2rem] p-8 shadow-sm border border-white mb-20">
-                                    <ReviewSection
-                                        sellerId={id}
-                                        reviews={reviews}
-                                        currentUserId={session?.user?.id}
-                                    />
-                                </div>
-                            )}
-                        </div>
+                            </>
+                        )}
                     </div>
 
                     {/* 4. RIGHT SIDEBAR: STATS & PROMO */}
-                    <div className="hidden lg:block lg:col-span-3 mt-6">
-                        <div className="sticky top-24 space-y-6">
-                            {/* Stats Card */}
-                            <div className="bg-white rounded-[2rem] p-8 shadow-sm border border-white">
-                                <h3 className="text-xl font-bold text-gray-900 mb-6 font-inter tracking-tight">Seller Performance</h3>
-                                <div className="grid grid-cols-2 gap-y-8 gap-x-4">
-                                    <MiniStat value={ratingData.average} label="Avg Rating" icon={<Star className="w-4 h-4 text-yellow-500 fill-current" />} />
-                                    <MiniStat value={`${activeItems.length + soldItems.length}`} label="Total Items" icon={<Package className="w-4 h-4 text-sky-500" />} />
-                                    <MiniStat value="2h" label="Response" icon={<Clock className="w-4 h-4 text-green-500" />} />
-                                    <MiniStat value="PRO" label="Level" icon={<Award className="w-4 h-4 text-purple-500" />} />
+                    {user.isVerified && (
+                        <div className="hidden lg:block lg:col-span-3 mt-6">
+                            <div className="sticky top-24 space-y-6">
+                                {/* Stats Card */}
+                                <div className="bg-white rounded-[2rem] p-5 shadow-sm border border-white">
+                                    <h3 className="text-sm font-bold text-gray-900 mb-4 font-inter tracking-tight uppercase">Seller Performance</h3>
+                                    <div className="grid grid-cols-2 gap-y-4 gap-x-4">
+                                        <MiniStat value={ratingData.average} label="Avg Rating" icon={<Star className="w-4 h-4 text-yellow-500 fill-current" />} />
+                                        <MiniStat value={`${activeItems.length + soldItems.length}`} label="Total Items" icon={<Package className="w-4 h-4 text-sky-500" />} />
+                                        <MiniStat value="2h" label="Response" icon={<Clock className="w-4 h-4 text-green-500" />} />
+                                        <div className="flex flex-col gap-1 items-start justify-center">
+                                            <div className={`inline-flex items-center px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${soldItems.length < 5 ? 'bg-blue-50 text-blue-600 border-blue-100' :
+                                                soldItems.length < 20 ? 'bg-purple-50 text-purple-600 border-purple-100' :
+                                                    'bg-amber-50 text-amber-600 border-amber-100'
+                                                }`}>
+                                                {soldItems.length < 5 ? "New Seller" : soldItems.length < 20 ? "Active Seller" : "Pro Seller"}
+                                            </div>
+                                            <div className="text-[11px] font-bold text-[#657786] uppercase tracking-wider pl-1">Level</div>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
 
+                            </div>
                         </div>
-                    </div>
+                    )}
 
                 </div>
             </div>
@@ -233,34 +279,6 @@ function MiniStat({ value, label, icon }) {
                 {value}
             </div>
             <div className="text-[11px] font-bold text-[#657786] uppercase tracking-wider">{label}</div>
-        </div>
-    );
-}
-
-function SoldItemCard({ item }) {
-    return (
-        <div className="bg-white rounded-3xl p-5 border border-white shadow-sm flex items-center justify-between group hover:shadow-md transition-all">
-            <div className="flex items-center gap-6">
-                <div className="h-20 w-20 rounded-2xl overflow-hidden bg-gray-100 flex-shrink-0 relative">
-                    {item.images?.[0] ? (
-                        <img src={item.images[0]} className="w-full h-full object-cover grayscale opacity-60" />
-                    ) : (
-                        <Package className="w-8 h-8 text-gray-300 m-auto mt-6" />
-                    )}
-                    <div className="absolute inset-0 bg-sky-900/10"></div>
-                    <div className="absolute top-1 right-1">
-                        <span className="text-[8px] font-black text-white bg-gray-800 px-1.5 py-0.5 rounded-full uppercase">SOLD</span>
-                    </div>
-                </div>
-                <div>
-                    <h4 className="font-bold text-gray-900 text-lg group-hover:text-sky-500 transition-colors">{item.title}</h4>
-                    <p className="text-xs text-[#657786] font-medium mt-1">Completed on {new Date(item.updatedAt).toLocaleDateString()}</p>
-                </div>
-            </div>
-            <div className="text-right">
-                <div className="text-xl font-bold text-gray-900">${item.price}</div>
-                <div className="text-[10px] font-bold text-[#657786] uppercase tracking-widest mt-1">Sold Price</div>
-            </div>
         </div>
     );
 }

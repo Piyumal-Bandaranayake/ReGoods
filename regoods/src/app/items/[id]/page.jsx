@@ -58,136 +58,119 @@ export default async function ItemPage({ params }) {
                 {/* LEFT: Image Section (White Background) */}
                 <ItemImageGallery images={item.images} title={item.title} isSold={isSold} />
 
-                {/* RIGHT: Details Section (Light Gray Background) */}
-                <div className="w-full lg:w-1/2 bg-[#F8F9FA] flex flex-col justify-center p-8 lg:p-24 relative">
+                {/* RIGHT: Details Section (White, Clean) */}
+                <div className="w-full lg:w-[45%] bg-white flex flex-col justify-center p-8 lg:p-24 relative">
 
                     <div className="max-w-xl mx-auto w-full">
-                        {/* Category Label */}
-                        <div className="mb-4">
-                            <span className="text-xs font-bold uppercase tracking-[0.15em] text-gray-400">
-                                {item.category}
-                            </span>
+
+                        {/* 1. Header: Seller Name */}
+                        <div className="mb-4 flex items-center justify-between">
+                            <Link href={`/profile/${seller?._id}`} className="text-xs font-bold uppercase tracking-[0.15em] text-gray-500 hover:text-black transition flex items-center gap-2">
+                                {seller?.name || "Unknown Seller"}
+                                {seller?.isVerified && <CheckCircle className="w-3 h-3 text-blue-500" />}
+                            </Link>
+
+                            {/* Owner / Wishlist Controls (Top Right) */}
+                            <div className="flex items-center gap-3">
+                                {!isOwner && <WishlistButton itemId={item._id} initialIsWishlisted={isWishlisted} />}
+                                {isOwner && (
+                                    <span className={`text-[10px] font-black uppercase px-2 py-1 rounded bg-gray-100 ${isSold ? 'text-red-500' : 'text-green-600'}`}>
+                                        {isSold ? 'Sold' : 'Active'}
+                                    </span>
+                                )}
+                            </div>
                         </div>
 
-                        {/* Title */}
-                        <h1 className="text-4xl lg:text-5xl font-sans font-bold text-gray-900 mb-6 leading-tight">
+                        {/* 2. Title */}
+                        <h1 className="text-4xl lg:text-6xl font-sans font-bold text-gray-900 mb-6 leading-[1.1] tracking-tight">
                             {item.title}
                         </h1>
 
-                        {/* Description */}
-                        <div className="mb-10 text-gray-600 leading-relaxed font-light">
+                        {/* 3. Description */}
+                        <div className="mb-10 text-gray-500 leading-relaxed font-medium text-sm max-w-md">
                             <p>{item.description}</p>
                         </div>
 
-                        {/* Specs Boxes (Condition | Location) */}
-                        <div className="flex border border-gray-200 rounded-sm mb-10 bg-white">
-                            <div className="flex-1 p-4 border-r border-gray-200 text-center">
-                                <span className="block text-[10px] uppercase font-bold text-gray-400 tracking-wider mb-1">Condition</span>
-                                <span className="text-lg font-bold text-gray-900">{item.condition}</span>
-                            </div>
-                            <div className="flex-1 p-4 text-center">
-                                <span className="block text-[10px] uppercase font-bold text-gray-400 tracking-wider mb-1">Location</span>
-                                <span className="text-lg font-bold text-gray-900 truncate px-2">{item.location}</span>
-                            </div>
-                        </div>
-
-                        {/* Price */}
-                        <div className="mb-10">
-                            <h2 className="text-4xl font-bold text-gray-900">
-                                ${item.price}
-                            </h2>
-                            {item.negotiable && <span className="text-sm text-gray-500 mt-1 block">Price is negotiable</span>}
-                        </div>
-
-                        {/* Actions */}
-                        <div className="mb-12">
-                            {!isOwner ? (
-                                isSold ? (
-                                    <button disabled className="w-full py-5 bg-gray-200 text-gray-400 font-bold text-sm uppercase tracking-widest cursor-not-allowed">
-                                        Item No Longer Available
-                                    </button>
-                                ) : (
-                                    <div className="space-y-3">
-                                        {/* Row 1: Chat, Cart, Wishlist */}
-                                        <div className="flex gap-3 items-center">
-                                            {item.negotiable ? (
-                                                <NegotiateButton itemId={item._id} currentPrice={item.price} />
-                                            ) : (
-                                                <Link
-                                                    href={`/inbox/${seller._id}?itemId=${item._id}`}
-                                                    className="flex-1 py-4 rounded-full bg-white border border-gray-200 text-black font-bold text-sm uppercase tracking-widest hover:bg-gray-50 hover:border-black transition shadow-sm text-center flex items-center justify-center"
-                                                >
-                                                    Chat
-                                                </Link>
-                                            )}
-
-                                            <div className="flex-1">
-                                                <AddToCartButton itemId={item._id} initialIsInCart={isInCart} />
-                                            </div>
-
-                                            <div className="flex-none">
-                                                <WishlistButton itemId={item._id} initialIsWishlisted={isWishlisted} />
-                                            </div>
-                                        </div>
-
-                                        {/* Row 2: Buy Now */}
-                                        <BuyNowButton itemId={item._id} />
-                                    </div>
-                                )
-                            ) : (
-                                <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-                                    <div className="flex justify-between items-center mb-4">
-                                        <span className="text-xs font-bold uppercase tracking-widest text-gray-500">Owner Controls</span>
-                                        <span className={`text-xs font-bold uppercase px-2 py-1 rounded bg-gray-100 ${isSold ? 'text-red-500' : 'text-green-600'}`}>
-                                            {isSold ? 'Sold' : 'Active'}
-                                        </span>
-                                    </div>
-                                    <div className="-ml-4">
-                                        <ItemActions item={item} hideView={true} />
-                                    </div>
+                        {/* 4. Price & Buy Action */}
+                        {!isOwner && !isSold && (
+                            <div className="flex items-center justify-between mb-12 border-b border-gray-100 pb-12">
+                                <div>
+                                    <h2 className="text-3xl font-bold text-gray-900">
+                                        ${item.price.toLocaleString()}
+                                    </h2>
+                                    {item.negotiable && <span className="text-xs text-green-600 font-bold uppercase tracking-wider">Negotiable</span>}
                                 </div>
-                            )}
+                                <div className="flex items-center gap-4">
+                                    <BuyNowButton itemId={item._id} />
+                                </div>
+                            </div>
+                        )}
+
+                        {isSold && (
+                            <div className="mb-12 border-b border-gray-100 pb-12">
+                                <button disabled className="w-full py-4 bg-gray-100 text-gray-400 font-bold text-sm uppercase tracking-widest cursor-not-allowed rounded-full">
+                                    Item Sold
+                                </button>
+                            </div>
+                        )}
+
+                        {/* 5. Details List (Dimensions & Weight Style) */}
+                        <div className="space-y-6 mb-12">
+                            <h3 className="text-xs font-black uppercase tracking-widest text-gray-900 mb-6">Details & Specifications</h3>
+
+                            <dl className="space-y-4 text-sm">
+                                <div className="flex justify-between border-b border-gray-50 pb-2">
+                                    <dt className="text-gray-400 font-medium">Category</dt>
+                                    <dd className="text-gray-900 font-bold">{item.category}</dd>
+                                </div>
+                                <div className="flex justify-between border-b border-gray-50 pb-2">
+                                    <dt className="text-gray-400 font-medium">Condition</dt>
+                                    <dd className="text-gray-900 font-bold">{item.condition}</dd>
+                                </div>
+                                <div className="flex justify-between border-b border-gray-50 pb-2">
+                                    <dt className="text-gray-400 font-medium">Location</dt>
+                                    <dd className="text-gray-900 font-bold truncate max-w-[200px]">{item.location || "Not Listed"}</dd>
+                                </div>
+                                <div className="flex justify-between border-b border-gray-50 pb-2">
+                                    <dt className="text-gray-400 font-medium">Delivery</dt>
+                                    <dd className="text-gray-900 font-bold">{item.delivery || "Arranged by Seller"}</dd>
+                                </div>
+                                <div className="flex justify-between border-b border-gray-50 pb-2">
+                                    <dt className="text-gray-400 font-medium">Return Policy</dt>
+                                    <dd className="text-gray-900 font-bold">{item.returnPolicy || "No Returns"}</dd>
+                                </div>
+                            </dl>
                         </div>
 
-                        {/* Seller Info (Bottom) */}
-                        <div className="flex items-center pt-8 border-t border-gray-200">
-                            <Link href={`/profile/${seller?._id}`} className="h-12 w-12 rounded-full overflow-hidden bg-white border border-gray-200 mr-4 block hover:opacity-80 transition">
-                                {seller?.image ? (
-                                    <img src={seller.image} className="w-full h-full object-cover" />
+                        {/* 6. Secondary Actions (Chat / Add to Cart / Report) */}
+                        {!isOwner && !isSold && (
+                            <div className="flex items-center gap-4 pt-4">
+                                <AddToCartButton itemId={item._id} initialIsInCart={isInCart} />
+
+                                {item.negotiable ? (
+                                    <NegotiateButton itemId={item._id} currentPrice={item.price} />
                                 ) : (
-                                    <div className="w-full h-full flex items-center justify-center bg-gray-100 text-gray-500 font-bold font-serif">
-                                        {seller?.name?.[0]}
-                                    </div>
-                                )}
-                            </Link>
-                            <div>
-                                <p className="text-xs font-bold uppercase text-gray-400 tracking-wider">Listed By</p>
-                                <Link href={`/profile/${seller?._id}`} className="text-sm font-bold text-gray-900 hover:underline flex items-center">
-                                    {seller?.name}
-                                    {seller?.isVerified && (
-                                        <CheckCircle className="w-4 h-4 ml-1.5 text-blue-600 fill-blue-50" title="Verified Seller" />
-                                    )}
-                                    {seller?.reviewCount > 0 && (
-                                        <span className="ml-3 flex items-center text-xs text-yellow-500 font-bold bg-yellow-50 px-2 py-0.5 rounded-full border border-yellow-100">
-                                            <Star className="w-3 h-3 fill-current mr-1" />
-                                            {seller.averageRating}
-                                        </span>
-                                    )}
-                                </Link>
-                            </div>
-                            <div className="ml-auto flex space-x-3">
-                                {!isOwner && (
-                                    <div className="flex items-center space-x-2">
-                                        <Link href={`/inbox/${seller._id}?itemId=${item._id}`} className="p-2 border border-gray-200 rounded-full hover:bg-white hover:shadow-sm transition text-gray-400 hover:text-black" title="Message Seller">
-                                            <MessageCircle className="w-5 h-5" />
-                                        </Link>
-                                        {!isOwner && <ReportUserButton userId={seller._id} userName={seller.name} iconOnly={true} />}
-                                    </div>
+                                    <Link
+                                        href={`/inbox/${seller._id}?itemId=${item._id}`}
+                                        className="w-12 h-12 flex items-center justify-center rounded-full border border-gray-200 text-gray-400 hover:text-gray-900 hover:border-gray-900 transition"
+                                        title="Chat with Seller"
+                                    >
+                                        <MessageCircle className="w-5 h-5" />
+                                    </Link>
                                 )}
 
-
+                                <div className="ml-auto">
+                                    <ReportUserButton userId={seller._id} userName={seller.name} iconOnly={true} />
+                                </div>
                             </div>
-                        </div>
+                        )}
+
+                        {isOwner && (
+                            <div className="mt-8">
+                                <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">Manage Item</p>
+                                <ItemActions item={item} hideView={true} />
+                            </div>
+                        )}
 
                     </div>
                 </div>
