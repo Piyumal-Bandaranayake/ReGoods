@@ -3,18 +3,18 @@
 import { useState } from "react";
 import { purchaseItem } from "@/app/actions/item";
 import { useRouter } from "next/navigation";
-import { Loader2, CheckCircle, Package, ArrowRight, User, Mail, Phone, MapPin, CreditCard, Truck } from "lucide-react";
+import { Loader2, CheckCircle, MapPin, Truck, CreditCard, ArrowRight } from "lucide-react";
 import { generateReceipt } from "@/lib/receiptGenerator";
 
-export default function CheckoutClient({ item }) {
+export default function CheckoutClient({ item, session }) {
     const [loading, setLoading] = useState(false);
     const router = useRouter();
     const [paymentMethod, setPaymentMethod] = useState("COD");
 
-    // Delivery State
     const [deliveryDetails, setDeliveryDetails] = useState({
-        fullName: "",
-        email: "",
+        firstName: session?.user?.name?.split(' ')[0] || "",
+        lastName: session?.user?.name?.split(' ')[1] || "",
+        email: session?.user?.email || "",
         address: "",
         city: "",
         postalCode: "",
@@ -22,32 +22,25 @@ export default function CheckoutClient({ item }) {
     });
 
     const [showSuccessModal, setShowSuccessModal] = useState(false);
-    const [successMessage, setSuccessMessage] = useState("");
 
     const handleConfirm = async () => {
-        // Validation
-        if (!deliveryDetails.fullName || !deliveryDetails.phone || !deliveryDetails.address || !deliveryDetails.city) {
-            alert("Please provide the essential delivery information.");
+        if (!deliveryDetails.firstName || !deliveryDetails.phone || !deliveryDetails.address || !deliveryDetails.city) {
+            alert("Please fill in all required fields.");
             return;
         }
 
         setLoading(true);
-
+        const fullName = `${deliveryDetails.firstName} ${deliveryDetails.lastName}`;
         const result = await purchaseItem({
             itemId: item._id,
             paymentMethod,
-            deliveryDetails
+            deliveryDetails: { ...deliveryDetails, fullName }
         });
 
         if (result.success) {
-            // Auto-download receipt
             try {
-                generateReceipt(item, deliveryDetails, paymentMethod, 40);
-            } catch (pdfErr) {
-                console.error("Receipt download failed", pdfErr);
-            }
-            
-            setSuccessMessage("Your order has been authorized and placed for delivery. Your receipt has been downloaded.");
+                generateReceipt(item, { ...deliveryDetails, fullName }, paymentMethod, 40);
+            } catch (err) {}
             setShowSuccessModal(true);
         } else {
             alert(result.error);
@@ -60,211 +53,110 @@ export default function CheckoutClient({ item }) {
         setDeliveryDetails(prev => ({ ...prev, [name]: value }));
     };
 
-    const handleCloseModal = () => {
-        setShowSuccessModal(false);
-        router.push("/account?tab=purchases");
-    };
-
-    const inputClasses = "w-full py-4 px-5 bg-gray-50 border border-gray-100 rounded-2xl text-[13px] font-bold text-gray-900 placeholder:text-gray-300 focus:outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500/30 transition-all duration-300";
+    const inputClasses = "w-full py-4 px-5 bg-gray-50 border border-gray-100 rounded-xl text-sm font-medium focus:ring-2 focus:ring-sky-500/10 focus:border-sky-500 outline-none transition-all";
 
     return (
-        <div className="flex flex-col relative animate-fade-in-up">
-            {/* 1. SUCCESS MODAL */}
+        <div className="space-y-6">
+            {/* Success Modal */}
             {showSuccessModal && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-950/80 backdrop-blur-xl animate-fade-in">
-                    <div className="bg-white rounded-[3rem] p-12 max-w-sm w-full shadow-2xl transform transition-all animate-scale-in text-center relative overflow-hidden">
-                        <div className="absolute top-0 left-0 w-full h-2 bg-blue-500"></div>
-
-                        <div className="w-24 h-24 bg-blue-50 rounded-[2rem] flex items-center justify-center mx-auto mb-8 rotate-12">
-                            <CheckCircle className="w-12 h-12 text-blue-500" />
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm">
+                    <div className="bg-white rounded-3xl p-10 max-w-sm w-full text-center shadow-2xl">
+                        <div className="w-16 h-16 bg-sky-50 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                            <CheckCircle className="w-10 h-10 text-sky-500" />
                         </div>
-
-                        <h3 className="text-3xl font-serif font-bold text-gray-900 mb-4">Transaction <br/> Complete</h3>
-                        <p className="text-gray-500 mb-10 leading-relaxed text-sm italic">
-                            {successMessage}
-                        </p>
-
-                        <button
-                            onClick={() => router.push("/dashboard")}
-                            className="group w-full py-5 bg-gray-900 hover:bg-blue-500 text-white rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] transition-all shadow-xl shadow-blue-500/10 flex items-center justify-center gap-3"
-                        >
-                            Return to Dashboard
-                            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                        <h3 className="text-2xl font-bold text-gray-900 mb-2">Order Placed!</h3>
+                        <p className="text-gray-400 mb-8 text-sm">Your order was successful. The receipt has been downloaded.</p>
+                        <button onClick={() => router.push("/dashboard")} className="w-full py-4 bg-gray-900 text-white rounded-xl font-bold text-sm hover:bg-sky-500 transition-all">
+                            Go to Dashboard
                         </button>
                     </div>
                 </div>
             )}
 
-            <div className="space-y-10">
-                {/* 2. DELIVERY INFORMATION SECTION */}
-                <section className="space-y-6">
-                    <div className="flex items-center gap-2 mb-4">
-                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em]">Logistics Identity</span>
+            {/* Shipping Section */}
+            <div className="bg-white rounded-3xl p-8 border border-gray-100 shadow-sm">
+                <div className="flex items-center gap-3 mb-8">
+                    <div className="w-8 h-8 bg-gray-900 text-white rounded-lg flex items-center justify-center text-xs font-bold">1</div>
+                    <h2 className="text-lg font-bold text-gray-900">Shipping Details</h2>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div className="space-y-2">
+                        <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">First Name</label>
+                        <input name="firstName" value={deliveryDetails.firstName} onChange={handleInputChange} className={inputClasses} placeholder="First Name" />
                     </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="md:col-span-2">
-                             <div className="relative">
-                                <User className="absolute top-1/2 -translate-y-1/2 left-5 w-4 h-4 text-gray-300" />
-                                <input
-                                    type="text"
-                                    name="fullName"
-                                    value={deliveryDetails.fullName}
-                                    onChange={handleInputChange}
-                                    className={`${inputClasses} pl-12`}
-                                    placeholder="Recipient Name"
-                                />
-                             </div>
-                        </div>
-
-                        <div className="relative">
-                            <Mail className="absolute top-1/2 -translate-y-1/2 left-5 w-4 h-4 text-gray-300" />
-                            <input
-                                type="email"
-                                name="email"
-                                value={deliveryDetails.email}
-                                onChange={handleInputChange}
-                                className={`${inputClasses} pl-12`}
-                                placeholder="Contact Email"
-                            />
-                        </div>
-
-                        <div className="relative">
-                            <Phone className="absolute top-1/2 -translate-y-1/2 left-5 w-4 h-4 text-gray-300" />
-                            <input
-                                type="tel"
-                                name="phone"
-                                value={deliveryDetails.phone}
-                                onChange={handleInputChange}
-                                className={`${inputClasses} pl-12`}
-                                placeholder="Phone Number"
-                            />
-                        </div>
-
-                        <div className="md:col-span-2 relative">
-                            <MapPin className="absolute top-1/2 -translate-y-1/2 left-5 w-4 h-4 text-gray-300" />
-                            <input
-                                type="text"
-                                name="address"
-                                value={deliveryDetails.address}
-                                onChange={handleInputChange}
-                                className={`${inputClasses} pl-12`}
-                                placeholder="Residential Address"
-                            />
-                        </div>
-
-                        <div className="relative">
-                            <input
-                                type="text"
-                                name="city"
-                                value={deliveryDetails.city}
-                                onChange={handleInputChange}
-                                className={inputClasses}
-                                placeholder="City"
-                            />
-                        </div>
-
-                        <div className="relative">
-                            <input
-                                type="text"
-                                name="postalCode"
-                                value={deliveryDetails.postalCode}
-                                onChange={handleInputChange}
-                                className={inputClasses}
-                                placeholder="Postcode"
-                            />
-                        </div>
+                    <div className="space-y-2">
+                        <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Last Name</label>
+                        <input name="lastName" value={deliveryDetails.lastName} onChange={handleInputChange} className={inputClasses} placeholder="Last Name" />
                     </div>
-                </section>
-
-                {/* 3. PAYMENT ARCHITECTURE SECTION */}
-                <section className="space-y-6">
-                    <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em]">Settlement Method</span>
+                    <div className="md:col-span-2 space-y-2">
+                        <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Address</label>
+                        <input name="address" value={deliveryDetails.address} onChange={handleInputChange} className={inputClasses} placeholder="Street Address" />
                     </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <PaymentOption 
-                            id="COD" 
-                            label="Pay on Arrival" 
-                            sub="Cash / Local Payment" 
-                            icon={<Truck />} 
-                            active={paymentMethod === 'COD'} 
-                            onChange={() => setPaymentMethod('COD')} 
-                        />
-                        <PaymentOption 
-                            id="Online" 
-                            label="Digital Gateway" 
-                            sub="Card / Secure Credit" 
-                            icon={<CreditCard />} 
-                            active={paymentMethod === 'Online'} 
-                            onChange={() => setPaymentMethod('Online')} 
-                        />
+                    <div className="space-y-2">
+                        <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">City</label>
+                        <input name="city" value={deliveryDetails.city} onChange={handleInputChange} className={inputClasses} placeholder="City" />
                     </div>
+                    <div className="space-y-2">
+                        <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Zip Code</label>
+                        <input name="postalCode" value={deliveryDetails.postalCode} onChange={handleInputChange} className={inputClasses} placeholder="Zip Code" />
+                    </div>
+                    <div className="space-y-2">
+                        <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Phone</label>
+                        <input name="phone" value={deliveryDetails.phone} onChange={handleInputChange} className={inputClasses} placeholder="Phone Number" />
+                    </div>
+                </div>
+            </div>
 
-                    <div className="mt-8 pt-8 border-t border-gray-50 text-center sm:text-left">
-                        {paymentMethod === 'Online' ? (
-                            <div className="animate-fade-in">
-                                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest leading-relaxed mb-6">
-                                    You will be redirected to our encrypted digital vault to finalize the transaction.
-                                </p>
-                                <button
-                                    onClick={() => {
-                                        if (!deliveryDetails.fullName || !deliveryDetails.phone || !deliveryDetails.address || !deliveryDetails.city) {
-                                            alert("Please finalize your delivery coordinates first.");
-                                            return;
-                                        }
-                                        router.push(`/checkout/payment?itemId=${item._id}`);
-                                    }}
-                                    className="group w-full py-5 bg-blue-500 hover:bg-gray-900 text-white rounded-[2rem] font-black uppercase tracking-[0.2em] text-[10px] transition-all shadow-xl shadow-blue-500/20 flex items-center justify-center gap-3"
-                                >
-                                    Initalize Secure Payment
-                                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                                </button>
-                            </div>
-                        ) : (
-                            <div className="animate-fade-in">
-                                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest leading-relaxed mb-6">
-                                    No immediate deduction. Total payable upon physical exchange of the item.
-                                </p>
-                                <button
-                                    onClick={handleConfirm}
-                                    disabled={loading}
-                                    className="group w-full py-5 bg-gray-900 hover:bg-blue-500 text-white rounded-[2rem] font-black uppercase tracking-[0.2em] text-[10px] transition-all shadow-xl shadow-blue-500/10 flex items-center justify-center gap-3 disabled:opacity-50"
-                                >
-                                    {loading ? (
-                                        <Loader2 className="w-4 h-4 animate-spin" />
-                                    ) : (
-                                        <>
-                                            Authorize Order • ${(item.price + 40).toLocaleString()}
-                                            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                                        </>
-                                    )}
-                                </button>
-                            </div>
+            {/* Payment Section */}
+            <div className="bg-white rounded-3xl p-8 border border-gray-100 shadow-sm">
+                <div className="flex items-center gap-3 mb-8">
+                    <div className="w-8 h-8 bg-gray-900 text-white rounded-lg flex items-center justify-center text-xs font-bold">2</div>
+                    <h2 className="text-lg font-bold text-gray-900">Payment Method</h2>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <button 
+                        onClick={() => setPaymentMethod("COD")}
+                        className={`flex items-center gap-4 p-5 rounded-2xl border-2 transition-all text-left ${paymentMethod === 'COD' ? 'border-sky-500 bg-sky-50/50' : 'border-gray-50 hover:border-gray-100'}`}
+                    >
+                        <div className={`p-3 rounded-xl ${paymentMethod === 'COD' ? 'bg-sky-500 text-white' : 'bg-gray-100 text-gray-400'}`}>
+                            <Truck className="w-5 h-5" />
+                        </div>
+                        <div>
+                            <p className="font-bold text-gray-900 text-sm">Pay on Delivery</p>
+                            <p className="text-xs text-gray-400">Cash or card at door</p>
+                        </div>
+                    </button>
+                    <button 
+                        onClick={() => setPaymentMethod("Online")}
+                        className={`flex items-center gap-4 p-5 rounded-2xl border-2 transition-all text-left ${paymentMethod === 'Online' ? 'border-sky-500 bg-sky-50/50' : 'border-gray-50 hover:border-gray-100'}`}
+                    >
+                        <div className={`p-3 rounded-xl ${paymentMethod === 'Online' ? 'bg-sky-500 text-white' : 'bg-gray-100 text-gray-400'}`}>
+                            <CreditCard className="w-5 h-5" />
+                        </div>
+                        <div>
+                            <p className="font-bold text-gray-900 text-sm">Online Payment</p>
+                            <p className="text-xs text-gray-400">Secure gateway</p>
+                        </div>
+                    </button>
+                </div>
+
+                <div className="mt-10">
+                    <button
+                        onClick={paymentMethod === 'Online' ? () => router.push(`/checkout/payment?itemId=${item._id}`) : handleConfirm}
+                        disabled={loading}
+                        className="w-full py-5 bg-gray-900 text-white rounded-2xl font-bold text-sm uppercase tracking-widest hover:bg-sky-500 transition-all flex items-center justify-center gap-3"
+                    >
+                        {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : (
+                            <>
+                                {paymentMethod === 'Online' ? "Continue to Payment" : "Complete Order"}
+                                <ArrowRight className="w-4 h-4" />
+                            </>
                         )}
-                    </div>
-                </section>
+                    </button>
+                </div>
             </div>
         </div>
     );
 }
-
-function PaymentOption({ id, label, sub, icon, active, onChange }) {
-    return (
-        <label onClick={onChange} className={`relative flex items-center p-6 rounded-3xl cursor-pointer transition-all duration-500 group overflow-hidden ${active ? 'bg-blue-50 border-2 border-blue-500 shadow-xl shadow-blue-500/5' : 'bg-gray-50/50 border-2 border-transparent hover:bg-white hover:border-gray-100'}`}>
-            <div className={`p-4 rounded-2xl transition-colors ${active ? 'bg-blue-500 text-white' : 'bg-white text-gray-300 group-hover:text-blue-500 shadow-sm'}`}>
-                {icon && typeof icon === 'object' ? React.cloneElement(icon, { className: "w-6 h-6" }) : icon}
-            </div>
-            <div className="ml-5">
-                <span className={`block font-serif font-bold text-lg leading-none mb-1 ${active ? 'text-gray-900' : 'text-gray-400'}`}>{label}</span>
-                <span className={`block text-[10px] font-bold uppercase tracking-widest ${active ? 'text-blue-400' : 'text-gray-300'}`}>{sub}</span>
-            </div>
-            {active && (
-                <div className="absolute top-4 right-4 h-2 w-2 rounded-full bg-blue-500 animate-pulse"></div>
-            )}
-        </label>
-    );
-}
-
-import React from "react";
