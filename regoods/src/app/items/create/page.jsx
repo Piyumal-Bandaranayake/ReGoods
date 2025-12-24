@@ -93,41 +93,27 @@ export default function CreateItemPage() {
     const showVerificationModal = !pageLoading && (!userStatus || userStatus.verificationStatus !== "Verified");
 
     return (
-        <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 relative">
+        <div className="h-screen fixed inset-0 z-40 overflow-hidden flex bg-white font-inter">
             {/* Verification Modal Overlay */}
             {showVerificationModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm">
+                    {/* ... (Keep minimal modal content if needed, strictly minimal) ... */}
                     <div className="max-w-md w-full bg-white rounded-3xl shadow-2xl border border-gray-100 p-8 text-center animate-in zoom-in duration-300">
-                        <div className="w-20 h-20 bg-amber-50 rounded-full flex items-center justify-center mx-auto mb-6">
-                            <ShieldAlert className="w-10 h-10 text-amber-500" />
+                        <div className="w-16 h-16 bg-amber-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <ShieldAlert className="w-8 h-8 text-amber-500" />
                         </div>
-                        <h2 className="text-2xl font-serif font-bold text-gray-900 mb-3">Verification Required</h2>
-                        <p className="text-gray-600 mb-8 leading-relaxed">
-                            To maintain a safe community, only verified sellers can list items on ReGoods.
-                            Please complete your identity verification to start selling.
+                        <h2 className="text-xl font-bold text-gray-900 mb-2">Verification Required</h2>
+                        <p className="text-gray-500 mb-6 text-xs">
+                            Only verified sellers can list items.
                         </p>
-
-                        <div className="space-y-4">
-                            <div className="flex items-start bg-gray-50 p-4 rounded-2xl text-left">
-                                <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 mr-3 flex-shrink-0" />
-                                <div>
-                                    <h4 className="text-sm font-bold text-gray-900">Build Trust</h4>
-                                    <p className="text-xs text-gray-500">Verified sellers get 3x more sales and trust from buyers.</p>
-                                </div>
-                            </div>
-
+                        <div className="space-y-3">
                             <Link
                                 href={userStatus?._id ? `/profile/${userStatus._id}` : '/auth/login'}
-                                className="flex items-center justify-between w-full bg-blue-900 text-white font-bold py-4 px-6 rounded-2xl hover:bg-black transition-all group"
+                                className="block w-full bg-blue-900 text-white font-bold py-3 px-6 rounded-xl text-sm"
                             >
-                                <span>Go to Verification</span>
-                                <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                                Go to Verification
                             </Link>
-
-                            <button
-                                onClick={() => router.back()}
-                                className="w-full text-sm text-gray-500 font-medium hover:text-gray-900 transition-colors py-2"
-                            >
+                            <button onClick={() => router.back()} className="text-xs text-gray-400 font-bold uppercase tracking-widest hover:text-black">
                                 Go Back
                             </button>
                         </div>
@@ -135,262 +121,143 @@ export default function CreateItemPage() {
                 </div>
             )}
 
-            <div className="max-w-2xl mx-auto">
-                <div className="bg-white rounded-2xl shadow-none border border-gray-200 overflow-hidden">
-                    <div className="px-8 py-6 border-b border-gray-100 bg-white">
-                        <h1 className="text-2xl font-serif font-bold text-gray-900">List an Item</h1>
-                        <p className="mt-1 text-sm text-gray-500">
-                            Fill in the details below to sell your item on ReGoods.
-                        </p>
+            {/* LEFT: Image Upload (40% Width) */}
+            <div className="w-[40%] bg-gray-50 p-8 pt-24 flex flex-col h-full border-r border-gray-100">
+                <div className="mb-6">
+                    <h1 className="text-3xl font-black text-gray-900 tracking-tight">List Item</h1>
+                    <p className="text-xs text-gray-500 mt-1 font-medium">Add photos and details to sell.</p>
+                </div>
+
+                {/* Dropzone Area - Fixed Height */}
+                <div className="flex flex-col gap-4 min-h-0">
+                    <div
+                        {...getRootProps()}
+                        className={`h-48 border-2 border-dashed rounded-2xl flex flex-col items-center justify-center text-center p-4 transition-all ${isDragActive ? 'border-black bg-white' : 'border-gray-200 hover:border-gray-400 bg-white'
+                            }`}
+                    >
+                        <input {...getInputProps()} />
+                        <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                            <Upload className="h-6 w-6 text-gray-400" />
+                        </div>
+                        <p className="text-sm font-bold text-gray-900">Click to Upload</p>
+                        <p className="text-[10px] text-gray-400 mt-1">or drag and drop (Min 2)</p>
                     </div>
 
-                    <form onSubmit={handleSubmit} className="p-8 space-y-6">
-
-                        {/* 1. Image Upload Section (Enhanced) */}
-                        <div>
-                            <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-2">
-                                Item Images (Min 2 required)
-                            </label>
-
-                            {/* Dropzone Area */}
-                            <div
-                                {...getRootProps()}
-                                className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-colors ${isDragActive ? 'border-black bg-gray-50' : 'border-gray-200 hover:border-gray-400'
-                                    }`}
-                            >
-                                <input {...getInputProps()} />
-                                <Upload className="mx-auto h-12 w-12 text-gray-400" />
-                                <p className="mt-2 text-sm text-gray-600">
-                                    Drag 'n' drop some photos here, or click to select files
-                                </p>
-                                <p className="text-xs text-gray-500 mt-1">
-                                    (Only *.jpeg and *.png images will be accepted)
-                                </p>
-                            </div>
-
-                            {/* Preview Grid */}
-                            {uploadedImages.length > 0 && (
-                                <div className="grid grid-cols-3 gap-4 mt-4">
-                                    {uploadedImages.map((file, index) => (
-                                        <div key={index} className="relative aspect-square rounded-lg overflow-hidden border border-gray-200 group">
-                                            <img src={file.preview} alt="preview" className="w-full h-full object-cover" />
-                                            <button
-                                                type="button"
-                                                onClick={() => removeImage(index)}
-                                                className="absolute top-1 right-1 bg-black text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                                            >
-                                                <X className="w-3 h-3" />
-                                            </button>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-
-                        </div>
-
-                        <div className="border-t border-gray-100 my-6"></div>
-
-
-                        {/* Title */}
-                        <div>
-                            <label htmlFor="title" className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
-                                Item Title
-                            </label>
-                            <div className="relative rounded-md shadow-sm">
-                                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                                    <Tag className="h-5 w-5 text-gray-400" />
-                                </div>
-                                <input
-                                    type="text"
-                                    name="title"
-                                    id="title"
-                                    required
-                                    className="block w-full rounded-md border-0 py-3 pl-10 text-gray-900 ring-1 ring-inset ring-gray-200 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-black sm:text-sm sm:leading-6"
-                                    placeholder="e.g. Vintage Camera Lens"
-                                />
-                            </div>
-                        </div>
-
-                        {/* Price & Category */}
-                        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                            <div>
-                                <label htmlFor="price" className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
-                                    Price
-                                </label>
-                                <div className="relative rounded-md shadow-sm">
-                                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                                        <DollarSign className="h-5 w-5 text-gray-400" />
-                                    </div>
-                                    <input
-                                        type="number"
-                                        name="price"
-                                        id="price"
-                                        min="0"
-                                        step="0.01"
-                                        required
-                                        className="block w-full rounded-md border-0 py-3 pl-10 text-gray-900 ring-1 ring-inset ring-gray-200 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-black sm:text-sm sm:leading-6"
-                                        placeholder="0.00"
-                                    />
-                                </div>
-                            </div>
-
-                            <div>
-                                <label htmlFor="category" className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
-                                    Category
-                                </label>
-                                <div className="relative rounded-md shadow-sm">
-                                    <select
-                                        id="category"
-                                        name="category"
-                                        className="block w-full rounded-md border-0 py-3 pl-3 text-gray-900 ring-1 ring-inset ring-gray-200 focus:ring-2 focus:ring-inset focus:ring-black sm:text-sm sm:leading-6"
-                                    >
-                                        <option>General</option>
-                                        <option>Electronics</option>
-                                        <option>Clothing</option>
-                                        <option>Home & Garden</option>
-                                        <option>Collectibles</option>
-                                        <option>Other</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Condition & Location */}
-                        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                            <div>
-                                <label htmlFor="condition" className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
-                                    Condition
-                                </label>
-                                <div className="relative rounded-md shadow-sm">
-                                    <select
-                                        id="condition"
-                                        name="condition"
-                                        required
-                                        className="block w-full rounded-md border-0 py-3 pl-3 text-gray-900 ring-1 ring-inset ring-gray-200 focus:ring-2 focus:ring-inset focus:ring-black sm:text-sm sm:leading-6"
-                                    >
-                                        <option value="New">New</option>
-                                        <option value="Like New">Used - Like New</option>
-                                        <option value="Good" selected>Used - Good</option>
-                                        <option value="Fair">Used - Fair</option>
-                                        <option value="Poor">Used - Poor</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div>
-                                <label htmlFor="location" className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
-                                    Location
-                                </label>
-                                <input
-                                    type="text"
-                                    name="location"
-                                    id="location"
-                                    required
-                                    className="block w-full rounded-md border-0 py-3 pl-3 text-gray-900 ring-1 ring-inset ring-gray-200 focus:ring-2 focus:ring-inset focus:ring-black sm:text-sm sm:leading-6"
-                                    placeholder="e.g. Downtown NY"
-                                />
-                            </div>
-                        </div>
-
-                        {/* Delivery & Returns */}
-                        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                            <div>
-                                <label htmlFor="delivery" className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
-                                    Delivery Options (Buyer pays)
-                                </label>
-                                <select
-                                    id="delivery"
-                                    name="delivery"
-                                    required
-                                    className="block w-full rounded-md border-0 py-3 pl-3 text-gray-900 ring-1 ring-inset ring-gray-200 focus:ring-2 focus:ring-inset focus:ring-black sm:text-sm sm:leading-6"
+                    {/* Preview Grid (Scrollable if too many, but typically limited) */}
+                    <div className="flex-1 overflow-y-auto scrollbar-hide grid grid-cols-3 gap-3 auto-rows-min">
+                        {uploadedImages.map((file, index) => (
+                            <div key={index} className="relative aspect-square rounded-xl overflow-hidden border border-gray-200 group bg-white">
+                                <img src={file.preview} alt="preview" className="w-full h-full object-cover" />
+                                <button
+                                    type="button"
+                                    onClick={() => removeImage(index)}
+                                    className="absolute top-1 right-1 bg-black/50 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black"
                                 >
-                                    <option value="Meet-up">Meet-up</option>
-                                    <option value="Courier">Courier</option>
-                                    <option value="Meet-up / Courier">Meet-up / Courier</option>
-                                </select>
+                                    <X className="w-3 h-3" />
+                                </button>
                             </div>
+                        ))}
+                        {/* Placeholders to fill grid visually if empty */}
+                        {Array.from({ length: Math.max(0, 3 - uploadedImages.length) }).map((_, i) => (
+                            <div key={`placeholder-${i}`} className="aspect-square rounded-xl border border-gray-100 bg-gray-100/50"></div>
+                        ))}
+                    </div>
+                </div>
+            </div>
 
-                            <div>
-                                <label htmlFor="returnPolicy" className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
-                                    Return Policy
-                                </label>
-                                <select
-                                    id="returnPolicy"
-                                    name="returnPolicy"
-                                    required
-                                    className="block w-full rounded-md border-0 py-3 pl-3 text-gray-900 ring-1 ring-inset ring-gray-200 focus:ring-2 focus:ring-inset focus:ring-black sm:text-sm sm:leading-6"
-                                >
-                                    <option value="No Returns">No Returns</option>
-                                    <option value="Returns Accepted (7 days)">Returns Accepted (7 days)</option>
-                                    <option value="Returns Accepted (14 days)">Returns Accepted (14 days)</option>
-                                    <option value="Returns Accepted (30 days)">Returns Accepted (30 days)</option>
-                                </select>
-                            </div>
+            {/* RIGHT: Form Details (60% Width) */}
+            <div className="w-[60%] bg-white p-8 pt-24 h-full flex flex-col">
+                <form onSubmit={handleSubmit} className="flex flex-col h-full">
+
+                    {/* Top Row Inputs */}
+                    <div className="grid grid-cols-2 gap-x-6 gap-y-5 mb-6">
+                        <div className="col-span-2">
+                            <label htmlFor="title" className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">Title</label>
+                            <input type="text" name="title" id="title" required className="w-full py-3 px-4 bg-gray-50 border border-gray-100 rounded-xl text-xs font-bold text-gray-900 focus:ring-1 focus:ring-black outline-none transition-all placeholder:font-medium" placeholder="Item Name" />
                         </div>
 
-                        <div className="flex items-center">
-                            <input
-                                id="negotiable"
-                                name="negotiable"
-                                type="checkbox"
-                                className="h-4 w-4 rounded border-gray-300 text-black focus:ring-black"
-                            />
-                            <label htmlFor="negotiable" className="ml-2 block text-sm text-gray-900">
-                                Price is Negotiable
-                            </label>
-                        </div>
-
-                        {/* Description */}
                         <div>
-                            <label htmlFor="description" className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
-                                Description
-                            </label>
-                            <div className="relative rounded-md shadow-sm">
-                                <div className="pointer-events-none absolute top-3 left-0 flex items-center pl-3">
-                                    <FileText className="h-5 w-5 text-gray-400" />
-                                </div>
-                                <textarea
-                                    name="description"
-                                    id="description"
-                                    rows={6}
-                                    required
-                                    className="block w-full rounded-md border-0 py-3 pl-10 text-gray-900 ring-1 ring-inset ring-gray-200 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-black sm:text-sm sm:leading-6"
-                                    placeholder="Describe the item's condition, features, and history..."
-                                />
+                            <label htmlFor="price" className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">Price</label>
+                            <div className="relative">
+                                <span className="absolute left-3 top-2.5 text-xs font-bold text-gray-400">$</span>
+                                <input type="number" name="price" id="price" min="0" step="0.01" required className="w-full py-3 pl-6 pr-4 bg-gray-50 border border-gray-100 rounded-xl text-xs font-bold text-gray-900 focus:ring-1 focus:ring-black outline-none transition-all" placeholder="0.00" />
                             </div>
                         </div>
+                        <div>
+                            <label htmlFor="category" className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">Category</label>
+                            <select id="category" name="category" className="w-full py-3 px-4 bg-gray-50 border border-gray-100 rounded-xl text-xs font-bold text-gray-900 focus:ring-1 focus:ring-black outline-none transition-all cursor-pointer">
+                                <option>General</option>
+                                <option>Electronics</option>
+                                <option>Clothing</option>
+                                <option>Home & Garden</option>
+                                <option>Collectibles</option>
+                                <option>Other</option>
+                            </select>
+                        </div>
 
-                        {error && (
-                            <div className="rounded-md bg-red-50 p-4">
-                                <div className="flex">
-                                    <div className="flex-shrink-0">
-                                        <AlertCircle className="h-5 w-5 text-red-500" aria-hidden="true" />
-                                    </div>
-                                    <div className="ml-3">
-                                        <h3 className="text-sm font-medium text-red-800">{error}</h3>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
+                        <div>
+                            <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">Condition</label>
+                            <select name="condition" required className="w-full py-3 px-4 bg-gray-50 border border-gray-100 rounded-xl text-xs font-bold text-gray-900 focus:ring-1 focus:ring-black outline-none transition-all cursor-pointer">
+                                <option value="New">New</option>
+                                <option value="Like New">Used - Like New</option>
+                                <option value="Good">Used - Good</option>
+                                <option value="Fair">Used - Fair</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">Location</label>
+                            <input type="text" name="location" required className="w-full py-3 px-4 bg-gray-50 border border-gray-100 rounded-xl text-xs font-bold text-gray-900 focus:ring-1 focus:ring-black outline-none transition-all" placeholder="City, State" />
+                        </div>
 
-                        <div className="pt-4">
+                        <div>
+                            <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">Delivery</label>
+                            <select name="delivery" required className="w-full py-3 px-4 bg-gray-50 border border-gray-100 rounded-xl text-xs font-bold text-gray-900 focus:ring-1 focus:ring-black outline-none transition-all cursor-pointer">
+                                <option value="Meet-up">Meet-up</option>
+                                <option value="Courier">Courier</option>
+                                <option value="Meet-up / Courier">Both</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">Returns</label>
+                            <select name="returnPolicy" required className="w-full py-3 px-4 bg-gray-50 border border-gray-100 rounded-xl text-xs font-bold text-gray-900 focus:ring-1 focus:ring-black outline-none transition-all cursor-pointer">
+                                <option value="No Returns">No Returns</option>
+                                <option value="Returns Accepted (7 days)">7 Days</option>
+                                <option value="Returns Accepted (14 days)">14 Days</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    {/* Description - Compact */}
+                    <div className="h-24 mb-4">
+                        <label htmlFor="description" className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">Description</label>
+                        <textarea
+                            name="description"
+                            id="description"
+                            required
+                            className="w-full h-full py-3 px-4 bg-gray-50 border border-gray-100 rounded-xl text-xs font-medium text-gray-900 focus:ring-1 focus:ring-black outline-none transition-all resize-none placeholder:text-gray-400"
+                            placeholder="Describe item condition, features..."
+                        />
+                    </div>
+
+                    <div className="mt-2 pt-4 border-t border-gray-50">
+                        <div className="flex items-center gap-2 mb-4">
+                            <input id="negotiable" name="negotiable" type="checkbox" className="h-4 w-4 rounded border-gray-300 text-black focus:ring-black accent-black cursor-pointer" />
+                            <label htmlFor="negotiable" className="text-xs font-bold text-gray-900 cursor-pointer">Price is Negotiable</label>
+                        </div>
+
+                        <div className="flex items-center gap-4">
+                            {error && <p className="text-xs text-red-500 font-bold">{error}</p>}
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="flex w-full justify-center rounded-sm bg-blue-900 px-3 py-4 text-sm font-bold uppercase tracking-widest leading-6 text-white shadow-lg hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-900 disabled:opacity-70 transition-all hover:scale-[1.01] shadow-blue-900/20"
+                                className="w-full bg-blue-900 text-white py-4 rounded-xl font-bold text-sm uppercase tracking-widest hover:bg-black transition-all flex items-center justify-center gap-2 transform hover:scale-[1.01]"
                             >
-                                {loading ? (
-                                    <>
-                                        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                                        Listing Item...
-                                    </>
-                                ) : (
-                                    "List Item"
-                                )}
+                                {loading && <Loader2 className="h-4 w-4 animate-spin" />}
+                                {loading ? "Publishing..." : "Post Item Now"}
                             </button>
                         </div>
-                    </form>
-                </div>
+                    </div>
+                </form>
             </div>
         </div>
     );

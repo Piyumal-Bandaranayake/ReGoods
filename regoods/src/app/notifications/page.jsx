@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Bell, Check, ExternalLink, Clock, ShieldCheck, XCircle, Tag, MessageSquare, AlertTriangle, Sparkles, ArrowLeft, ChevronRight } from "lucide-react";
+import { Bell, Check, ExternalLink, Clock, ShieldCheck, XCircle, Tag, MessageSquare, AlertTriangle, Sparkles, ArrowLeft, ChevronRight, Trash2 } from "lucide-react";
 import Link from "next/link";
-import { getNotifications, markAsRead, markAllAsRead } from "@/app/actions/notification";
+import { getNotifications, markAsRead, markAllAsRead, deleteNotification } from "@/app/actions/notification";
 import { formatDistanceToNow } from "date-fns";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -58,6 +58,12 @@ export default function NotificationsPage() {
     const handleMarkAsRead = async (id) => {
         await markAsRead(id);
         setNotifications(prev => prev.map(n => n._id === id ? { ...n, read: true } : n));
+    };
+
+    const handleDelete = async (e, id) => {
+        e.stopPropagation();
+        await deleteNotification(id);
+        setNotifications(prev => prev.filter(n => n._id !== id));
     };
 
     if (loading) {
@@ -156,15 +162,24 @@ export default function NotificationsPage() {
                                             </div>
                                         </div>
 
-                                        {!n.read && (
+                                        <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            {!n.read && (
+                                                <button
+                                                    onClick={() => handleMarkAsRead(n._id)}
+                                                    className="p-2 bg-white border border-gray-100 text-sky-500 hover:bg-sky-500 hover:text-white rounded-xl transition-all shadow-sm"
+                                                    title="Mark as read"
+                                                >
+                                                    <Check className="w-3.5 h-3.5" />
+                                                </button>
+                                            )}
                                             <button
-                                                onClick={() => handleMarkAsRead(n._id)}
-                                                className="p-2 bg-white border border-gray-100 text-sky-500 hover:bg-sky-500 hover:text-white rounded-xl transition-all shadow-sm opacity-0 group-hover:opacity-100"
-                                                title="Mark as read"
+                                                onClick={(e) => handleDelete(e, n._id)}
+                                                className="p-2 bg-white border border-gray-100 text-red-400 hover:bg-red-500 hover:text-white rounded-xl transition-all shadow-sm"
+                                                title="Delete"
                                             >
-                                                <Check className="w-3.5 h-3.5" />
+                                                <Trash2 className="w-3.5 h-3.5" />
                                             </button>
-                                        )}
+                                        </div>
                                     </div>
                                 </div>
                             ))}

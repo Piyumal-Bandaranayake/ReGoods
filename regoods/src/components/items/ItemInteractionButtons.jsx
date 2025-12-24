@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { toggleWishlist, toggleCart } from "@/app/actions/user";
 import { createOffer } from "@/app/actions/offer";
-import { Heart, ShoppingCart, DollarSign, X } from "lucide-react";
+import { Heart, ShoppingCart, DollarSign, X, CreditCard } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 import { useWishlist } from "@/components/providers/WishlistProvider";
@@ -45,13 +45,13 @@ export function WishlistButton({ itemId, initialIsWishlisted }) {
         <button
             onClick={handleToggle}
             disabled={loading}
-            className={`w-14 h-14 rounded-full border flex items-center justify-center transition hover:shadow-md ${isWishlisted
+            className={`w-10 h-10 rounded-full border flex items-center justify-center transition hover:shadow-md ${isWishlisted
                 ? 'bg-red-50 border-red-200 text-red-500'
                 : 'bg-white border-gray-200 text-gray-400 hover:text-black hover:border-black'
                 }`}
             title={isWishlisted ? "Remove from Wishlist" : "Add to Wishlist"}
         >
-            <Heart className={`w-6 h-6 ${isWishlisted ? 'fill-current' : ''}`} />
+            <Heart className={`w-4 h-4 ${isWishlisted ? 'fill-current' : ''}`} />
         </button>
     );
 }
@@ -86,13 +86,13 @@ export function AddToCartButton({ itemId, initialIsInCart }) {
         <button
             onClick={handleToggle}
             disabled={loading}
-            className={`w-full py-4 rounded-full font-bold text-sm uppercase tracking-widest transition flex items-center justify-center ${isInCart
+            className={`w-full py-2.5 rounded-full font-bold text-xs uppercase tracking-widest transition flex items-center justify-center ${isInCart
                 ? 'bg-gray-200 text-gray-900 cursor-default'
                 : 'bg-yellow-400 text-black hover:bg-yellow-500'
                 }`}
         >
-            {isInCart ? "Added to Cart" : "Add to Cart"}
-            <ShoppingCart className={`w-4 h-4 ml-2 ${isInCart ? 'fill-current' : ''}`} />
+            {isInCart ? "Added" : "Add to Cart"}
+            <ShoppingCart className={`w-3.5 h-3.5 ml-2 ${isInCart ? 'fill-current' : ''}`} />
         </button>
     );
 }
@@ -103,9 +103,10 @@ export function BuyNowButton({ itemId }) {
     return (
         <button
             onClick={() => router.push(`/checkout/${itemId}`)}
-            className="w-full py-4 rounded-full bg-blue-900 text-white font-bold text-sm uppercase tracking-widest hover:scale-[1.02] hover:bg-black transition shadow-lg shadow-blue-900/20 flex justify-center items-center"
+            className="w-full py-2.5 rounded-full font-bold text-xs uppercase tracking-widest transition flex items-center justify-center bg-blue-900 text-white hover:bg-black"
         >
             Buy Now
+            <CreditCard className="w-3.5 h-3.5 ml-2" />
         </button>
     );
 }
@@ -145,9 +146,9 @@ export function NegotiateButton({ itemId, currentPrice }) {
         <>
             <button
                 onClick={() => setIsOpen(true)}
-                className="flex-1 py-4 rounded-full bg-white border border-gray-200 text-black font-bold text-sm uppercase tracking-widest hover:bg-gray-50 hover:border-black transition shadow-sm text-center flex items-center justify-center"
+                className="w-full py-2.5 rounded-full bg-emerald-500 text-white font-bold text-xs uppercase tracking-widest hover:bg-emerald-600 transition shadow-sm text-center flex items-center justify-center border border-transparent"
             >
-                Negotia
+                Make Offer
             </button>
 
             {isOpen && (
