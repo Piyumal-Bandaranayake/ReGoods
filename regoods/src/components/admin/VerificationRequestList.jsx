@@ -45,12 +45,12 @@ export default function VerificationRequestList({ requests }) {
     return (
         <div className="space-y-6 animate-fade-in">
             {requests.map((request) => (
-                <div key={request._id} className="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm overflow-hidden flex flex-col lg:flex-row group hover:shadow-md transition-all">
+                <div key={request._id} className="bg-white rounded-[2rem] border border-gray-100 shadow-sm overflow-hidden flex flex-col lg:flex-row group hover:shadow-md transition-all">
                     {/* User Info & Details */}
-                    <div className="flex-1 p-8 lg:p-10 flex flex-col justify-between">
+                    <div className="flex-1 p-6 lg:p-8 flex flex-col justify-between">
                         <div>
-                            <div className="flex items-center mb-8">
-                                <div className="h-14 w-14 rounded-2xl bg-gray-100 flex items-center justify-center text-gray-500 font-bold text-xl mr-5 border-2 border-white shadow-sm font-serif">
+                            <div className="flex items-center mb-6">
+                                <div className="h-12 w-12 rounded-2xl bg-gray-100 flex items-center justify-center text-gray-400 font-bold text-lg mr-4 border-2 border-white shadow-sm font-serif">
                                     {request.userId?.image ? (
                                         <img src={request.userId.image} className="w-full h-full object-cover rounded-2xl" alt="" />
                                     ) : (
@@ -58,72 +58,72 @@ export default function VerificationRequestList({ requests }) {
                                     )}
                                 </div>
                                 <div>
-                                    <h4 className="text-lg font-bold text-gray-900 leading-tight">{request.userId?.name}</h4>
-                                    <p className="text-sm font-medium text-gray-400">{request.userId?.email}</p>
+                                    <h4 className="text-base font-bold text-gray-900 leading-tight">{request.userId?.name}</h4>
+                                    <p className="text-xs font-medium text-gray-400">{request.userId?.email}</p>
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
-                                <div className="p-5 bg-gray-50 rounded-3xl border border-gray-50 group-hover:bg-white group-hover:border-gray-100 transition-colors">
-                                    <span className="block text-[10px] uppercase font-bold text-gray-400 tracking-widest mb-1.5">Full Name</span>
-                                    <span className="text-sm font-bold text-gray-900">{request.fullName}</span>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+                                <div className="p-4 bg-gray-50 rounded-2xl border border-gray-50 group-hover:bg-white group-hover:border-gray-100 transition-colors">
+                                    <span className="block text-[9px] uppercase font-bold text-gray-400 tracking-widest mb-1">Full Name</span>
+                                    <span className="text-xs font-bold text-gray-900">{request.fullName}</span>
                                 </div>
-                                <div className="p-5 bg-gray-50 rounded-3xl border border-gray-50 group-hover:bg-white group-hover:border-gray-100 transition-colors">
-                                    <span className="block text-[10px] uppercase font-bold text-gray-400 tracking-widest mb-1.5">NIC Number</span>
-                                    <span className="text-sm font-bold text-blue-400">{request.nicNumber}</span>
+                                <div className="p-4 bg-gray-50 rounded-2xl border border-gray-50 group-hover:bg-white group-hover:border-gray-100 transition-colors">
+                                    <span className="block text-[9px] uppercase font-bold text-gray-400 tracking-widest mb-1">NIC Number</span>
+                                    <span className="text-xs font-bold text-blue-500">{request.nicNumber}</span>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="flex items-center text-[10px] text-gray-400 font-bold uppercase tracking-widest px-1">
-                            <Calendar className="w-3.5 h-3.5 mr-2" />
+                        <div className="flex items-center text-[9px] text-gray-400 font-bold uppercase tracking-widest px-1">
+                            <Calendar className="w-3 h-3 mr-2" />
                             Submitted on {new Date(request.createdAt).toLocaleDateString()}
                         </div>
                     </div>
 
                     {/* NIC Images */}
-                    <div className="lg:w-[400px] p-8 lg:p-10 bg-gray-50/50 flex flex-col justify-center border-l border-gray-50">
-                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4 px-1">Identification Documents</p>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="relative group/img aspect-[4/3] bg-white rounded-3xl border border-gray-100 overflow-hidden shadow-sm">
+                    <div className="lg:w-[320px] p-6 lg:p-8 bg-gray-50/50 flex flex-col justify-center border-l border-gray-50">
+                        <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-4 px-1">Documents</p>
+                        <div className="grid grid-cols-2 gap-3">
+                            <div className="relative group/img aspect-[4/3] bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
                                 <img src={request.nicFront} className="w-full h-full object-cover transition-transform duration-500 group-hover/img:scale-110" alt="NIC Front" />
                                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/img:opacity-100 transition-all flex items-center justify-center backdrop-blur-[2px]">
-                                    <button onClick={() => setPreviewImage(request.nicFront)} className="p-3 bg-white rounded-2xl text-gray-900 hover:scale-110 active:scale-95 transition-all">
-                                        <Eye className="w-5 h-5" />
+                                    <button onClick={() => setPreviewImage(request.nicFront)} className="p-2 bg-white rounded-xl text-gray-900 hover:scale-110 active:scale-95 transition-all">
+                                        <Eye className="w-4 h-4" />
                                     </button>
                                 </div>
-                                <div className="absolute top-3 left-3 px-3 py-1 bg-white/90 backdrop-blur-md text-[8px] font-black text-gray-900 rounded-full uppercase tracking-widest border border-white/50 shadow-sm">Front</div>
+                                <div className="absolute top-2 left-2 px-2 py-0.5 bg-white/90 backdrop-blur-md text-[7px] font-black text-gray-900 rounded-full uppercase tracking-widest border border-white/50 shadow-sm">Front</div>
                             </div>
-                            <div className="relative group/img aspect-[4/3] bg-white rounded-3xl border border-gray-100 overflow-hidden shadow-sm">
+                            <div className="relative group/img aspect-[4/3] bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
                                 <img src={request.nicBack} className="w-full h-full object-cover transition-transform duration-500 group-hover/img:scale-110" alt="NIC Back" />
                                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/img:opacity-100 transition-all flex items-center justify-center backdrop-blur-[2px]">
-                                    <button onClick={() => setPreviewImage(request.nicBack)} className="p-3 bg-white rounded-2xl text-gray-900 hover:scale-110 active:scale-95 transition-all">
-                                        <Eye className="w-5 h-5" />
+                                    <button onClick={() => setPreviewImage(request.nicBack)} className="p-2 bg-white rounded-xl text-gray-900 hover:scale-110 active:scale-95 transition-all">
+                                        <Eye className="w-4 h-4" />
                                     </button>
                                 </div>
-                                <div className="absolute top-3 left-3 px-3 py-1 bg-white/90 backdrop-blur-md text-[8px] font-black text-gray-900 rounded-full uppercase tracking-widest border border-white/50 shadow-sm">Back</div>
+                                <div className="absolute top-2 left-2 px-2 py-0.5 bg-white/90 backdrop-blur-md text-[7px] font-black text-gray-900 rounded-full uppercase tracking-widest border border-white/50 shadow-sm">Back</div>
                             </div>
                         </div>
                     </div>
 
                     {/* Actions */}
-                    <div className="lg:w-60 p-8 lg:p-10 flex flex-col gap-3 justify-center border-l border-gray-50 bg-white">
+                    <div className="lg:w-48 p-6 lg:p-8 flex flex-col gap-2.5 justify-center border-l border-gray-50 bg-white">
                         <button
                             onClick={() => handleResolve(request._id, "approve")}
                             disabled={loading}
-                            className="w-full py-4 bg-black text-white rounded-2xl text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-gray-800 active:scale-95 transition-all shadow-lg shadow-black/10 flex items-center justify-center disabled:opacity-50"
+                            className="w-full py-3 bg-black text-white rounded-xl text-[9px] font-bold uppercase tracking-[0.15em] hover:bg-gray-800 active:scale-95 transition-all shadow-md flex items-center justify-center disabled:opacity-50"
                         >
-                            <CheckCircle className="w-4 h-4 mr-2.5" /> Approve
+                            <CheckCircle className="w-3.5 h-3.5 mr-2" /> Approve
                         </button>
                         <button
                             onClick={() => handleResolve(request._id, "reject")}
                             disabled={loading}
-                            className="w-full py-4 bg-white border border-gray-100 text-gray-500 rounded-2xl text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-rose-50 hover:text-rose-600 hover:border-rose-100 active:scale-95 transition-all flex items-center justify-center disabled:opacity-50"
+                            className="w-full py-3 bg-white border border-gray-100 text-gray-500 rounded-xl text-[9px] font-bold uppercase tracking-[0.15em] hover:bg-rose-50 hover:text-rose-600 hover:border-rose-100 active:scale-95 transition-all flex items-center justify-center disabled:opacity-50"
                         >
-                            <XCircle className="w-4 h-4 mr-2.5" /> Reject
+                            <XCircle className="w-3.5 h-3.5 mr-2" /> Reject
                         </button>
-                        <button className="w-full py-3 text-gray-400 hover:text-gray-900 transition-colors flex items-center justify-center">
-                            <MoreHorizontal className="w-5 h-5" />
+                        <button className="w-full py-2 text-gray-400 hover:text-gray-900 transition-colors flex items-center justify-center">
+                            <MoreHorizontal className="w-4 h-4" />
                         </button>
                     </div>
                 </div>
