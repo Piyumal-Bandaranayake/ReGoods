@@ -164,6 +164,7 @@ export default function Navbar() {
                     <div className="p-1.5 space-y-0.5">
                       {[
                         { name: 'Dashboard', path: '/account', icon: LayoutDashboard },
+                        ...(session.user.role === 'admin' ? [{ name: 'Admin Panel', path: '/admin', icon: ShieldCheck }] : []),
                         { name: 'Inbox', path: '/inbox', icon: MessageCircle },
                         { name: 'Profile', path: `/profile/${session.user.id}`, icon: User }
                       ].map((item) => (

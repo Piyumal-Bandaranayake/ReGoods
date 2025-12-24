@@ -67,6 +67,10 @@ const UserSchema = new mongoose.Schema({
   reviewCount: {
     type: Number,
     default: 0
+  },
+  requiresPasswordReset: {
+    type: Boolean,
+    default: false
   }
 }, { timestamps: true });
 
