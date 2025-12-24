@@ -1,141 +1,160 @@
-import { getAdminStats, getEngagementStats, getItemStats, getRecentOffers } from "@/app/actions/admin";
-import { Users, Package, AlertCircle, ShieldCheck, TrendingUp, Activity } from "lucide-react";
+import { getAdminStats, getEngagementStats, getItemStats, getRecentOffers, getMarketActivityStats } from "@/app/actions/admin";
+import { Users, ShoppingBag, ArrowUpRight, TrendingUp, DollarSign, UserCheck } from "lucide-react";
 import EngagementChart from "@/components/admin/EngagementChart";
 import ItemSellingChart from "@/components/admin/ItemSellingChart";
-import MarketActivity from "@/components/admin/MarketActivity";
-import ExportReportButton from "@/components/admin/ExportReportButton";
+import MarketActivityChart from "@/components/admin/MarketActivityChart";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
-async function StatCard({ title, value, icon: Icon, color, trend }) {
+async function StatCard({ title, value, icon: Icon, color, trend, trendType, isLarge }) {
+    if (isLarge) {
+        return (
+            <div className={`${color} rounded-[2.5rem] p-8 text-white relative overflow-hidden h-full shadow-xl`}>
+                <div className="relative z-10 flex flex-col justify-between h-full">
+                    <div>
+                        <p className="text-sm font-medium opacity-80 mb-2">{title}</p>
+                        <h3 className="text-4xl font-bold mb-4">{value}</h3>
+                        {trend && (
+                            <div className="inline-flex items-center space-x-1 px-3 py-1 bg-white/20 rounded-full backdrop-blur-sm border border-white/10">
+                                <TrendingUp className="w-3 h-3" />
+                                <span className="text-xs font-bold">{trend}</span>
+                            </div>
+                        )}
+                    </div>
+                    <div>
+                        <p className="text-xs opacity-60">This month vs last</p>
+                    </div>
+                </div>
+                <div className="absolute top-0 right-0 p-6">
+                    <div className="p-3 bg-white/10 rounded-full backdrop-blur-md">
+                        <ArrowUpRight className="w-5 h-5" />
+                    </div>
+                </div>
+                <div className="absolute -bottom-8 -right-8 w-40 h-40 bg-white/5 rounded-full blur-2xl"></div>
+            </div>
+        );
+    }
+
     return (
-        <div className="bg-white rounded-[2.5rem] p-8 shadow-2xl shadow-gray-200/50 border border-gray-100 group hover:border-blue-200 transition-all duration-500 relative overflow-hidden">
-            <div className="absolute top-0 right-0 -mr-6 -mt-6 w-32 h-32 bg-gray-50 rounded-full group-hover:scale-150 transition-transform duration-700 opacity-50"></div>
-            
-            <div className="relative z-10 flex flex-col h-full justify-between">
-                <div className="flex items-start justify-between mb-8">
-                    <div className={`p-4 rounded-2xl ${color} shadow-lg shadow-current/10`}>
-                        <Icon className="w-6 h-6 text-white" />
-                    </div>
-                    {trend && (
-                        <div className="flex items-center space-x-1 px-3 py-1 bg-green-50 rounded-full border border-green-100">
-                             <TrendingUp className="w-3 h-3 text-green-600" />
-                             <span className="text-[10px] font-black text-green-600">{trend}</span>
-                        </div>
-                    )}
-                </div>
-
+        <div className="bg-white rounded-[2.5rem] p-8 shadow-sm border border-gray-100 flex flex-col justify-between h-full relative overflow-hidden group hover:shadow-md transition-all">
+            <div className="flex justify-between items-start mb-4 relative z-10">
                 <div>
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-2">{title}</p>
-                    <div className="flex items-baseline space-x-2">
-                        <h3 className="text-4xl font-black text-gray-950 tracking-tighter">{value}</h3>
-                        <span className="text-xs font-bold text-gray-400">total</span>
-                    </div>
+                    <p className="text-sm font-medium text-gray-500 mb-1">{title}</p>
+                    <h3 className="text-3xl font-bold text-gray-900">{value}</h3>
                 </div>
-
-
+                <div className="p-3 bg-gray-50 rounded-full group-hover:bg-gray-100 transition-colors">
+                    <ArrowUpRight className="w-5 h-5 text-gray-400" />
+                </div>
+            </div>
+            
+            <div className="flex items-center space-x-2 relative z-10">
+                {trend && (
+                    <div className={`flex items-center px-2 py-1 rounded-full text-[10px] font-bold ${trendType === 'up' ? 'bg-green-50 text-green-600' : 'bg-rose-50 text-rose-600'}`}>
+                        {trend}
+                    </div>
+                )}
+                <p className="text-xs text-gray-400">This month vs last</p>
             </div>
         </div>
     );
 }
 
 export default async function AdminDashboard() {
-    const [stats, engagementData, itemData, recentOffers] = await Promise.all([
+    const session = await getServerSession(authOptions);
+    const [stats, engagementData, itemData, recentOffers, marketData] = await Promise.all([
         getAdminStats(),
         getEngagementStats(),
         getItemStats(),
-        getRecentOffers()
+        getRecentOffers(),
+        getMarketActivityStats()
     ]);
 
+    const firstName = session?.user?.name?.split(' ')[0] || 'Admin';
+
     return (
-        <div className="space-y-12 animate-fade-in-up">
-            {/* Header Section */}
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 relative">
-                <div className="absolute -left-10 -top-10 w-40 h-40 bg-blue-100/30 rounded-full blur-3xl -z-10"></div>
-                <div>
-                    <div className="inline-flex items-center space-x-2 px-3 py-1 bg-blue-50 text-blue-600 rounded-full border border-blue-100 mb-4 transition-transform hover:scale-105 cursor-default">
-                        <Activity className="w-3 h-3" />
-                        <span className="text-[10px] font-black uppercase tracking-widest">System Live</span>
+        <div className="space-y-10 animate-fade-in">
+            {/* Simple Greeting */}
+            <div className="mb-2">
+                <h1 className="text-4xl font-bold text-gray-900 mb-2">Hello, {firstName}!👋</h1>
+                <p className="text-gray-500 font-medium">This is what's happening in your store this month.</p>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                {/* Stats Cards Column */}
+                <div className="lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="md:col-span-2">
+                        <StatCard
+                            title="System performance"
+                            value="99.9%"
+                            trend="+ 1.2%"
+                            trendType="up"
+                            color="bg-blue-500"
+                            isLarge={true}
+                        />
                     </div>
-                    <h1 className="text-5xl font-serif font-black text-gray-950 tracking-tight italic">
-                        Platform <span className="text-blue-500">Pulse.</span>
-                    </h1>
-                    <p className="text-gray-500 font-medium mt-2 max-w-md">
-                        Comprehensive real-time analytics and global marketplace health governance.
-                    </p>
+                    <div className="md:col-span-1">
+                        <StatCard
+                            title="Total orders"
+                            value={stats.soldItems || "35"}
+                            trend="- 2.4%"
+                            trendType="down"
+                        />
+                    </div>
+                    <div className="md:col-span-1">
+                        <StatCard
+                            title="Total visitors"
+                            value={stats.totalUsers || "45.600"}
+                            trend="- 3.1%"
+                            trendType="down"
+                        />
+                    </div>
                 </div>
-                
-                <div className="flex space-x-3">
-                    <ExportReportButton 
-                        stats={stats} 
-                        engagementData={engagementData} 
-                        itemData={itemData} 
-                        recentOffers={recentOffers} 
-                    />
-                </div>
-            </div>
 
-            {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8">
-                <StatCard
-                    title="Active Ecosystem"
-                    value={stats.totalUsers}
-                    icon={Users}
-                    color="bg-indigo-500"
-                    trend="+12%"
-                />
-                <StatCard
-                    title="Volume Circulated"
-                    value={stats.soldItems}
-                    icon={Package}
-                    color="bg-blue-500"
-                    trend="+8.4%"
-                />
-                <StatCard
-                    title="Critical Alerts"
-                    value={stats.activeReports}
-                    icon={AlertCircle}
-                    color="bg-rose-500"
-                />
-                <StatCard
-                    title="Trust Verifications"
-                    value={stats.verificationRequestsCount}
-                    icon={ShieldCheck}
-                    color="bg-emerald-500"
-                    trend="Priority"
-                />
-            </div>
-
-            {/* Visual Analytics */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-                <div className="bg-white p-10 rounded-[3rem] shadow-2xl shadow-gray-200/50 border border-gray-50 group transition-all hover:shadow-blue-500/5">
-                    <div className="flex items-center justify-between mb-10">
-                        <div>
-                            <h4 className="text-xl font-serif font-bold text-gray-900 mb-1">User Engagement</h4>
-                            <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Interaction Velocity</p>
+                {/* Revenue Chart - Large Card */}
+                <div className="lg:col-span-4 h-full">
+                    <div className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-gray-100 h-full">
+                        <div className="flex justify-between items-center mb-6">
+                            <h4 className="text-lg font-bold text-gray-900">Revenue</h4>
+                            <div className="p-2 bg-gray-50 rounded-full">
+                                <ArrowUpRight className="w-5 h-5 text-gray-400" />
+                            </div>
+                        </div>
+                        <div className="h-[200px]">
+                            <EngagementChart data={engagementData} />
                         </div>
                     </div>
-                    <div className="h-[350px] flex items-center justify-center">
-                        <EngagementChart data={engagementData} />
-                    </div>
-                </div>
-                
-                <div className="bg-white p-10 rounded-[3rem] shadow-2xl shadow-gray-200/50 border border-gray-50 group transition-all hover:shadow-blue-500/5">
-                    <div className="flex items-center justify-between mb-10">
-                        <div>
-                            <h4 className="text-xl font-serif font-bold text-gray-900 mb-1">Market Dynamics</h4>
-                            <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Growth Projection</p>
-                        </div>
-                    </div>
-                    <div className="h-[350px] flex items-center justify-center">
-                        <ItemSellingChart data={itemData} />
-                    </div>
                 </div>
             </div>
 
-            {/* Activity Stream */}
-            <div className="relative group">
-                <div className="absolute inset-0 bg-blue-500/5 rounded-[3rem] blur-3xl group-hover:bg-blue-500/10 transition-colors"></div>
-                <div className="relative bg-white/40 backdrop-blur-3xl rounded-[3rem] border border-white/60 p-1 shadow-2xl overflow-hidden">
-                    <MarketActivity initialOffers={recentOffers} />
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                {/* Sales by Category Donut */}
+                <div className="lg:col-span-5">
+                    <div className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-gray-100 h-full">
+                        <div className="flex justify-between items-center mb-6">
+                            <h4 className="text-lg font-bold text-gray-900">Sales by Category</h4>
+                            <div className="p-2 bg-gray-50 rounded-full">
+                                <ArrowUpRight className="w-5 h-5 text-gray-400" />
+                            </div>
+                        </div>
+                        <div className="h-[300px]">
+                            <ItemSellingChart data={itemData} />
+                        </div>
+                    </div>
+                </div>
+
+                {/* Market Activity Area Chart */}
+                <div className="lg:col-span-7">
+                    <div className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-gray-100 h-full">
+                        <div className="flex justify-between items-center mb-6">
+                            <h1 className="text-lg font-bold text-gray-900">Market activity</h1>
+                            <div className="p-2 bg-gray-50 rounded-full">
+                                <ArrowUpRight className="w-5 h-5 text-gray-400" />
+                            </div>
+                        </div>
+                        <div className="h-[300px]">
+                            <MarketActivityChart data={marketData} />
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
