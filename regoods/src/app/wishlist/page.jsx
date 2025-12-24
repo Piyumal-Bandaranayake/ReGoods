@@ -57,11 +57,11 @@ export default function WishlistPage() {
                         </Link>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                         {wishlistItems.map((item) => (
-                            <div 
+                            <div
                                 key={item._id}
-                                className="group bg-white rounded-3xl border border-gray-100 overflow-hidden hover:shadow-xl hover:shadow-sky-900/5 transition-all duration-300"
+                                className="group bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-lg hover:shadow-sky-900/5 transition-all duration-300"
                             >
                                 {/* Image Area */}
                                 <div className="relative aspect-square bg-gray-50 overflow-hidden">
@@ -76,9 +76,9 @@ export default function WishlistPage() {
                                             <ShoppingBag className="w-10 h-10" />
                                         </div>
                                     )}
-                                    
+
                                     {/* Quick Actions */}
-                                    <button 
+                                    <button
                                         onClick={() => toggleWishlist(item._id)}
                                         className="absolute top-4 right-4 p-2 bg-white/90 backdrop-blur-md rounded-xl text-rose-500 shadow-sm hover:bg-rose-50 transition-colors"
                                     >
@@ -87,33 +87,33 @@ export default function WishlistPage() {
                                 </div>
 
                                 {/* Content Area */}
-                                <div className="p-6">
+                                <div className="p-4">
                                     <div className="flex items-start justify-between gap-4 mb-4">
                                         <div className="min-w-0">
-                                            <h3 className="font-bold text-gray-900 text-lg truncate group-hover:text-sky-500 transition-colors">
+                                            <h3 className="font-bold text-gray-900 text-sm truncate group-hover:text-sky-500 transition-colors">
                                                 {item.title}
                                             </h3>
-                                            <p className="text-xs text-gray-400 font-medium mt-1">{item.category}</p>
+                                            <p className="text-[10px] text-gray-400 font-medium mt-0.5">{item.category}</p>
                                         </div>
-                                        <p className="font-black text-gray-900 text-lg">${item.price?.toLocaleString()}</p>
+                                        <p className="font-black text-gray-900 text-sm">${item.price?.toLocaleString()}</p>
                                     </div>
 
                                     <div className="flex gap-2 mt-2">
-                                        <button 
+                                        <button
                                             onClick={() => {
                                                 toggleCart(item._id);
                                                 toggleWishlist(item._id);
                                             }}
-                                            className="flex-1 bg-gray-900 text-white py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-sky-500 transition-colors flex items-center justify-center gap-2 active:scale-95"
+                                            className="flex-1 bg-yellow-400 text-black py-2.5 rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-yellow-500 transition-colors flex items-center justify-center gap-1.5 active:scale-95"
                                         >
-                                            <ShoppingCart className="w-3.5 h-3.5" />
+                                            <ShoppingCart className="w-3 h-3" />
                                             Add to Cart
                                         </button>
-                                        <Link 
+                                        <Link
                                             href={`/items/${item._id}`}
-                                            className="p-3.5 bg-gray-50 text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition-colors active:scale-95"
+                                            className="p-2.5 bg-gray-50 text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors active:scale-95"
                                         >
-                                            <ChevronRight className="w-4 h-4" />
+                                            <ChevronRight className="w-3.5 h-3.5" />
                                         </Link>
                                     </div>
                                 </div>
@@ -122,6 +122,6 @@ export default function WishlistPage() {
                     </div>
                 )}
             </div>
-        </div>
+        </div >
     );
 }

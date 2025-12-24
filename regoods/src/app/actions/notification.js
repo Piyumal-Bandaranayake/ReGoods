@@ -61,6 +61,25 @@ export async function markAllAsRead() {
   }
 }
 
+export async function deleteNotification(notificationId) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session) return { error: "Not logged in" };
+
+    await dbConnect();
+    await Notification.findOneAndDelete({
+      _id: notificationId,
+      recipientId: session.user.id
+    });
+
+    revalidatePath("/notifications");
+    return { success: true };
+  } catch (error) {
+    console.error("Delete notification error:", error);
+    return { error: "Failed to delete notification" };
+  }
+}
+
 export async function createNotification({ recipientId, senderId, type, title, content, link }) {
     // This is internal helper meant to be called from other server actions
     try {
