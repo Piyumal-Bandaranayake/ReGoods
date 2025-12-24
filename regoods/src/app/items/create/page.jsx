@@ -89,50 +89,52 @@ export default function CreateItemPage() {
         );
     }
 
-    if (!userStatus || userStatus.verificationStatus !== "Verified") {
-        return (
-            <div className="min-h-[80vh] flex items-center justify-center bg-gray-50 px-4">
-                <div className="max-w-md w-full bg-white rounded-3xl shadow-xl border border-gray-100 p-8 text-center">
-                    <div className="w-20 h-20 bg-amber-50 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <ShieldAlert className="w-10 h-10 text-amber-500" />
-                    </div>
-                    <h2 className="text-2xl font-serif font-bold text-gray-900 mb-3">Verification Required</h2>
-                    <p className="text-gray-600 mb-8 leading-relaxed">
-                        To maintain a safe community, only verified sellers can list items on ReGoods. 
-                        Please complete your identity verification to start selling.
-                    </p>
-
-                    <div className="space-y-4">
-                        <div className="flex items-start bg-gray-50 p-4 rounded-2xl text-left">
-                            <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 mr-3 flex-shrink-0" />
-                            <div>
-                                <h4 className="text-sm font-bold text-gray-900">Build Trust</h4>
-                                <p className="text-xs text-gray-500">Verified sellers get 3x more sales and trust from buyers.</p>
-                            </div>
-                        </div>
-                        
-                        <Link 
-                            href={`/profile/${userStatus._id}`}
-                            className="flex items-center justify-between w-full bg-blue-900 text-white font-bold py-4 px-6 rounded-2xl hover:bg-black transition-all group"
-                        >
-                            <span>Go to Verification</span>
-                            <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                        </Link>
-
-                        <button 
-                            onClick={() => router.back()}
-                            className="w-full text-sm text-gray-500 font-medium hover:text-gray-900 transition-colors py-2"
-                        >
-                            Go Back
-                        </button>
-                    </div>
-                </div>
-            </div>
-        );
-    }
+    // Verification Modal
+    const showVerificationModal = !pageLoading && (!userStatus || userStatus.verificationStatus !== "Verified");
 
     return (
-        <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 relative">
+            {/* Verification Modal Overlay */}
+            {showVerificationModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm">
+                    <div className="max-w-md w-full bg-white rounded-3xl shadow-2xl border border-gray-100 p-8 text-center animate-in zoom-in duration-300">
+                        <div className="w-20 h-20 bg-amber-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <ShieldAlert className="w-10 h-10 text-amber-500" />
+                        </div>
+                        <h2 className="text-2xl font-serif font-bold text-gray-900 mb-3">Verification Required</h2>
+                        <p className="text-gray-600 mb-8 leading-relaxed">
+                            To maintain a safe community, only verified sellers can list items on ReGoods.
+                            Please complete your identity verification to start selling.
+                        </p>
+
+                        <div className="space-y-4">
+                            <div className="flex items-start bg-gray-50 p-4 rounded-2xl text-left">
+                                <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 mr-3 flex-shrink-0" />
+                                <div>
+                                    <h4 className="text-sm font-bold text-gray-900">Build Trust</h4>
+                                    <p className="text-xs text-gray-500">Verified sellers get 3x more sales and trust from buyers.</p>
+                                </div>
+                            </div>
+
+                            <Link
+                                href={userStatus?._id ? `/profile/${userStatus._id}` : '/auth/login'}
+                                className="flex items-center justify-between w-full bg-blue-900 text-white font-bold py-4 px-6 rounded-2xl hover:bg-black transition-all group"
+                            >
+                                <span>Go to Verification</span>
+                                <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                            </Link>
+
+                            <button
+                                onClick={() => router.back()}
+                                className="w-full text-sm text-gray-500 font-medium hover:text-gray-900 transition-colors py-2"
+                            >
+                                Go Back
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <div className="max-w-2xl mx-auto">
                 <div className="bg-white rounded-2xl shadow-none border border-gray-200 overflow-hidden">
                     <div className="px-8 py-6 border-b border-gray-100 bg-white">
