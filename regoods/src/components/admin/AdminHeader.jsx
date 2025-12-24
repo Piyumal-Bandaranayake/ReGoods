@@ -43,9 +43,6 @@ export default function AdminHeader({ adminName, adminImage }) {
 
                 {/* Icons */}
                 <div className="flex items-center space-x-3">
-                    <button className="p-3 bg-white text-gray-400 hover:text-gray-900 rounded-2xl shadow-sm hover:shadow-md transition-all">
-                        <Settings className="w-5 h-5" />
-                    </button>
                     <AdminNotificationDropdown />
                 </div>
 
