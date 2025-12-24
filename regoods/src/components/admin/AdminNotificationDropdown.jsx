@@ -2,14 +2,17 @@
 
 import { useState, useEffect, useRef } from "react";
 import { Bell, Shield, Flag, MessageSquare, Clock, X } from "lucide-react";
-import { getAdminNotifications } from "@/app/actions/admin";
+import { getAdminNotifications, clearAllAdminNotifications } from "@/app/actions/admin";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function AdminNotificationDropdown() {
     const [isOpen, setIsOpen] = useState(false);
     const [notifications, setNotifications] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [clearing, setClearing] = useState(false);
     const dropdownRef = useRef(null);
+    const router = useRouter();
 
     useEffect(() => {
         const fetchNotifications = async () => {
@@ -34,6 +37,22 @@ export default function AdminNotificationDropdown() {
         document.addEventListener("mousedown", handleClickOutside);
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, [isOpen]);
+
+    const handleClearAll = async () => {
+        if (notifications.length === 0) return;
+        if (confirm("Are you sure you want to clear all alerts? This will dismiss all pending reports and verifications.")) {
+            setClearing(true);
+            const result = await clearAllAdminNotifications();
+            if (result.success) {
+                setNotifications([]);
+                router.refresh();
+            } else {
+                alert(result.error || "Failed to clear notifications");
+            }
+            setClearing(false);
+            setIsOpen(false);
+        }
+    };
 
     const getIcon = (type) => {
         switch (type) {
@@ -73,9 +92,20 @@ export default function AdminNotificationDropdown() {
                             <h3 className="text-sm font-bold text-gray-900">Notifications</h3>
                             <p className="text-[10px] text-gray-500 font-medium tracking-tight">You have {notifications.length} pending tasks</p>
                         </div>
-                        <button onClick={() => setIsOpen(false)} className="p-2 hover:bg-white rounded-xl transition-colors">
-                            <X className="w-4 h-4 text-gray-400" />
-                        </button>
+                        <div className="flex items-center space-x-2">
+                            {notifications.length > 0 && (
+                                <button 
+                                    onClick={handleClearAll}
+                                    disabled={clearing}
+                                    className="text-[10px] font-bold uppercase tracking-widest text-rose-500 hover:bg-rose-50 px-3 py-2 rounded-xl transition-all disabled:opacity-50"
+                                >
+                                    {clearing ? "Clearing..." : "Clear All"}
+                                </button>
+                            )}
+                            <button onClick={() => setIsOpen(false)} className="p-2 hover:bg-white rounded-xl transition-colors">
+                                <X className="w-4 h-4 text-gray-400" />
+                            </button>
+                        </div>
                     </div>
 
                     <div className="max-h-[450px] overflow-y-auto custom-scrollbar">
@@ -111,7 +141,7 @@ export default function AdminNotificationDropdown() {
                                             <p className="text-xs font-bold text-gray-900 group-hover:text-blue-600 transition-colors">{notif.title}</p>
                                             <p className="text-xs text-gray-500 leading-relaxed font-medium">{notif.content}</p>
                                             <div className="flex items-center text-[10px] text-gray-400 font-bold uppercase tracking-tight">
-                                                <Clock className="w-3 h-3 mr-1" />
+                                                < Clock className="w-3 h-3 mr-1" />
                                                 {getTimeAgo(notif.createdAt)}
                                             </div>
                                         </div>

@@ -12,7 +12,7 @@ import Report from "@/lib/models/Report";
 import Notification from "@/lib/models/Notification";
 import Verification from "@/lib/models/Verification";
 import bcrypt from "bcryptjs";
-import { sendWelcomeEmail } from "@/lib/mail";
+import { sendWelcomeEmail, sendBanEmail, sendUnbanEmail } from "@/lib/mail";
 
 // Middleware-like check for admin
 async function checkAdmin() {
@@ -85,14 +85,19 @@ export async function getEngagementStats() {
             const endOfDay = new Date(date);
             endOfDay.setHours(23, 59, 59, 999);
 
-            const count = await User.countDocuments({
-                createdAt: { $gte: startOfDay, $lte: endOfDay },
-                role: "user"
-            });
+            // Fetch multiple interaction types
+            const [newUsers, newItems, newOffers] = await Promise.all([
+                User.countDocuments({ createdAt: { $gte: startOfDay, $lte: endOfDay }, role: "user" }),
+                Item.countDocuments({ createdAt: { $gte: startOfDay, $lte: endOfDay } }),
+                Offer.countDocuments({ createdAt: { $gte: startOfDay, $lte: endOfDay } })
+            ]);
 
             return {
                 date: new Date(date).toLocaleDateString("en-US", { weekday: "short" }),
-                users: count
+                interactions: newUsers + newItems + newOffers,
+                users: newUsers,
+                items: newItems,
+                offers: newOffers
             };
         })
     );
@@ -144,6 +149,14 @@ export async function deleteUser(userId) {
     return { success: true };
 }
 
+export async function deleteAdminItem(itemId) {
+    await checkAdmin();
+    await dbConnect();
+    await Item.findByIdAndDelete(itemId);
+    revalidatePath("/admin/orders");
+    return { success: true };
+}
+
 export async function getSoldItems() {
     await checkAdmin();
     await dbConnect();
@@ -184,7 +197,11 @@ export async function getUserReports() {
         .populate("reporterId", "name email")
         .populate("reportedUserId", "name email warningCount isBanned")
         .sort({ createdAt: -1 });
-    return JSON.parse(JSON.stringify(reports));
+    
+    // Filter out reports for users who are already banned
+    const pendingReports = reports.filter(report => !report.reportedUserId?.isBanned);
+    
+    return JSON.parse(JSON.stringify(pendingReports));
 }
 
 export async function resolveUserReport(reportId, action, customReason) {
@@ -199,13 +216,32 @@ export async function resolveUserReport(reportId, action, customReason) {
     } else if (action === "ban") {
         const banReason = customReason || `Violation of platform rules: ${report.reason}`;
         
+        // Find the user first to check eligibility and get email
+        const reportedUser = await User.findById(report.reportedUserId);
+        if (!reportedUser) return { error: "Reported user not found" };
+
+        if ((reportedUser.warningCount || 0) < 5) {
+            return { error: "User must have at least 5 warnings before being banned." };
+        }
+        
         // Update user status
         await User.findByIdAndUpdate(report.reportedUserId, { 
             isBanned: true,
             banReason: banReason
         });
 
-        // Send Notification (They might see this weight trying to login or if they are online)
+        // Send Email Notification
+        try {
+            await sendBanEmail({
+                to: reportedUser.email,
+                name: reportedUser.name,
+                reason: banReason
+            });
+        } catch (mailError) {
+            console.error("Failed to send ban email:", mailError);
+        }
+
+        // Send In-app Notification
         await Notification.create({
             recipientId: report.reportedUserId,
             senderId: session.user.id,
@@ -330,6 +366,64 @@ export async function getMarketActivityStats() {
     return marketData;
 }
 
+export async function getDetailedReport(period = "weekly") {
+    await checkAdmin();
+    await dbConnect();
+
+    const now = new Date();
+    let startDate = new Date();
+    let days = 7;
+
+    if (period === "weekly") {
+        startDate.setDate(now.getDate() - 7);
+        days = 7;
+    } else if (period === "monthly") {
+        startDate.setMonth(now.getMonth() - 1);
+        days = 30;
+    } else if (period === "yearly") {
+        startDate.setFullYear(now.getFullYear() - 1);
+        days = 365;
+    }
+
+    const intervals = period === "yearly" ? 12 : days;
+    const reportData = [];
+
+    for (let i = 0; i < intervals; i++) {
+        const d = new Date(startDate);
+        if (period === "yearly") {
+            d.setMonth(startDate.getMonth() + i);
+        } else {
+            d.setDate(startDate.getDate() + i);
+        }
+        
+        const start = new Date(d);
+        start.setHours(0, 0, 0, 0);
+        const end = new Date(d);
+        if (period === "yearly") {
+            end.setMonth(d.getMonth() + 1);
+            end.setDate(0);
+            end.setHours(23, 59, 59, 999);
+        } else {
+            end.setHours(23, 59, 59, 999);
+        }
+
+        const [sales, engagement, verifications] = await Promise.all([
+            Item.countDocuments({ status: "Sold", updatedAt: { $gte: start, $lte: end } }),
+            User.countDocuments({ role: "user", createdAt: { $gte: start, $lte: end } }),
+            Verification.countDocuments({ status: "Approved", updatedAt: { $gte: start, $lte: end } })
+        ]);
+
+        reportData.push({
+            date: period === "yearly" ? d.toLocaleDateString("en-US", { month: "short" }) : d.toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+            sales,
+            engagement,
+            verifications
+        });
+    }
+
+    return reportData;
+}
+
 export async function getAdminItems() {
     await checkAdmin();
     await dbConnect();
@@ -438,5 +532,75 @@ export async function getAdminNotifications() {
     } catch (error) {
         console.error("Failed to fetch admin notifications:", error);
         return [];
+    }
+}
+
+export async function unbanUser(userId) {
+    try {
+        const session = await checkAdmin();
+        await dbConnect();
+
+        const user = await User.findById(userId);
+        if (!user) return { error: "User not found" };
+
+        await User.findByIdAndUpdate(userId, {
+            isBanned: false,
+            banReason: null
+        });
+
+        await Notification.create({
+            recipientId: userId,
+            senderId: session.user.id,
+            type: "account_unbanned",
+            title: "Access Restored!",
+            content: "Your account has been reactivated. You can now log in and use our platform again.",
+        });
+
+        // Send Unban Email
+        try {
+            await sendUnbanEmail({
+                to: user.email,
+                name: user.name
+            });
+        } catch (mailError) {
+            console.error("Failed to send unban email:", mailError);
+        }
+
+        revalidatePath("/admin/users");
+        return { success: true };
+    } catch (error) {
+        console.error("Unban user error:", error);
+        return { error: "Failed to unban user." };
+    }
+}
+export async function clearAllAdminNotifications() {
+    try {
+        await checkAdmin();
+        await dbConnect();
+
+        // 1. Delete all user reports (effectively dismissing them)
+        await Report.deleteMany({});
+
+        // 2. Unflag all reported messages
+        await Message.updateMany({ reported: true }, { $set: { reported: false } });
+
+        // 3. Reject all pending verification requests with a bulk note
+        await Verification.updateMany(
+            { status: "Pending" },
+            { 
+                $set: { 
+                    status: "Rejected", 
+                    adminNotes: "Bulk cleared by administrator." 
+                } 
+            }
+        );
+
+        revalidatePath("/admin");
+        revalidatePath("/admin/reports");
+        revalidatePath("/admin/activity");
+        return { success: true };
+    } catch (error) {
+        console.error("Clear notifications error:", error);
+        return { error: "Failed to clear notifications." };
     }
 }

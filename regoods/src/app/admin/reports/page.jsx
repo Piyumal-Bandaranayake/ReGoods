@@ -1,12 +1,7 @@
-import { getReportedMessages, getUserReports } from "@/app/actions/admin";
-import ReportList from "@/components/admin/ReportList";
+import { getUserReports } from "@/app/actions/admin";
 import UserReportList from "@/components/admin/UserReportList";
 
-export default async function ReportsPage({ searchParams }) {
-    const { tab } = await searchParams || { tab: 'users' };
-    const currentTab = tab || 'users';
-
-    const reportedMessages = await getReportedMessages();
+export default async function ReportsPage() {
     const userReports = await getUserReports();
 
     return (
@@ -17,28 +12,13 @@ export default async function ReportsPage({ searchParams }) {
                     <p className="text-gray-500 mt-1">Review user complaints and moderate reported content.</p>
                 </div>
                 
-                <div className="flex bg-white p-1 rounded-xl border border-gray-200">
-                    <a 
-                        href="?tab=users" 
-                        className={`px-6 py-2.5 rounded-lg text-sm font-bold transition ${currentTab === 'users' ? 'bg-black text-white' : 'text-gray-500 hover:text-black'}`}
-                    >
-                        User Reports ({userReports.length})
-                    </a>
-                    <a 
-                        href="?tab=messages" 
-                        className={`px-6 py-2.5 rounded-lg text-sm font-bold transition ${currentTab === 'messages' ? 'bg-black text-white' : 'text-gray-500 hover:text-black'}`}
-                    >
-                        Messages ({reportedMessages.length})
-                    </a>
+                <div className="bg-white px-6 py-2.5 rounded-xl border border-gray-200 text-sm font-bold text-gray-900">
+                    {userReports.length} Pending User Reports
                 </div>
             </div>
 
             <div className="animate-fade-in">
-                {currentTab === 'users' ? (
-                    <UserReportList initialReports={userReports} />
-                ) : (
-                    <ReportList initialReports={reportedMessages} />
-                )}
+                <UserReportList initialReports={userReports} />
             </div>
         </div>
     );

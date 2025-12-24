@@ -3,6 +3,7 @@ import { Users, ShoppingBag, ArrowUpRight, TrendingUp, DollarSign, UserCheck } f
 import EngagementChart from "@/components/admin/EngagementChart";
 import ItemSellingChart from "@/components/admin/ItemSellingChart";
 import MarketActivityChart from "@/components/admin/MarketActivityChart";
+import ExportReportButton from "@/components/admin/ExportReportButton";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
@@ -25,11 +26,6 @@ async function StatCard({ title, value, icon: Icon, color, trend, trendType, isL
                         <p className="text-xs opacity-60">This month vs last</p>
                     </div>
                 </div>
-                <div className="absolute top-0 right-0 p-6">
-                    <div className="p-3 bg-white/10 rounded-full backdrop-blur-md">
-                        <ArrowUpRight className="w-5 h-5" />
-                    </div>
-                </div>
                 <div className="absolute -bottom-8 -right-8 w-40 h-40 bg-white/5 rounded-full blur-2xl"></div>
             </div>
         );
@@ -41,9 +37,6 @@ async function StatCard({ title, value, icon: Icon, color, trend, trendType, isL
                 <div>
                     <p className="text-sm font-medium text-gray-500 mb-1">{title}</p>
                     <h3 className="text-3xl font-bold text-gray-900">{value}</h3>
-                </div>
-                <div className="p-3 bg-gray-50 rounded-full group-hover:bg-gray-100 transition-colors">
-                    <ArrowUpRight className="w-5 h-5 text-gray-400" />
                 </div>
             </div>
             
@@ -74,9 +67,12 @@ export default async function AdminDashboard() {
     return (
         <div className="space-y-10 animate-fade-in">
             {/* Simple Greeting */}
-            <div className="mb-2">
-                <h1 className="text-4xl font-bold text-gray-900 mb-2">Hello, {firstName}!👋</h1>
-                <p className="text-gray-500 font-medium">This is what's happening in your store this month.</p>
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div>
+                    <h1 className="text-4xl font-bold text-gray-900 mb-2">Hello, {firstName}!👋</h1>
+                    <p className="text-gray-500 font-medium">This is what's happening in your store this month.</p>
+                </div>
+                <ExportReportButton />
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -110,14 +106,11 @@ export default async function AdminDashboard() {
                     </div>
                 </div>
 
-                {/* Revenue Chart - Large Card */}
+                {/* User Activity Chart - Large Card */}
                 <div className="lg:col-span-4 h-full">
                     <div className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-gray-100 h-full">
                         <div className="flex justify-between items-center mb-6">
-                            <h4 className="text-lg font-bold text-gray-900">Revenue</h4>
-                            <div className="p-2 bg-gray-50 rounded-full">
-                                <ArrowUpRight className="w-5 h-5 text-gray-400" />
-                            </div>
+                            <h4 className="text-lg font-bold text-gray-900">User Activity</h4>
                         </div>
                         <div className="h-[200px]">
                             <EngagementChart data={engagementData} />
@@ -132,9 +125,6 @@ export default async function AdminDashboard() {
                     <div className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-gray-100 h-full">
                         <div className="flex justify-between items-center mb-6">
                             <h4 className="text-lg font-bold text-gray-900">Sales by Category</h4>
-                            <div className="p-2 bg-gray-50 rounded-full">
-                                <ArrowUpRight className="w-5 h-5 text-gray-400" />
-                            </div>
                         </div>
                         <div className="h-[300px]">
                             <ItemSellingChart data={itemData} />
@@ -147,9 +137,6 @@ export default async function AdminDashboard() {
                     <div className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-gray-100 h-full">
                         <div className="flex justify-between items-center mb-6">
                             <h1 className="text-lg font-bold text-gray-900">Market activity</h1>
-                            <div className="p-2 bg-gray-50 rounded-full">
-                                <ArrowUpRight className="w-5 h-5 text-gray-400" />
-                            </div>
                         </div>
                         <div className="h-[300px]">
                             <MarketActivityChart data={marketData} />

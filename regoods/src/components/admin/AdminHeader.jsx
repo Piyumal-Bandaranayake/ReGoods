@@ -1,7 +1,7 @@
 "use client";
 
 import { signOut } from "next-auth/react";
-import { Bell, Search, Settings, User } from "lucide-react";
+import { Bell, Search, Settings } from "lucide-react";
 import { useState, useEffect } from "react";
 import AdminNotificationDropdown from "./AdminNotificationDropdown";
 
@@ -46,16 +46,6 @@ export default function AdminHeader({ adminName, adminImage }) {
                     <AdminNotificationDropdown />
                 </div>
 
-                {/* User Profile */}
-                <div className="flex items-center space-x-3 pl-4 border-l border-gray-200">
-                    <div className="w-12 h-12 rounded-2xl bg-gray-100 flex items-center justify-center overflow-hidden shadow-sm">
-                        {adminImage ? (
-                            <img src={adminImage} alt="Admin" className="w-full h-full object-cover" />
-                        ) : (
-                            <User className="w-6 h-6 text-gray-400" />
-                        )}
-                    </div>
-                </div>
             </div>
         </header>
     );
