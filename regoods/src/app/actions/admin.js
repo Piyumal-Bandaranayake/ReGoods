@@ -458,7 +458,8 @@ export async function adminCreateUser(userData) {
             password: hashedPassword,
             role: role || "user",
             isVerified: false, 
-            verificationStatus: "Unverified"
+            verificationStatus: "Unverified",
+            requiresPasswordReset: (role === "admin") // Force new admins to reset password
         });
 
         // Send Welcome Email with credentials

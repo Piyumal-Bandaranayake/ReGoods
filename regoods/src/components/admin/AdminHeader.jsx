@@ -4,8 +4,9 @@ import { signOut } from "next-auth/react";
 import { Bell, Search, Settings } from "lucide-react";
 import { useState, useEffect } from "react";
 import AdminNotificationDropdown from "./AdminNotificationDropdown";
+import AdminProfileDropdown from "./AdminProfileDropdown";
 
-export default function AdminHeader({ adminName, adminImage }) {
+export default function AdminHeader({ adminName, adminImage, requiresPasswordReset }) {
     const [currentTime, setCurrentTime] = useState(new Date());
 
     useEffect(() => {
@@ -42,8 +43,13 @@ export default function AdminHeader({ adminName, adminImage }) {
                 </div>
 
                 {/* Icons */}
-                <div className="flex items-center space-x-3">
+                <div className="flex items-center space-x-4">
                     <AdminNotificationDropdown />
+                    <AdminProfileDropdown 
+                        adminName={adminName} 
+                        adminImage={adminImage} 
+                        requiresPasswordReset={requiresPasswordReset} 
+                    />
                 </div>
 
             </div>
