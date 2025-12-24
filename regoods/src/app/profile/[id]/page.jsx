@@ -54,67 +54,67 @@ export default async function ProfilePage({ params, searchParams }) {
 
     return (
         <div className="min-h-screen bg-slate-50/50 pb-20 font-inter">
-            {/* 1. HERO BANNER */}
-            <div className="relative h-48 md:h-80 w-full overflow-hidden bg-sky-100">
-                <img 
-                    src={user.bannerImage || "https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=2070&auto=format&fit=crop"} 
-                    alt="Store Banner" 
-                    className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-black/5"></div>
-            </div>
+            {/* 1. TOP SPACING */}
+            <div className="h-32 w-full bg-[#1DA1F2]/5 border-b border-[#1DA1F2]/10 mb-8"></div>
 
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+            <div className="max-w-[95%] mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex flex-col lg:grid lg:grid-cols-12 gap-8 relative">
-                    
+
                     {/* 2. LEFT SIDEBAR: PROFILE CARD */}
-                    <div className="lg:col-span-3 -mt-16 md:-mt-24 z-20">
-                        <div className="bg-white rounded-[2rem] p-6 shadow-xl shadow-sky-900/5 border border-white relative">
+                    <div className="lg:col-span-3 -mt-20 z-20">
+                        <div className="bg-white rounded-[2rem] p-5 shadow-xl shadow-sky-900/5 border border-white relative">
                             {/* Avatar */}
-                            <div className="relative mb-6">
-                                <div className="h-32 w-32 md:h-40 md:w-40 mx-auto rounded-full border-[6px] border-white shadow-lg overflow-hidden bg-sky-50 flex items-center justify-center">
+                            <div className="relative mb-4">
+                                <div className="h-28 w-28 md:h-32 md:w-32 mx-auto rounded-full border-[6px] border-white shadow-lg overflow-hidden bg-sky-50 flex items-center justify-center">
                                     {user.image ? (
                                         <img src={user.image} alt={user.name} className="w-full h-full object-cover" />
                                     ) : (
-                                        <span className="text-5xl font-bold text-sky-400">{displayName[0]}</span>
+                                        <span className="text-4xl font-bold text-sky-400">{displayName[0]}</span>
                                     )}
                                 </div>
                                 {user.isVerified && (
-                                    <div className="absolute bottom-2 right-1/2 translate-x-14 md:translate-x-16 bg-white p-1 rounded-full shadow-md border border-gray-50">
-                                        <CheckCircle className="w-6 h-6 md:w-8 md:h-8 text-[#1DA1F2] fill-current" />
+                                    <div className="absolute bottom-1 right-1/2 translate-x-10 md:translate-x-12 bg-white p-1 rounded-full shadow-md border border-gray-50">
+                                        <CheckCircle className="w-5 h-5 md:w-6 md:h-6 text-[#1DA1F2] fill-current" />
                                     </div>
                                 )}
                             </div>
 
                             {/* Name & Title */}
-                            <div className="text-center mb-6">
-                                <h1 className="text-2xl font-bold text-gray-900 flex items-center justify-center gap-1">
+                            <div className="text-center mb-4">
+                                <h1 className="text-xl font-bold text-gray-900 flex items-center justify-center gap-1">
                                     {displayName}
-                                    {user.isVerified && <CheckCircle className="w-5 h-5 text-[#1DA1F2] fill-current md:hidden" />}
+                                    {user.isVerified && <CheckCircle className="w-4 h-4 text-[#1DA1F2] fill-current md:hidden" />}
                                 </h1>
-                                <p className="text-[#657786] text-sm font-medium">@{username}</p>
+                                <p className="text-[#657786] text-xs font-medium mb-2">@{username}</p>
+                                {user.isVerified && (
+                                    <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 text-emerald-600 rounded-full text-[10px] font-bold uppercase tracking-wider border border-emerald-100">
+                                        <CheckCircle className="w-3 h-3" />
+                                        Verified Seller
+                                    </div>
+                                )}
                             </div>
 
                             {/* Bio */}
-                            <div className="mb-8">
-                                <p className="text-gray-600 text-[15px] leading-relaxed text-center lg:text-left font-medium">
+                            <div className="mb-5">
+                                <p className="text-gray-600 text-sm leading-relaxed text-center lg:text-left font-medium">
                                     {user.bio || "Passionate about sustainable fashion and high-quality pre-owned items. Check out my collection below!"}
                                 </p>
                             </div>
 
                             {/* Details List */}
-                            <div className="space-y-4 mb-8">
-                                <ProfileDetailItem icon={<MapPin className="w-5 h-5" />} text={user.nationality || "International"} />
-                                <ProfileDetailItem icon={<Link2 className="w-5 h-5" />} text={<span className="text-sky-500 hover:underline cursor-pointer truncate block">regoods.com/{username}</span>} />
-                                <ProfileDetailItem icon={<Calendar className="w-5 h-5" />} text={`Joined ${joinedDate}`} />
-                                <ProfileDetailItem icon={<Package className="w-5 h-5" />} text={`${activeItems.length} Active Listings`} />
+                            <div className="space-y-2.5 mb-6">
+                                <ProfileDetailItem icon={<MapPin className="w-4 h-4" />} text={user.nationality || "International"} />
+                                <ProfileDetailItem icon={<Link2 className="w-4 h-4" />} text={<span className="text-sky-500 hover:underline cursor-pointer truncate block">regoods.com/{username}</span>} />
+                                <ProfileDetailItem icon={<Calendar className="w-4 h-4" />} text={`Joined ${joinedDate}`} />
+                                <ProfileDetailItem icon={<Package className="w-4 h-4" />} text={`${activeItems.length} Active Listings`} />
                             </div>
 
                             {/* Action Buttons */}
-                            <div className="space-y-3">
+                            <div className="space-y-2">
                                 {session?.user?.id === user._id ? (
                                     <>
-                                        <Link href="/account" className="flex items-center justify-center w-full py-3.5 bg-sky-500 hover:bg-sky-600 text-white rounded-2xl font-bold transition-all shadow-lg shadow-sky-200/50">
+                                        <Link href="/account" className="flex items-center justify-center w-full py-3 bg-sky-500 hover:bg-sky-600 text-white rounded-2xl text-sm font-bold transition-all shadow-lg shadow-sky-200/50">
                                             Edit Profile
                                         </Link>
                                         <VerifyAccountButton currentStatus={user.verificationStatus || "Unverified"} />
@@ -123,9 +123,9 @@ export default async function ProfilePage({ params, searchParams }) {
                                     <>
                                         <Link
                                             href={`/inbox/${user._id}`}
-                                            className="flex items-center justify-center gap-2 w-full py-3.5 bg-sky-500 hover:bg-sky-600 text-white rounded-2xl font-bold transition-all shadow-lg shadow-sky-200/50"
+                                            className="flex items-center justify-center gap-2 w-full py-3 bg-sky-500 hover:bg-sky-600 text-white rounded-2xl text-sm font-bold transition-all shadow-lg shadow-sky-200/50"
                                         >
-                                            <MessageCircle className="w-5 h-5" /> Message
+                                            <MessageCircle className="w-4 h-4" /> Message
                                         </Link>
                                         <ReportUserButton userId={user._id} userName={user.name} />
                                     </>
@@ -168,10 +168,10 @@ export default async function ProfilePage({ params, searchParams }) {
 
                             {currentTab === 'reviews' && (
                                 <div className="bg-white rounded-[2rem] p-8 shadow-sm border border-white mb-20">
-                                    <ReviewSection 
-                                        sellerId={id} 
-                                        reviews={reviews} 
-                                        currentUserId={session?.user?.id} 
+                                    <ReviewSection
+                                        sellerId={id}
+                                        reviews={reviews}
+                                        currentUserId={session?.user?.id}
                                     />
                                 </div>
                             )}
@@ -215,11 +215,10 @@ function TabTrigger({ id, label, active, count }) {
     return (
         <Link
             href={`?tab=${id}`}
-            className={`relative flex-1 text-center py-4 text-sm font-bold transition-all px-4 whitespace-nowrap ${
-                active ? 'text-sky-500' : 'text-[#657786] hover:bg-sky-50'
-            }`}
+            className={`relative flex-1 text-center py-4 text-sm font-bold transition-all px-4 whitespace-nowrap ${active ? 'text-sky-500' : 'text-[#657786] hover:bg-sky-50'
+                }`}
         >
-            {label} 
+            {label}
             {count > 0 && <span className="ml-2 py-0.5 px-2 bg-gray-100 rounded-full text-[10px] text-gray-500">{count}</span>}
             {active && <div className="absolute bottom-0 left-0 right-0 h-1 bg-sky-500 rounded-full mx-auto w-1/2"></div>}
         </Link>

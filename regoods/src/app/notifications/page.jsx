@@ -75,125 +75,102 @@ export default function NotificationsPage() {
     const unreadCount = notifications.filter(n => !n.read).length;
 
     return (
-        <div className="min-h-screen bg-[#FAFAFA] pb-24">
-            {/* 1. CINEMATIC HEADER */}
-            <div className="bg-white border-b border-gray-100 mb-12">
-                <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20 text-center md:text-left">
-                    <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
-                        <div className="animate-fade-in-up">
-                            <div className="flex items-center justify-center md:justify-start gap-3 text-blue-500 font-bold text-[10px] uppercase tracking-[0.2em] mb-4">
-                                <Sparkles className="w-4 h-4" />
-                                Interactive Logs
-                            </div>
-                            <h1 className="text-4xl md:text-7xl font-serif font-bold text-gray-900 leading-tight">
-                                Live <span className="italic text-blue-500">Activity</span>.
-                            </h1>
-                            <p className="mt-4 text-gray-500 text-sm md:text-lg max-w-lg leading-relaxed italic">
-                                Real-time updates on your marketplace interactions, settlements, and security status.
-                            </p>
-                        </div>
-                        <div className="flex flex-col items-center md:items-end gap-3 animate-fade-in-up delay-100">
-                             <div className="bg-blue-50 text-blue-600 px-6 py-2 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-blue-100">
-                                {unreadCount} Priority Alerts
-                            </div>
-                            <Link 
-                                href="/dashboard" 
-                                className="group flex items-center text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-blue-500 transition-colors"
-                            >
-                                <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" />
-                                Back to Control
-                            </Link>
-                        </div>
+        <div className="min-h-screen bg-white relative overflow-hidden pb-24 font-inter">
+            {/* Background Blobs (Reference Style) */}
+            <div className="absolute top-[20%] right-[-10%] w-[500px] h-[500px] bg-sky-200/20 blur-[120px] rounded-full"></div>
+            <div className="absolute bottom-[10%] left-[-5%] w-[400px] h-[400px] bg-pink-100/30 blur-[100px] rounded-full"></div>
+            <div className="absolute top-[40%] left-[20%] w-[300px] h-[300px] bg-yellow-100/20 blur-[80px] rounded-full"></div>
+
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 relative z-10">
+                {/* Header & Breadcrumbs */}
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
+                    <div>
+                        <h1 className="text-4xl font-black text-gray-900 tracking-tight mb-2">Notifications</h1>
+                        <p className="text-sm text-gray-400 font-medium">Keep track of your latest updates and alerts.</p>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs font-bold text-gray-400 uppercase tracking-widest">
+                        <Link href="/" className="hover:text-sky-500 transition-colors">Home</Link>
+                        <ChevronRight className="w-3 h-3" />
+                        <span className="text-gray-900">Notifications</span>
                     </div>
                 </div>
-            </div>
 
-            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="bg-white rounded-[2.5rem] shadow-2xl shadow-gray-200/50 border border-gray-100 overflow-hidden animate-fade-in-up delay-200">
-                    <div className="divide-y divide-gray-50">
-                        {notifications.length > 0 ? (
-                            notifications.map((n, index) => (
+                {notifications.length === 0 ? (
+                    <div className="bg-white/40 backdrop-blur-xl rounded-[3.5rem] border border-white p-20 text-center flex flex-col items-center justify-center min-h-[500px] shadow-2xl shadow-sky-900/5 animate-fade-in-up">
+                        <div className="w-24 h-24 bg-white rounded-3xl flex items-center justify-center mb-8 shadow-xl rotate-6">
+                            <Bell className="w-10 h-10 text-sky-200" />
+                        </div>
+                        <h2 className="text-3xl font-black text-gray-900 mb-4 tracking-tight">All caught up!</h2>
+                        <p className="text-gray-400 mb-10 max-w-sm leading-relaxed font-medium">
+                            You have no new notifications at the moment.
+                        </p>
+                        <Link
+                            href="/dashboard"
+                            className="group bg-gray-900 text-white px-10 py-5 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] hover:bg-sky-500 transition-all shadow-xl shadow-sky-900/10 flex items-center gap-3"
+                        >
+                            Return to Dashboard
+                            <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                        </Link>
+                    </div>
+                ) : (
+                    <div className="bg-white/80 backdrop-blur-xl rounded-[2.5rem] p-6 md:p-8 border border-white shadow-xl shadow-sky-900/5">
+                        <div className="divide-y divide-gray-50">
+                            {notifications.map((n, index) => (
                                 <div
                                     key={n._id}
-                                    className={`relative p-8 hover:bg-blue-50/30 transition-all duration-300 group ${!n.read ? 'bg-blue-50/10' : ''}`}
-                                    style={{ animationDelay: `${index * 50}ms` }}
+                                    className={`relative py-4 md:px-4 hover:bg-sky-50/50 rounded-2xl transition-all duration-300 group ${!n.read ? 'bg-sky-50/30' : ''}`}
                                 >
-                                    <div className="flex flex-col sm:flex-row justify-between items-start gap-6">
-                                        <div className="flex items-start gap-6 flex-1 min-w-0">
-                                            <div className={`p-4 rounded-2xl flex-shrink-0 transition-transform group-hover:scale-110 duration-500 ${!n.read ? 'bg-white shadow-xl ring-1 ring-blue-500/10' : 'bg-gray-50'}`}>
+                                    <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
+                                        <div className="flex items-start gap-4 flex-1 min-w-0">
+                                            <div className={`p-3 rounded-2xl flex-shrink-0 shadow-lg ${!n.read ? 'bg-white text-sky-500' : 'bg-gray-50 text-gray-400'}`}>
                                                 {getNotificationIcon(n.type)}
                                             </div>
-                                            <div className="min-w-0">
-                                                <div className="flex items-center gap-2 mb-1">
-                                                    {!n.read && <div className="h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse"></div>}
-                                                    <h2 className={`text-xl font-serif font-bold truncate group-hover:text-blue-500 transition-colors ${!n.read ? 'text-gray-900' : 'text-gray-600'}`}>
+                                            <div className="min-w-0 pt-1">
+                                                <div className="flex items-center gap-2 mb-1.5">
+                                                    {!n.read && <div className="h-1.5 w-1.5 rounded-full bg-sky-500 animate-pulse"></div>}
+                                                    <h2 className={`text-sm font-bold truncate group-hover:text-sky-500 transition-colors ${!n.read ? 'text-gray-900' : 'text-gray-600'}`}>
                                                         {n.title}
                                                     </h2>
-                                                </div>
-                                                <p className="text-sm text-gray-500 leading-relaxed italic pr-4">
-                                                    {n.content}
-                                                </p>
-                                                
-                                                <div className="mt-6 flex items-center gap-4">
-                                                    <span className="text-[10px] font-bold text-gray-400 flex items-center uppercase tracking-widest">
-                                                        <Clock className="w-3.5 h-3.5 mr-2 text-blue-300" />
+                                                    <span className="text-[9px] font-bold text-gray-300 uppercase tracking-widest bg-gray-50 px-1.5 py-0.5 rounded-md">
                                                         {formatDistanceToNow(new Date(n.createdAt), { addSuffix: true })}
                                                     </span>
-                                                    
-                                                    {n.link && (
+                                                </div>
+                                                <p className="text-xs text-gray-500 leading-relaxed font-medium pr-4 max-w-2xl">
+                                                    {n.content}
+                                                </p>
+
+                                                {n.link && (
+                                                    <div className="mt-2">
                                                         <Link
                                                             href={n.link}
                                                             onClick={(e) => {
                                                                 e.stopPropagation();
                                                                 handleMarkAsRead(n._id);
                                                             }}
-                                                            className="flex items-center text-[10px] font-black text-blue-500 hover:text-gray-950 uppercase tracking-[0.2em] transition-colors"
+                                                            className="inline-flex items-center text-[9px] font-black text-sky-500 hover:text-gray-900 uppercase tracking-[0.2em] transition-colors gap-2"
                                                         >
-                                                            Inspect Details <ExternalLink className="w-3 h-3 ml-2" />
+                                                            View Details <ExternalLink className="w-3 h-3" />
                                                         </Link>
-                                                    )}
-                                                </div>
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
-                                        
+
                                         {!n.read && (
                                             <button
                                                 onClick={() => handleMarkAsRead(n._id)}
-                                                className="opacity-0 group-hover:opacity-100 p-2 text-blue-500 hover:bg-blue-500 hover:text-white rounded-xl transition-all duration-300 shadow-sm"
-                                                title="Acknowledge Alert"
+                                                className="p-2 bg-white border border-gray-100 text-sky-500 hover:bg-sky-500 hover:text-white rounded-xl transition-all shadow-sm opacity-0 group-hover:opacity-100"
+                                                title="Mark as read"
                                             >
-                                                <Check className="w-5 h-5" />
+                                                <Check className="w-3.5 h-3.5" />
                                             </button>
                                         )}
                                     </div>
-                                    
-                                    {!n.read && (
-                                        <div className="absolute top-0 left-0 w-1.5 h-full bg-blue-500"></div>
-                                    )}
                                 </div>
-                            ))
-                        ) : (
-                            <div className="p-24 text-center">
-                                <div className="w-24 h-24 bg-blue-50 rounded-[2.5rem] flex items-center justify-center mx-auto mb-8 rotate-12">
-                                    <Bell className="w-10 h-10 text-blue-200" />
-                                </div>
-                                <h3 className="text-3xl font-serif font-bold text-gray-900 mb-3">Silent <span className="italic text-blue-300">Frontier</span></h3>
-                                <p className="text-gray-500 text-sm italic max-w-xs mx-auto leading-relaxed">You're completely caught up. New updates will appearing here as they happen.</p>
-                                <Link 
-                                    href="/dashboard"
-                                    className="mt-10 group inline-flex items-center px-10 py-4 bg-gray-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] hover:bg-blue-500 transition-all shadow-xl shadow-blue-500/10"
-                                >
-                                    Go to Marketplace
-                                    <ChevronRight className="w-4 h-4 ml-3 group-hover:translate-x-1 transition-transform" />
-                                </Link>
-                            </div>
-                        )}
+                            ))}
+                        </div>
                     </div>
-                </div>
-                
-                <p className="mt-10 text-center text-[10px] font-bold text-gray-400 uppercase tracking-[0.3em]">
-                    End of Transmission
-                </p>
+                )}
             </div>
         </div>
     );
