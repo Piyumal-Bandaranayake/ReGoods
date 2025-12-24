@@ -16,6 +16,25 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+import { Poppins, Montserrat, Inter } from "next/font/google";
+
+const poppins = Poppins({
+  weight: ["400", "500", "600", "700", "800"],
+  subsets: ["latin"],
+  variable: "--font-poppins",
+});
+
+const montserrat = Montserrat({
+  weight: ["400", "500", "600", "700", "800", "900"],
+  subsets: ["latin"],
+  variable: "--font-montserrat",
+});
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+});
+
 export const metadata = {
   title: "ReGoods",
   description: "this is a sustainable marketplace for secondhand goods",
@@ -25,7 +44,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}
+        className={`${geistSans.variable} ${geistMono.variable} ${poppins.variable} ${montserrat.variable} ${inter.variable} antialiased min-h-screen flex flex-col`}
       >
         <AuthProvider>
           <WishlistProvider>

@@ -61,7 +61,7 @@ export default async function DashboardPage({ searchParams }) {
                     <div className="absolute inset-0 bg-gradient-to-b from-gray-900/60 via-gray-900/80 to-gray-900"></div>
                 </div>
 
-                <div className="relative z-10 max-w-7xl mx-auto pt-20 pb-12 px-4 sm:px-6 lg:px-8">
+                <div className="relative z-10 max-w-7xl mx-auto pt-36 pb-16 px-4 sm:px-6 lg:px-8">
                     <div className="flex flex-col items-center justify-center text-center gap-6">
                         <div className="w-full max-w-2xl flex flex-col items-center">
                             <h1 className="text-4xl md:text-6xl font-serif font-medium text-white tracking-tight drop-shadow-sm">
