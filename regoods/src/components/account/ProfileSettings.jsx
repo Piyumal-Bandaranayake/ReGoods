@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { updateProfile } from "@/app/actions/user";
+import { updateProfile, updatePassword } from "@/app/actions/user";
+import { signOut } from "next-auth/react";
 import { Loader2, Camera, Upload, User, Mail, Phone, Globe, FileText, CheckCircle, Shield, ArrowRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React from "react";
@@ -100,6 +101,7 @@ export default function ProfileSettings({ user }) {
     }
 
     return (
+        <div className="space-y-12">
         <form onSubmit={handleSubmit} className="space-y-12 animate-in fade-in duration-500">
             <div className="flex items-center justify-between">
                 <div>
@@ -216,6 +218,98 @@ export default function ProfileSettings({ user }) {
                 </button>
             </div>
         </form>
+
+        <PasswordSection />
+    </div>
+    );
+}
+
+function PasswordSection() {
+    const [loading, setLoading] = useState(false);
+    const [message, setMessage] = useState({ type: "", text: "" });
+
+
+    const handlePasswordSubmit = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        setMessage({ type: "", text: "" });
+
+        const formData = new FormData(e.currentTarget);
+        const result = await updatePassword(formData);
+
+        if (result.success) {
+            setMessage({ type: "success", text: result.message + " You will be signed out in a moment. Please log in with your new password." });
+            e.target.reset();
+            setTimeout(async () => {
+                await signOut({ redirect: false });
+                window.location.href = "/auth/login";
+            }, 3000);
+        } else {
+            setMessage({ type: "error", text: result.error });
+            setLoading(false);
+        }
+    };
+
+    return (
+        <div className="mt-20 pt-12 border-t border-sky-100">
+            <div className="mb-10">
+                <h3 className="text-xl font-bold text-gray-900">Security & Privacy</h3>
+                <p className="text-xs text-gray-400 font-bold uppercase tracking-widest mt-1">Update your account password</p>
+            </div>
+
+            <form onSubmit={handlePasswordSubmit} className="space-y-8 max-w-2xl">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="md:col-span-2">
+                        <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3 px-1">Current Password</label>
+                        <input
+                            name="currentPassword"
+                            type="password"
+                            required
+                            className="block w-full rounded-2xl border border-sky-50 py-4 px-6 text-gray-900 placeholder:text-gray-300 focus:ring-4 focus:ring-sky-500/5 focus:border-sky-300 outline-none bg-sky-50/30 transition-all text-sm font-medium"
+                            placeholder="••••••••"
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3 px-1">New Password</label>
+                        <input
+                            name="newPassword"
+                            type="password"
+                            required
+                            className="block w-full rounded-2xl border border-sky-50 py-4 px-6 text-gray-900 placeholder:text-gray-300 focus:ring-4 focus:ring-sky-500/5 focus:border-sky-300 outline-none bg-sky-50/30 transition-all text-sm font-medium"
+                            placeholder="Min. 6 characters"
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3 px-1">Confirm New Password</label>
+                        <input
+                            name="confirmPassword"
+                            type="password"
+                            required
+                            className="block w-full rounded-2xl border border-sky-50 py-4 px-6 text-gray-900 placeholder:text-gray-300 focus:ring-4 focus:ring-sky-500/5 focus:border-sky-300 outline-none bg-sky-50/30 transition-all text-sm font-medium"
+                            placeholder="Repeat new password"
+                        />
+                    </div>
+                </div>
+
+                {message.text && (
+                    <div className={`p-4 rounded-2xl text-[11px] font-bold uppercase tracking-tight ${message.type === 'success' ? 'bg-green-50 text-green-600 border border-green-100' : 'bg-rose-50 text-rose-600 border border-rose-100'}`}>
+                        {message.text}
+                    </div>
+                )}
+
+                <div className="flex justify-start">
+                    <button
+                        type="submit"
+                        disabled={loading}
+                        className="flex items-center justify-center gap-3 px-10 py-4 bg-zinc-900 text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl hover:bg-sky-500 transition-all disabled:opacity-70 shadow-xl shadow-zinc-900/10 active:scale-95"
+                    >
+                        {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Update Password"}
+                    </button>
+                </div>
+            </form>
+        </div>
     );
 }
 
