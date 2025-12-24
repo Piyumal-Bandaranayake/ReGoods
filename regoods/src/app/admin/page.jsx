@@ -91,7 +91,7 @@ export default async function AdminDashboard() {
                     <div className="md:col-span-1">
                         <StatCard
                             title="Total orders"
-                            value={stats.soldItems || "35"}
+                            value={stats.soldItems?.toLocaleString() || "0"}
                             trend="- 2.4%"
                             trendType="down"
                         />
@@ -99,7 +99,7 @@ export default async function AdminDashboard() {
                     <div className="md:col-span-1">
                         <StatCard
                             title="Total visitors"
-                            value={stats.totalUsers || "45.600"}
+                            value={stats.totalUsers?.toLocaleString() || "0"}
                             trend="- 3.1%"
                             trendType="down"
                         />
