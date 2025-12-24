@@ -43,9 +43,9 @@ function LoginForm() {
     } else {
       const session = await getSession();
       if (session?.user?.role === 'admin') {
-        router.push("/admin");
+        window.location.href = "/admin";
       } else {
-        router.push("/dashboard");
+        window.location.href = "/dashboard";
       }
     }
   };

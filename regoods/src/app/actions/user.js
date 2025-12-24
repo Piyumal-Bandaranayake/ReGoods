@@ -4,6 +4,7 @@ import dbConnect from "@/lib/db";
 import User from "@/lib/models/User";
 import Item from "@/lib/models/Item";
 import { uploadToCloudinary } from "@/lib/cloudinary";
+import bcrypt from "bcryptjs";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
@@ -65,6 +66,50 @@ export async function updateProfile(formData) {
     console.error("Update profile error:", error);
     return { error: "Failed to update profile. Please try again." };
   }
+}
+
+export async function updatePassword(formData) {
+    try {
+        const session = await getServerSession(authOptions);
+        if (!session) {
+            return { error: "You must be logged in to change your password." };
+        }
+
+        const currentPassword = formData.get("currentPassword");
+        const newPassword = formData.get("newPassword");
+        const confirmPassword = formData.get("confirmPassword");
+
+        if (newPassword !== confirmPassword) {
+            return { error: "New passwords do not match." };
+        }
+
+        if (newPassword.length < 6) {
+            return { error: "Password must be at least 6 characters long." };
+        }
+
+        await dbConnect();
+        const user = await User.findById(session.user.id);
+
+        if (!user) {
+            return { error: "User not found." };
+        }
+
+        const isMatch = await bcrypt.compare(currentPassword, user.password);
+        if (!isMatch) {
+            return { error: "Current password is incorrect." };
+        }
+
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        await User.findByIdAndUpdate(session.user.id, { 
+            password: hashedPassword,
+            requiresPasswordReset: false 
+        });
+
+        return { success: true, message: "Password updated successfully." };
+    } catch (error) {
+        console.error("Update password error:", error);
+        return { error: "Failed to update password. Please try again." };
+    }
 }
 
 export async function toggleWishlist(itemId) {

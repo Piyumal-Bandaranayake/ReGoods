@@ -39,22 +39,31 @@ export const authOptions = {
           throw new Error(`Your account has been banned. Reason: ${user.banReason || "Violation of platform terms."}`);
         }
 
-        return { id: user._id.toString(), email: user.email, name: user.name, role: user.role };
+        return { 
+          id: user._id.toString(), 
+          email: user.email, 
+          name: user.name, 
+          role: user.role,
+          requiresPasswordReset: user.requiresPasswordReset || false 
+        };
       },
     }),
   ],
   session: {
     strategy: "jwt",
+    maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   secret: process.env.NEXTAUTH_SECRET || "fallback_dev_secret_key_123",
   pages: {
     signIn: "/auth/login",
+    error: "/auth/login", // Redirect to login on error
   },
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
         token.role = user.role;
+        token.requiresPasswordReset = user.requiresPasswordReset;
       }
       return token;
     },
@@ -62,6 +71,7 @@ export const authOptions = {
       if (session?.user) {
         session.user.id = token.id;
         session.user.role = token.role;
+        session.user.requiresPasswordReset = token.requiresPasswordReset;
       }
       return session;
     },
