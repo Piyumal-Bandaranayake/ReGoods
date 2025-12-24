@@ -1,196 +1,154 @@
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight, ShoppingBag } from "lucide-react";
+import { ArrowRight, ShoppingBag, Search, Globe, RefreshCw, ShieldCheck, ChevronRight, Star } from "lucide-react";
 import dbConnect from "@/lib/db";
 import Item from "@/lib/models/Item";
 import ItemCard from "@/components/items/ItemCard";
+import Hero from "@/components/home/Hero";
 
 export default async function Home() {
   await dbConnect();
   
-  // Fetch 4 featured items (Newest ones for now)
+  // Fetch 4 featured items
   const featuredItems = await Item.find({ status: "Active" })
     .sort({ createdAt: -1 })
     .limit(4)
-    .lean(); // Use lean() for plain objects, but we must stringify _id if needed or component handles it. 
-    // Actually, in default server components, passing lean objects is fine if no methods are called. 
-    // But IDs need to be strings.
+    .lean();
     
   // Serialize IDs manually
   featuredItems.forEach(item => {
     item._id = item._id.toString();
     if(item.sellerId) item.sellerId = item.sellerId.toString();
   });
+
   return (
-    <div className="bg-white min-h-screen pt-[100px] md:pt-[120px]">
+    <div className="bg-white min-h-screen font-sans">
       
-      {/* 1. HERO SECTION */}
-      <section className="relative min-h-[70vh] md:h-[80vh] flex items-center overflow-hidden bg-gray-900 mx-4 md:mx-8 rounded-[2.5rem] md:rounded-[4rem] shadow-2xl">
-        
-        {/* Full Width Background Image with Parallax-like effect */}
-        <div className="absolute inset-0">
-          <Image 
-            src="https://images.unsplash.com/photo-1552374196-1ab2a1c593e8?q=80&w=1887&auto=format&fit=crop" 
-            alt="Thrift Fashion Model" 
-            fill
-            className="object-cover object-center scale-105"
-            priority
-          />
-          <div className="absolute inset-0 bg-black/50"></div>
-          <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/20 to-transparent"></div>
-        </div>
+      <Hero />
 
-        {/* Decorative Background Text */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full text-center pointer-events-none z-10 opacity-5 mix-blend-overlay hidden lg:block">
-          <span className="text-[25rem] font-black text-white leading-none whitespace-nowrap tracking-tighter">
-            REGOODS
-          </span>
-        </div>
-
-        <div className="max-w-7xl mx-auto px-6 py-12 md:px-12 w-full relative z-20 text-center">
-            {/* Text Content */}
-            <div className="max-w-4xl mx-auto animate-fade-in-up">
-              <div className="inline-block px-4 py-2 bg-blue-500/10 border border-blue-400/30 rounded-full backdrop-blur-md mb-8">
-                  <span className="text-[10px] md:text-xs font-black tracking-[0.3em] uppercase text-blue-400">Curated Sustainability</span>
-              </div>
-              
-              <h1 className="text-5xl md:text-8xl lg:text-9xl text-white leading-[1.1] mb-8 drop-shadow-2xl">
-                <span className="font-serif italic text-white/90">Re</span>
-                <span className="font-sans font-black tracking-tighter">Goods</span>
-                <span className="text-blue-500 animate-pulse">.</span>
-              </h1>
-              
-              <p className="text-lg md:text-3xl font-medium text-gray-200 mb-10 font-serif italic max-w-2xl mx-auto leading-relaxed drop-shadow-md">
-                The Premium Thrift Collection
-              </p>
-              
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 md:gap-6">
-                <Link 
-                  href="/dashboard" 
-                  className="w-full sm:w-auto px-12 py-5 bg-blue-500 text-white text-[10px] font-black tracking-[0.2em] rounded-2xl hover:bg-gray-950 transition-all hover:scale-105 shadow-xl shadow-blue-500/20 active:scale-95"
-                >
-                  SHOP COLLECTION
-                </Link>
-                <Link 
-                  href="/dashboard?category=New" 
-                  className="w-full sm:w-auto px-12 py-5 bg-white/10 backdrop-blur border border-white/20 text-white text-[10px] font-black tracking-[0.2em] rounded-2xl hover:bg-white hover:text-gray-900 transition-all hover:scale-105 active:scale-95"
-                >
-                  VIEW ARRIVALS
-                </Link>
-              </div>
-            </div>
-        </div>
-      </section>
-
-      {/* 2. CATEGORY CURATION */}
-      <section className="py-24 md:py-32 bg-white">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
-            <div className="max-w-xl">
-              <h2 className="text-4xl md:text-6xl font-serif font-bold text-gray-900 leading-tight">Curated <br/> Selections</h2>
-              <p className="text-gray-400 mt-4 font-medium text-lg">Hand-picked categories defining modern thrift culture.</p>
-            </div>
-            <Link href="/dashboard" className="group flex items-center text-sm font-black uppercase tracking-widest text-blue-500">
-              View All <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-2 transition-transform" />
-            </Link>
+      {/* 2. SHOP BY CATEGORY */}
+      <section className="py-24 bg-white">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-montserrat font-extrabold text-zinc-900 mb-4 tracking-tight">Shop by Category</h2>
+            <div className="w-20 h-1 bg-blue-500 mx-auto rounded-full"></div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
             {[
-              { title: "Clothing", desc: "Vintage finds & fresh trends", img: "https://images.unsplash.com/photo-1523381210434-271e8be1f52b?q=80&w=2070&auto=format&fit=crop", cat: "Clothing" },
-              { title: "Electronics", desc: "Refurbished excellence", img: "https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?q=80&w=2070&auto=format&fit=crop", cat: "Electronics" },
-              { title: "Home & Life", desc: "Elevate your sanctuary", img: "https://images.unsplash.com/photo-1484101403633-562f891dc89a?q=80&w=2074&auto=format&fit=crop", cat: "Home & Garden" }
-            ].map((item, idx) => (
-              <Link key={idx} href={`/dashboard?category=${item.cat}`} className="group block">
-                <div className="relative h-[450px] md:h-[550px] w-full overflow-hidden bg-gray-100 rounded-[2.5rem] mb-8 shadow-xl shadow-gray-200/50">
-                  <Image 
-                    src={item.img} 
-                    className="object-cover group-hover:scale-110 transition-transform duration-1000"
-                    alt={item.title}
-                    fill
-                    sizes="(max-width: 768px) 100vw, 33vw"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-gray-950/80 via-transparent to-transparent"></div>
-                  <div className="absolute bottom-10 left-10 right-10 flex justify-between items-end">
-                    <div className="text-white">
-                      <h3 className="text-2xl font-serif font-bold mb-1">{item.title}</h3>
-                      <p className="text-xs text-white/70 font-bold uppercase tracking-widest">{item.desc}</p>
-                    </div>
-                    <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-gray-900 shadow-xl group-hover:bg-blue-500 group-hover:text-white transition-all transform group-hover:rotate-12">
-                      <ArrowRight className="w-5 h-5" />
-                    </div>
-                  </div>
+              { title: "Electronics", img: "https://images.unsplash.com/photo-1498049794561-7780e7231661?q=80&w=1000&auto=format&fit=crop", link: "/dashboard?category=Electronics" },
+              { title: "Home Interior", img: "https://images.unsplash.com/photo-1538688525198-9b88f6f53126?q=80&w=1000&auto=format&fit=crop", link: "/dashboard?category=Home" },
+              { title: "Everyday Gear", img: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=1000&auto=format&fit=crop", link: "/dashboard?category=Other" }
+            ].map((col, i) => (
+              <div key={i} className="group cursor-pointer">
+                <div className="relative h-[450px] w-full rounded-2xl overflow-hidden mb-6 shadow-sm group-hover:shadow-xl transition-all duration-500">
+                  <Image src={col.img} alt={col.title} fill className="object-cover group-hover:scale-110 transition-transform duration-700" />
+                  <div className="absolute inset-0 bg-black/5 group-hover:bg-black/20 transition-colors"></div>
                 </div>
-              </Link>
+                <div className="text-center">
+                  <h3 className="text-xl font-bold text-zinc-900 mb-4 font-montserrat">{col.title}</h3>
+                  <Link href={col.link} className="inline-block px-8 py-2.5 bg-zinc-900 text-white text-xs font-bold rounded-full hover:bg-blue-600 transition-colors font-inter">
+                    EXPLORE
+                  </Link>
+                </div>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* 3. WIDE CINEMATIC BANNER */}
-      <section className="mx-4 md:mx-8 mb-24 relative h-[500px] md:h-[700px] bg-gray-900 rounded-[3rem] md:rounded-[5rem] overflow-hidden shadow-2xl">
-        <Image 
-          src="https://images.unsplash.com/photo-1487222477894-8943e31ef7b2?q=80&w=2095&auto=format&fit=crop" 
-          alt="Minimal Collection"
-          fill
-          className="object-cover opacity-50 contrast-125 saturate-150"
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-gray-950 via-gray-950/40 to-transparent"></div>
-        
-        <div className="relative z-10 h-full flex flex-col justify-center items-start px-10 md:px-24 max-w-4xl">
-          <div className="px-4 py-2 bg-blue-500/20 backdrop-blur-md rounded-xl text-blue-400 text-[10px] font-black uppercase tracking-[0.3em] mb-6 inline-block">
-            Sustainability First
+      {/* 3. MINIMAL BANNER */}
+      <section className="py-24 bg-zinc-100">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+             <div className="relative h-[500px] w-full rounded-2xl overflow-hidden shadow-lg">
+                <Image src="https://images.unsplash.com/photo-1512436991641-6745cdb1723f?q=80&w=1000&auto=format&fit=crop" alt="Minimal" fill className="object-cover" />
+             </div>
+             <div className="text-center lg:text-left">
+                <h2 className="text-4xl md:text-5xl font-montserrat font-black text-zinc-900 mb-6 leading-tight">Everything Has a Story</h2>
+                <p className="text-zinc-500 text-lg mb-8 max-w-md mx-auto lg:mx-0 font-inter">Join thousands of users giving items a second life. Quality checked, sustainable, and reliable.</p>
+                <Link href="/dashboard" className="inline-block px-10 py-4 bg-zinc-900 text-white font-bold rounded-full hover:bg-black transition-colors font-inter">
+                  BROWSE ALL
+                </Link>
+             </div>
           </div>
-          <h2 className="text-5xl md:text-8xl font-serif text-white mb-10 leading-none">
-            Modern <br className="hidden md:block" /> Minimalism
-          </h2>
-          <p className="text-gray-300 text-lg md:text-xl font-medium mb-12 max-w-md leading-relaxed">
-            Discover a curated archive of essential, timeless pieces designed to withstand the test of time.
-          </p>
-          <Link 
-            href="/dashboard" 
-            className="px-12 py-5 bg-white text-gray-950 text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl hover:bg-blue-500 hover:text-white transition-all shadow-2xl shadow-black/20 active:scale-95"
-          >
-            Explore Archive
-          </Link>
         </div>
       </section>
 
-      {/* 4. FEATURED PRODUCT GALLERY */}
-      <section className="py-24 md:py-32 bg-blue-50/20">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="text-center mb-20 max-w-2xl mx-auto">
-             <div className="w-16 h-1 w-12 bg-blue-500 mx-auto mb-8 rounded-full"></div>
-             <h2 className="text-4xl md:text-6xl font-serif font-bold text-gray-900 mb-6 tracking-tight">Daily Spotlight</h2>
-             <p className="text-gray-400 font-medium text-lg leading-relaxed">A meticulously curated selection of the finest pre-owned treasures currently available in our marketplace.</p>
+      {/* 4. FEATURED PRODUCTS */}
+      <section className="py-24 bg-white">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-16">
+            <p className="text-blue-500 font-bold text-xs uppercase tracking-[0.2em] mb-2 font-inter">The best of the week</p>
+            <h2 className="text-3xl md:text-4xl font-montserrat font-extrabold text-zinc-900 mb-4 tracking-tight">Featured Products</h2>
+            <div className="w-20 h-1 bg-blue-500 mx-auto rounded-full"></div>
           </div>
 
           {featuredItems.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
               {featuredItems.map((item) => (
-                <div key={item._id} className="animate-fade-in-up">
+                <div key={item._id} className="transition-transform hover:-translate-y-2 duration-300">
                   <ItemCard item={item} />
                 </div>
               ))}
             </div>
           ) : (
-             <div className="text-center py-20 bg-white rounded-[3rem] border border-blue-100/50 shadow-xl shadow-blue-500/5">
-                <ShoppingBag className="w-16 h-16 text-blue-100 mx-auto mb-6" />
-                <p className="text-gray-400 font-serif italic text-xl">The marketplace is currently replenished...</p>
+             <div className="text-center py-20 bg-zinc-50 rounded-3xl border border-zinc-100">
+                <p className="text-zinc-400 font-bold italic text-lg tracking-widest uppercase font-inter">Coming Soon...</p>
              </div>
           )}
 
-          <div className="mt-24 text-center">
+          <div className="mt-16 text-center">
             <Link 
               href="/dashboard" 
-              className="inline-flex items-center px-12 py-5 bg-gray-950 text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl hover:bg-blue-500 hover:shadow-2xl hover:shadow-blue-500/20 transition-all duration-500 active:scale-95"
+              className="px-10 py-4 border-2 border-zinc-900 text-zinc-900 font-bold rounded-full hover:bg-zinc-900 hover:text-white transition-all active:scale-95 font-inter"
             >
-              Enter Marketplace <ArrowRight className="w-5 h-5 ml-4 group-hover:translate-x-2 transition-transform" />
+              BROWSE ALL PRODUCTS
             </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* 5. HOW IT WORKS - SIMPLE */}
+      <section className="py-24 bg-zinc-50">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-16 text-center">
+            {[
+              { icon: Globe, title: "Discover", desc: "Eco-friendly pieces curated for you." },
+              { icon: ShieldCheck, title: "Secure", desc: "Verified sellers and safe transactions." },
+              { icon: RefreshCw, title: "Circular", desc: "Join the movement and give items a second life." }
+            ].map((item, i) => (
+              <div key={i} className="flex flex-col items-center">
+                <div className="w-20 h-20 bg-white rounded-3xl flex items-center justify-center mb-8 shadow-sm">
+                  <item.icon className="w-10 h-10 text-blue-500" />
+                </div>
+                <h3 className="text-2xl font-montserrat font-bold text-zinc-900 mb-4">{item.title}</h3>
+                <p className="text-zinc-500 font-medium leading-relaxed font-inter">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 6. NEWSLETTER - BOLD & CLEAN */}
+      <section className="py-24 px-6 bg-white">
+        <div className="max-w-4xl mx-auto bg-zinc-900 rounded-[3rem] p-12 md:p-20 text-center text-white relative overflow-hidden">
+          <div className="relative z-10">
+            <h2 className="text-4xl md:text-5xl font-montserrat font-black mb-6 tracking-tight">Stay in the Loop</h2>
+            <p className="text-zinc-400 text-lg mb-10 max-w-md mx-auto font-inter">Subscribe for early access to new collections and exclusive discounts.</p>
+            <form className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+              <input 
+                type="email" 
+                placeholder="your@email.com" 
+                className="flex-grow px-6 py-4 bg-white/10 border border-white/20 rounded-full text-white placeholder:text-zinc-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all font-inter"
+              />
+              <button className="px-8 py-4 bg-blue-500 text-white font-bold rounded-full hover:bg-white hover:text-zinc-900 transition-all active:scale-95 font-inter">
+                JOIN
+              </button>
+            </form>
           </div>
         </div>
       </section>
     </div>
   );
 }
-

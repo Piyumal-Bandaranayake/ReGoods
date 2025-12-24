@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-import { Loader2, User, Mail, Phone, Globe, Lock, ArrowRight, ShieldCheck, CheckCircle2, X, FileText, Scale, ShieldAlert, Eye, EyeOff, Check, AlertCircle } from "lucide-react";
+import { Loader2, User, Mail, Phone, Globe, Lock, ArrowRight, ShieldCheck, CheckCircle2, X, FileText, Scale, ShieldAlert, Eye, EyeOff, Check, AlertCircle, Sparkles } from "lucide-react";
 import { registerUser } from "@/app/actions/auth";
 
 export default function RegisterPage() {
@@ -55,305 +55,235 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-white relative overflow-hidden px-6 pt-[100px] pb-12">
-      {/* Cinematic Background Elements */}
-      <div className="absolute top-0 left-0 -ml-20 -mt-20 w-96 h-96 bg-blue-100/30 rounded-full blur-[100px] animate-pulse"></div>
-      <div className="absolute bottom-0 right-0 -mr-20 -mb-20 w-80 h-80 bg-blue-50/50 rounded-full blur-[80px]"></div>
-      
-      <div className="w-full max-w-6xl bg-white rounded-[3rem] shadow-2xl shadow-blue-500/5 overflow-hidden flex flex-col lg:flex-row border border-gray-100 animate-fade-in-up relative z-10">
+    <div className="min-h-screen bg-[#F8FAFF] flex items-center justify-center p-4 md:p-8 pt-32 pb-16">
+      <div className="w-full max-w-7xl bg-white rounded-[4rem] shadow-[0_40px_80px_-20px_rgba(0,102,255,0.12)] overflow-hidden flex flex-col lg:flex-row min-h-[850px] relative border border-white">
         
-        {/* Left Side: Branding & Why Join */}
-        <div className="lg:w-[40%] bg-blue-50/30 p-10 md:p-14 flex flex-col justify-between relative overflow-hidden border-b lg:border-b-0 lg:border-r border-gray-50">
-          <div className="relative z-10">
-            <Link href="/" className="inline-flex items-baseline mb-12 group">
-              <span className="font-serif italic text-3xl text-gray-950 font-black tracking-tight group-hover:text-blue-500 transition-colors">Re</span>
-              <span className="font-sans font-black text-3xl tracking-tighter text-gray-900 underline decoration-blue-500 decoration-4 underline-offset-4">Goods</span>
-              <span className="text-blue-500 text-4xl leading-none">.</span>
-            </Link>
-
-            <div className="space-y-8">
-              <div className="w-16 h-1 bg-blue-500 rounded-full"></div>
-              <h2 className="text-4xl md:text-5xl font-serif font-bold text-gray-950 leading-tight">
-                Join the <br/> Revolution.
-              </h2>
-              
-              <div className="space-y-6">
-                {[
-                  "Access to curated premium collections",
-                  "Verify your identity for secure trades",
-                  "Lower carbon footprint with every purchase",
-                  "Professional dashboard for sellers"
-                ].map((benefit, i) => (
-                  <div key={i} className="flex items-center space-x-3 group">
-                    <div className="bg-blue-500/10 p-1.5 rounded-lg group-hover:bg-blue-500 group-hover:text-white transition-colors duration-300">
-                      <CheckCircle2 className="w-4 h-4 text-blue-500 group-hover:text-white" />
-                    </div>
-                    <p className="text-sm font-bold text-gray-600 group-hover:text-gray-900 transition-colors">{benefit}</p>
-                  </div>
-                ))}
+        {/* LEFT SIDE: BRANDING & BENEFITS (WHITE) */}
+        <div className="w-full lg:w-[42%] p-12 lg:p-20 flex flex-col justify-between relative bg-white z-10 overflow-hidden">
+          <div className="relative z-20">
+            <div className="flex items-center gap-4 mb-16 group">
+              <div className="w-12 h-12 bg-sky-500 rounded-2xl flex items-center justify-center text-white font-black text-2xl shadow-lg shadow-sky-500/20 group-hover:scale-110 transition-transform">R</div>
+              <div>
+                <h2 className="text-base font-black text-gray-900 tracking-tighter uppercase leading-none">ReGoods</h2>
+                <p className="text-[10px] font-bold text-sky-500 tracking-[0.2em] uppercase">Verified Merchant</p>
               </div>
+            </div>
+
+            <div className="space-y-10">
+                <h1 className="text-5xl lg:text-6xl font-black text-gray-900 leading-[1] tracking-tighter">
+                    Start Your <br/> <span className="text-sky-500">Eco-Friendly</span> <br/> Journey.
+                </h1>
+                
+                <div className="space-y-6 pt-4">
+                  {[
+                    "Verified Marketplace Protocol",
+                    "Professional Seller Dashboard",
+                    "Eco-Impact Tracking Tools",
+                    "End-to-End Secure Escrow"
+                  ].map((benefit, i) => (
+                    <div key={i} className="flex items-center gap-5 group">
+                      <div className="w-10 h-10 rounded-xl bg-sky-50 flex items-center justify-center text-sky-500 group-hover:bg-sky-500 group-hover:text-white transition-all shadow-sm">
+                        <CheckCircle2 className="w-5 h-5" />
+                      </div>
+                      <p className="text-xs font-black text-gray-400 group-hover:text-gray-900 transition-colors uppercase tracking-widest">{benefit}</p>
+                    </div>
+                  ))}
+                </div>
             </div>
           </div>
 
-          <div className="relative z-10 mt-12">
-            <div className="flex items-center space-x-4 p-4 bg-white/80 backdrop-blur rounded-[1.5rem] shadow-sm border border-blue-100">
-               <div className="w-12 h-12 bg-blue-500 rounded-2xl flex items-center justify-center text-white">
-                  <ShieldCheck className="w-6 h-6" />
-               </div>
-               <div>
-                  <p className="text-[10px] font-black uppercase tracking-widest text-blue-500">Identity Guard</p>
-                  <p className="text-xs font-bold text-gray-900">Verified Marketplace Protocols</p>
-               </div>
-            </div>
+          <div className="relative z-20 mt-12 bg-sky-50 p-8 rounded-[2.5rem] border border-sky-100 flex items-center gap-5 group hover:scale-[1.02] transition-all">
+              <div className="w-14 h-14 bg-sky-500 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-sky-500/20">
+                 <ShieldCheck className="w-7 h-7" />
+              </div>
+              <div>
+                <h4 className="text-sm font-black text-gray-900 uppercase tracking-tight mb-1">Identity Guard</h4>
+                <p className="text-[10px] font-bold text-sky-500 uppercase tracking-widest opacity-60">Military-Grade Encryption</p>
+              </div>
           </div>
         </div>
 
-        {/* Right Side: Registration Form */}
-        <div className="lg:w-[60%] p-10 md:p-14 lg:p-16 flex flex-col justify-center">
-          <div className="mb-10">
-             <h3 className="text-3xl font-serif font-bold text-gray-900 mb-2">Create Global Account</h3>
-             <p className="text-gray-400 font-medium">Please provide your professional details below</p>
-          </div>
+        {/* ORGANIC CURVE DIVIDER */}
+        <div className="absolute top-0 left-[42%] h-full w-[150px] hidden lg:block z-20 -translate-x-1/2 pointer-events-none">
+          <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="h-full w-full">
+            <path d="M0 0 L 20 0 C 80 30, 80 70, 20 100 L 0 100 Z" fill="white" />
+          </svg>
+        </div>
 
-          <form className="space-y-6" onSubmit={handleSubmit}>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              <div className="relative group">
-                <div className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors">
-                   <User className="w-4 h-4" />
-                </div>
-                <input
-                  name="name"
-                  type="text"
-                  required
-                  className="block w-full pl-14 pr-6 py-4 bg-gray-50/50 border border-gray-100 rounded-[1.25rem] text-sm font-medium text-gray-900 focus:outline-none focus:bg-white focus:ring-4 focus:ring-blue-500/5 focus:border-blue-200 transition-all placeholder:text-gray-400"
-                  placeholder="Full Legal Name"
-                />
-              </div>
+        {/* RIGHT SIDE: REGISTER FORM (SKY-900) */}
+        <div className="w-full lg:w-[58%] bg-[#1A365D] p-10 lg:p-24 flex flex-col justify-center relative overflow-hidden">
+          {/* Decorative Elements */}
+          <div className="absolute -top-40 -right-40 w-96 h-96 bg-sky-500/10 rounded-full blur-[120px]"></div>
+          <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-sky-400/5 rounded-full blur-[80px]"></div>
 
-              <div className="relative group">
-                <div className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors">
-                   <Mail className="w-4 h-4" />
-                </div>
-                <input
-                  name="email"
-                  type="email"
-                  required
-                  className="block w-full pl-14 pr-6 py-4 bg-gray-50/50 border border-gray-100 rounded-[1.25rem] text-sm font-medium text-gray-900 focus:outline-none focus:bg-white focus:ring-4 focus:ring-blue-500/5 focus:border-blue-200 transition-all placeholder:text-gray-400"
-                  placeholder="Email Address"
-                />
+          <div className="relative z-30 w-full max-w-2xl mx-auto">
+            <div className="mb-14">
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-sky-500/10 border border-sky-400/20 rounded-full text-[10px] font-black text-sky-400 uppercase tracking-widest mb-6">
+                 <Sparkles className="w-3.5 h-3.5" />
+                 Registration Portal
               </div>
-
-              <div className="relative group">
-                <div className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors">
-                   <Phone className="w-4 h-4" />
-                </div>
-                <input
-                  name="phone"
-                  type="tel"
-                  required
-                  className="block w-full pl-14 pr-6 py-4 bg-gray-50/50 border border-gray-100 rounded-[1.25rem] text-sm font-medium text-gray-900 focus:outline-none focus:bg-white focus:ring-4 focus:ring-blue-500/5 focus:border-blue-200 transition-all placeholder:text-gray-400"
-                  placeholder="Contact Number"
-                />
-              </div>
-
-              <div className="relative group">
-                <div className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors">
-                   <Globe className="w-4 h-4" />
-                </div>
-                <input
-                  name="nationality"
-                  type="text"
-                  required
-                  className="block w-full pl-14 pr-6 py-4 bg-gray-50/50 border border-gray-100 rounded-[1.25rem] text-sm font-medium text-gray-900 focus:outline-none focus:bg-white focus:ring-4 focus:ring-blue-500/5 focus:border-blue-200 transition-all placeholder:text-gray-400"
-                  placeholder="Nationality"
-                />
-              </div>
-
-              <div className="relative group">
-                <div className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors">
-                   <Lock className="w-4 h-4" />
-                </div>
-                <input
-                  name="password"
-                  type={showPassword ? "text" : "password"}
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="block w-full pl-14 pr-12 py-4 bg-gray-50/50 border border-gray-100 rounded-[1.25rem] text-sm font-medium text-gray-900 focus:outline-none focus:bg-white focus:ring-4 focus:ring-blue-500/5 focus:border-blue-200 transition-all placeholder:text-gray-400"
-                  placeholder="Secure Password"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-blue-500 transition-colors"
-                >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
-              </div>
-
-              <div className="relative group">
-                <div className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors">
-                   <Lock className="w-4 h-4" />
-                </div>
-                <input
-                  name="confirmPassword"
-                  type={showPassword ? "text" : "password"}
-                  required
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  className={`block w-full pl-14 pr-12 py-4 bg-gray-50/50 border rounded-[1.25rem] text-sm font-medium text-gray-900 focus:outline-none focus:bg-white focus:ring-4 transition-all placeholder:text-gray-400 ${
-                    passwordsMatch === true ? 'border-green-200 focus:ring-green-500/5' : 
-                    passwordsMatch === false ? 'border-red-200 focus:ring-red-500/5' : 
-                    'border-gray-100 focus:ring-blue-500/5 focus:border-blue-200'
-                  }`}
-                  placeholder="Confirm Access Key"
-                />
-                <div className="absolute right-5 top-1/2 -translate-y-1/2 flex items-center">
-                   {passwordsMatch === true && <Check className="w-4 h-4 text-green-500 animate-in zoom-in duration-300" />}
-                   {passwordsMatch === false && <AlertCircle className="w-4 h-4 text-red-500 animate-in zoom-in duration-300" />}
-                </div>
-              </div>
+              <h2 className="text-5xl font-black text-white mb-4 tracking-tighter">Register Profile</h2>
+              <p className="text-sky-200/40 font-bold text-sm uppercase tracking-[0.15em] leading-relaxed">Join our network of verified sustainable merchants <br/> and start making an impact.</p>
             </div>
 
-            <div className="flex items-center space-x-3 p-4 bg-blue-50/30 rounded-2xl border border-blue-50">
-              <input
-                id="terms"
-                name="terms"
-                type="checkbox"
-                className="h-5 w-5 rounded-lg border-gray-300 text-blue-500 focus:ring-blue-500/20 transition-all cursor-pointer"
-              />
-              <label htmlFor="terms" className="text-xs font-bold text-gray-600 leading-none cursor-pointer">
-                Authorized Agreement to the{" "}
-                <button 
-                  type="button"
-                  onClick={() => setIsTermsOpen(true)}
-                  className="text-blue-500 hover:underline underline-offset-2 decoration-2"
-                >
-                  Standard Terms and Conditions
-                </button>
-              </label>
-            </div>
+            <form onSubmit={handleSubmit} className="space-y-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-8">
+                {/* Name */}
+                <div className="space-y-3">
+                  <label className="text-[10px] font-black text-sky-200/30 uppercase tracking-[0.2em] px-1">Legal Full Name</label>
+                  <div className="relative group">
+                    <User className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-sky-200/20 group-focus-within:text-sky-400 transition-colors" />
+                    <input name="name" type="text" required className="w-full pl-16 pr-6 py-5 bg-white/5 border border-white/5 rounded-[1.5rem] text-sm font-bold text-white focus:outline-none focus:bg-white/10 focus:border-sky-400/20 transition-all placeholder:text-white/5" placeholder="John Doe" />
+                  </div>
+                </div>
 
-            {error && (
-              <div className="text-red-500 text-[10px] font-black uppercase tracking-widest text-center bg-red-50 py-3 rounded-xl border border-red-100 animate-in fade-in slide-in-from-top-1">
-                {error}
+                {/* Email */}
+                <div className="space-y-3">
+                  <label className="text-[10px] font-black text-sky-200/30 uppercase tracking-[0.2em] px-1">Business Contact</label>
+                  <div className="relative group">
+                    <Mail className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-sky-200/20 group-focus-within:text-sky-400 transition-colors" />
+                    <input name="email" type="email" required className="w-full pl-16 pr-6 py-5 bg-white/5 border border-white/5 rounded-[1.5rem] text-sm font-bold text-white focus:outline-none focus:bg-white/10 focus:border-sky-400/20 transition-all placeholder:text-white/5" placeholder="name@company.com" />
+                  </div>
+                </div>
+
+                {/* Phone */}
+                <div className="space-y-3">
+                  <label className="text-[10px] font-black text-sky-200/30 uppercase tracking-[0.2em] px-1">Identity Token (Phone)</label>
+                  <div className="relative group">
+                    <Phone className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-sky-200/20 group-focus-within:text-sky-400 transition-colors" />
+                    <input name="phone" type="tel" required className="w-full pl-16 pr-6 py-5 bg-white/5 border border-white/5 rounded-[1.5rem] text-sm font-bold text-white focus:outline-none focus:bg-white/10 focus:border-sky-400/20 transition-all placeholder:text-white/5" placeholder="+1 (234) 567 890" />
+                  </div>
+                </div>
+
+                {/* Nationality */}
+                <div className="space-y-3">
+                  <label className="text-[10px] font-black text-sky-200/30 uppercase tracking-[0.2em] px-1">Jurisdiction</label>
+                  <div className="relative group">
+                    <Globe className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-sky-200/20 group-focus-within:text-sky-400 transition-colors" />
+                    <input name="nationality" type="text" required className="w-full pl-16 pr-6 py-5 bg-white/5 border border-white/5 rounded-[1.5rem] text-sm font-bold text-white focus:outline-none focus:bg-white/10 focus:border-sky-400/20 transition-all placeholder:text-white/5" placeholder="United States" />
+                  </div>
+                </div>
+
+                {/* Password */}
+                <div className="space-y-3">
+                  <label className="text-[10px] font-black text-sky-200/30 uppercase tracking-[0.2em] px-1">Access Key</label>
+                  <div className="relative group">
+                    <Lock className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-sky-200/20 group-focus-within:text-sky-400 transition-colors" />
+                    <input
+                      name="password"
+                      type={showPassword ? "text" : "password"}
+                      required
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="w-full pl-16 pr-12 py-5 bg-white/5 border border-white/5 rounded-[1.5rem] text-sm font-bold text-white focus:outline-none focus:bg-white/10 focus:border-sky-400/20 transition-all placeholder:text-white/5"
+                      placeholder="••••••••"
+                    />
+                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-6 top-1/2 -translate-y-1/2 text-sky-200/20 hover:text-sky-400 transition-colors">
+                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Confirm Password */}
+                <div className="space-y-3">
+                  <label className="text-[10px] font-black text-sky-200/30 uppercase tracking-[0.2em] px-1">Verify Key</label>
+                  <div className="relative group">
+                    <Check className={`absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors ${passwordsMatch === true ? 'text-emerald-400' : 'text-sky-200/20'}`} />
+                    <input
+                      name="confirmPassword"
+                      type={showPassword ? "text" : "password"}
+                      required
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      className={`w-full pl-16 pr-6 py-5 bg-white/5 border rounded-[1.5rem] text-sm font-bold text-white focus:outline-none focus:bg-white/10 transition-all placeholder:text-white/5 ${passwordsMatch === true ? 'border-emerald-500/30' : passwordsMatch === false ? 'border-rose-500/30' : 'border-white/5 focus:border-sky-400/20'}`}
+                      placeholder="••••••••"
+                    />
+                  </div>
+                </div>
               </div>
-            )}
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full flex items-center justify-center space-x-3 bg-gray-950 text-white rounded-[1.5rem] py-5 text-[10px] font-black uppercase tracking-[0.3em] transition-all hover:bg-blue-500 shadow-xl hover:shadow-blue-500/20 active:scale-[0.98] group disabled:opacity-50"
-            >
-              {loading ? (
-                <Loader2 className="w-5 h-5 animate-spin" />
-              ) : (
-                <>
-                  <span>Initialize Account</span>
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </>
+              <div className="flex items-start gap-4 p-6 bg-white/5 border border-white/5 rounded-[2rem] mt-6 group hover:border-sky-400/20 transition-all">
+                 <input id="terms" name="terms" type="checkbox" className="h-5 w-5 rounded-lg border-white/10 bg-white/5 text-sky-500 focus:ring-sky-500/20 transition-all cursor-pointer mt-0.5" />
+                 <label htmlFor="terms" className="text-[11px] font-bold text-sky-200/50 leading-relaxed cursor-pointer group-hover:text-sky-200/70 transition-colors">
+                    Authorized Agreement to the <button type="button" onClick={() => setIsTermsOpen(true)} className="text-sky-400 hover:underline underline-offset-8 decoration-2">Verified Merchant Protocols</button> and our encrypted data standards.
+                 </label>
+              </div>
+
+              {error && (
+                <div className="bg-rose-500/10 border border-rose-500/20 p-4 rounded-2xl text-rose-400 text-[10px] font-black uppercase tracking-widest text-center">
+                  {error}
+                </div>
               )}
-            </button>
-          </form>
 
-          <p className="mt-10 text-center text-sm font-medium text-gray-500">
-            Already part of ReGoods?{" "}
-            <Link href="/auth/login" className="text-blue-500 font-bold hover:underline underline-offset-4 decoration-2">
-              Authenticate here
-            </Link>
-          </p>
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full py-6 bg-[#00A3FF] hover:bg-[#0088FF] active:scale-95 text-white rounded-[1.5rem] text-xs font-black uppercase tracking-[0.3em] transition-all shadow-[0_20px_40px_-5px_rgba(0,163,255,0.3)] group disabled:opacity-50 overflow-hidden relative"
+              >
+                {loading ? (
+                  <Loader2 className="w-6 h-6 animate-spin mx-auto text-white" />
+                ) : (
+                  <span className="relative z-10 flex items-center justify-center gap-3">
+                    INITIALIZE VERIFICATION
+                    <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform" />
+                  </span>
+                )}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+              </button>
+            </form>
+
+            <div className="mt-14 pt-12 border-t border-white/5 text-center">
+              <p className="text-sm font-bold text-sky-200/30 uppercase tracking-tighter">
+                Already part of the network?{" "}
+                <Link href="/auth/login" className="text-sky-400 font-black hover:underline underline-offset-8 decoration-2 ml-1">
+                  Authenticate Here
+                </Link>
+              </p>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Terms and Conditions Modal */}
+      {/* Terms Modal */}
       {isTermsOpen && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
-          <div 
-            className="absolute inset-0 bg-gray-950/40 backdrop-blur-md animate-in fade-in duration-300"
-            onClick={() => setIsTermsOpen(false)}
-          ></div>
-          <div className="relative bg-white rounded-[3rem] shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden flex flex-col animate-in fade-in zoom-in duration-500">
-            {/* Header */}
-            <div className="p-8 border-b border-gray-100 flex justify-between items-center bg-blue-50/30">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-blue-500 text-white rounded-xl flex items-center justify-center">
-                  <Scale className="w-5 h-5" />
+          <div className="absolute inset-0 bg-zinc-950/80 backdrop-blur-md animate-in fade-in duration-300" onClick={() => setIsTermsOpen(false)}></div>
+          <div className="relative bg-[#1A365D] border border-white/10 rounded-[3rem] shadow-2xl max-w-2xl w-full max-h-[85vh] overflow-hidden flex flex-col animate-in zoom-in duration-500">
+             <div className="p-8 border-b border-white/5 flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                   <div className="w-12 h-12 bg-sky-500/20 rounded-2xl flex items-center justify-center text-sky-400">
+                      <Scale className="w-6 h-6" />
+                   </div>
+                   <div>
+                      <h3 className="text-2xl font-black text-white tracking-tighter">Global Terms</h3>
+                      <p className="text-[10px] font-bold text-sky-400 uppercase tracking-widest">Authorized Agreements</p>
+                   </div>
                 </div>
-                <div>
-                  <h3 className="text-xl font-serif font-bold text-gray-950">Standard Terms</h3>
-                  <p className="text-[10px] font-black uppercase tracking-widest text-blue-500">Legal Documentation</p>
+                <button onClick={() => setIsTermsOpen(false)} className="p-3 text-sky-200/20 hover:text-white transition-colors"><X className="w-6 h-6" /></button>
+             </div>
+             
+             <div className="flex-1 overflow-y-auto p-10 space-y-10 custom-scrollbar">
+                <div className="space-y-4">
+                   <h4 className="text-xs font-black text-sky-400 uppercase tracking-widest">1. Verified Membership</h4>
+                   <p className="text-sm text-sky-200/60 leading-relaxed font-medium">As a ReGoods member, you agree to provide authentic identification documents upon request to maintain platform security. Professional conduct is required in all communications.</p>
                 </div>
-              </div>
-              <button 
-                onClick={() => setIsTermsOpen(false)}
-                className="p-2 text-gray-400 hover:text-gray-950 hover:bg-white rounded-xl transition-all"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
+                <div className="space-y-4 border-l-2 border-sky-500 pl-8">
+                   <h4 className="text-xs font-black text-white uppercase tracking-widest">2. Sustainable Trading</h4>
+                   <p className="text-sm text-sky-200/60 leading-relaxed font-medium italic">Members represent that all items are legally sourced and accurately described. Counterfeit items are strictly prohibited and result in immediate account termination.</p>
+                </div>
+                <div className="space-y-4">
+                   <h4 className="text-xs font-black text-sky-400 uppercase tracking-widest">3. Privacy & Security</h4>
+                   <p className="text-sm text-sky-200/60 leading-relaxed font-medium font-mono">RG-PROTO-ENCRYPT: All user data is processed through military-grade hashing (AES-256) to ensure the highest standards of digital safety.</p>
+                </div>
+             </div>
 
-            {/* Content */}
-            <div className="flex-1 overflow-y-auto p-10 space-y-8 custom-scrollbar bg-white">
-              <div className="flex items-start space-x-5">
-                <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center flex-shrink-0 text-gray-400">
-                  <FileText className="w-4 h-4" />
-                </div>
-                <div>
-                  <h4 className="text-sm font-black uppercase tracking-widest text-gray-900 mb-2">1. User Eligibility</h4>
-                  <p className="text-sm text-gray-500 leading-relaxed font-medium">
-                    By registering at ReGoods, you affirm that you are at least 18 years of age and possess the legal authority to enter into a binding agreement. You agree to provide accurate, current, and complete information during the registration process.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start space-x-5">
-                <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center flex-shrink-0 text-gray-400">
-                  <ShieldAlert className="w-4 h-4" />
-                </div>
-                <div>
-                  <h4 className="text-sm font-black uppercase tracking-widest text-gray-900 mb-2">2. Marketplace Conduct</h4>
-                  <p className="text-sm text-gray-500 leading-relaxed font-medium">
-                    Users represent that all items listed are authentic and legally owned. ReGoods maintains a zero-tolerance policy for fraudulent behavior, counterfeit listings, or harassment of other members.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start space-x-5 border-l-2 border-blue-500 pl-6 py-2">
-                <div>
-                  <h4 className="text-sm font-black uppercase tracking-widest text-blue-600 mb-2">3. Intellectual Property</h4>
-                  <p className="text-sm text-gray-500 leading-relaxed font-medium italic">
-                    All visual assets, algorithms, and brand elements are the exclusive property of ReGoods. Unauthorized reproduction or use of platform meta-data is strictly prohibited under international patent laws.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start space-x-5">
-                <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center flex-shrink-0 text-gray-400">
-                  <ShieldCheck className="w-4 h-4" />
-                </div>
-                <div>
-                  <h4 className="text-sm font-black uppercase tracking-widest text-gray-900 mb-2">4. Data Encryption</h4>
-                  <p className="text-sm text-gray-500 leading-relaxed font-medium font-mono">
-                    Session Data Hash: RG-SEC-[2048-AES] - All transactions and physical identity documents are encrypted using military-grade security protocols.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Footer */}
-            <div className="p-8 border-t border-gray-100 bg-gray-50/50 flex flex-col sm:flex-row items-center justify-between gap-4">
-              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Effective Date: Dec 2025</p>
-              <button 
-                onClick={() => setIsTermsOpen(false)}
-                className="px-10 py-4 bg-gray-950 text-white rounded-[1.25rem] text-[10px] font-black uppercase tracking-[0.2em] transition-all hover:bg-blue-500 shadow-xl"
-              >
-                Acknowledgement
-              </button>
-            </div>
+             <div className="p-8 border-t border-white/5 bg-white/5 flex items-center justify-between">
+                <p className="text-[9px] font-black text-sky-200/20 uppercase tracking-widest">Effective: Dec 2025</p>
+                <button onClick={() => setIsTermsOpen(false)} className="px-12 py-4 bg-white text-gray-900 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-sky-500 hover:text-white transition-all shadow-xl active:scale-95">I Understand</button>
+             </div>
           </div>
         </div>
       )}
     </div>
   );
 }
-
