@@ -12,17 +12,17 @@ export default async function AdminLayout({ children }) {
     }
 
     return (
-        <div className="min-h-screen bg-[#F8FAFC] flex">
+        <div className="min-h-screen bg-[#FDFDFF] flex">
             {/* Sidebar */}
             <AdminSidebar />
 
             {/* Main Content Wrapper */}
-            <div className="flex-1 ml-72 flex flex-col min-h-screen">
+            <div className="flex-1 ml-32 lg:ml-36 flex flex-col min-h-screen">
                 {/* Admin Navbar */}
                 <AdminHeader adminName={session.user.name} adminImage={session.user.image} />
 
                 {/* Page Content */}
-                <main className="flex-1 p-10">
+                <main className="flex-1 px-10 pb-10">
                     {children}
                 </main>
             </div>

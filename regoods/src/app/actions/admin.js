@@ -11,6 +11,8 @@ import { revalidatePath } from "next/cache";
 import Report from "@/lib/models/Report";
 import Notification from "@/lib/models/Notification";
 import Verification from "@/lib/models/Verification";
+import bcrypt from "bcryptjs";
+import { sendWelcomeEmail } from "@/lib/mail";
 
 // Middleware-like check for admin
 async function checkAdmin() {
@@ -44,6 +46,26 @@ export async function getAdminStats() {
         totalRevenue,
         activeReports: activeReports + userReportsCount,
         verificationRequestsCount
+    };
+}
+
+export async function getOrderStats() {
+    await checkAdmin();
+    await dbConnect();
+
+    const startOfToday = new Date();
+    startOfToday.setHours(0, 0, 0, 0);
+
+    const newOrders = await Offer.countDocuments({ createdAt: { $gte: startOfToday } });
+    const pendingOrders = await Offer.countDocuments({ status: "Pending" });
+    const onWayOrders = await Offer.countDocuments({ status: "Accepted" });
+    const deliveredOrders = await Item.countDocuments({ status: "Sold" });
+
+    return {
+        newOrders,
+        pendingOrders,
+        onWayOrders,
+        deliveredOrders
     };
 }
 
@@ -269,5 +291,152 @@ export async function resolveVerification(requestId, action, adminNotes) {
     } catch (error) {
         console.error("Resolve verification error:", error);
         return { error: error.message || "Failed to resolve verification request." };
+    }
+}
+
+export async function getMarketActivityStats() {
+    await checkAdmin();
+    await dbConnect();
+
+    const last7Days = Array.from({ length: 7 }, (_, i) => {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        return d.toISOString().split("T")[0];
+    }).reverse();
+
+    const marketData = await Promise.all(
+        last7Days.map(async (date) => {
+            const startOfDay = new Date(date);
+            const endOfDay = new Date(date);
+            endOfDay.setHours(23, 59, 59, 999);
+
+            const itemsListed = await Item.countDocuments({
+                createdAt: { $gte: startOfDay, $lte: endOfDay }
+            });
+
+            const itemsSold = await Item.countDocuments({
+                updatedAt: { $gte: startOfDay, $lte: endOfDay },
+                status: "Sold"
+            });
+
+            return {
+                name: new Date(date).toLocaleDateString("en-US", { weekday: "short" }),
+                listed: itemsListed,
+                sold: itemsSold
+            };
+        })
+    );
+
+    return marketData;
+}
+
+export async function getAdminItems() {
+    await checkAdmin();
+    await dbConnect();
+    const items = await Item.find({ status: { $in: ["Active", "Sold"] } })
+        .populate("sellerId", "name email shadow-sm")
+        .populate("buyerId", "name email")
+        .sort({ createdAt: -1 });
+    return JSON.parse(JSON.stringify(items));
+}
+
+export async function adminCreateUser(userData) {
+    try {
+        await checkAdmin();
+        await dbConnect();
+
+        const { name, email, password, role } = userData;
+
+        if (!name || !email || !password) {
+            throw new Error("Missing required fields");
+        }
+
+        const existingUser = await User.findOne({ email });
+        if (existingUser) {
+            throw new Error("A user with this email already exists.");
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 12);
+
+        await User.create({
+            name,
+            email,
+            password: hashedPassword,
+            role: role || "user",
+            isVerified: false, 
+            verificationStatus: "Unverified"
+        });
+
+        // Send Welcome Email with credentials
+        let emailSent = false;
+        let emailError = null;
+        try {
+            await sendWelcomeEmail({
+                to: email,
+                name,
+                email,
+                password, // Sending raw password so they can login
+                role: role || "user"
+            });
+            emailSent = true;
+        } catch (err) {
+            console.error("Failed to send welcome email:", err);
+            emailError = err.message;
+        }
+
+        revalidatePath("/admin/users");
+        return { 
+            success: true, 
+            emailSent,
+            emailError: emailSent ? null : emailError
+        };
+    } catch (error) {
+        console.error("Admin create user error:", error);
+        return { error: error.message || "Failed to create user." };
+    }
+}
+
+export async function getAdminNotifications() {
+    try {
+        await checkAdmin();
+        await dbConnect();
+
+        const [verifications, userReports, reportedMessages] = await Promise.all([
+            Verification.find({ status: "Pending" }).populate("userId", "name"),
+            Report.find({}).populate("reporterId", "name"),
+            Message.find({ reported: true }).populate("senderId", "name")
+        ]);
+
+        const notifications = [
+            ...verifications.map(v => ({
+                id: v._id,
+                type: "verification",
+                title: "New Verification Request",
+                content: `${v.userId?.name || "A user"} has submitted their identity for verification.`,
+                createdAt: v.createdAt,
+                link: "/admin/activity" // Verifications are usually in activity/verification
+            })),
+            ...userReports.map(r => ({
+                id: r._id,
+                type: "report",
+                title: "User Reported",
+                content: `${r.reporterId?.name || "A user"} reported a seller for: ${r.reason}.`,
+                createdAt: r.createdAt,
+                link: "/admin/reports"
+            })),
+            ...reportedMessages.map(m => ({
+                id: m._id,
+                type: "message_report",
+                title: "Message Reported",
+                content: `A message from ${m.senderId?.name || "a user"} was flagged as inappropriate.`,
+                createdAt: m.createdAt,
+                link: "/admin/reports?tab=messages"
+            }))
+        ].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+        return JSON.parse(JSON.stringify(notifications));
+    } catch (error) {
+        console.error("Failed to fetch admin notifications:", error);
+        return [];
     }
 }

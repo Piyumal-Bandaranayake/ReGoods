@@ -1,67 +1,68 @@
 "use client";
 
 import {
-  LineChart,
-  Line,
+  BarChart,
+  Bar,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  Area,
-  AreaChart,
+  Cell,
 } from "recharts";
 
 export default function EngagementChart({ data }) {
+  // Use light blue
+  const barColor = "#60A5FA";
+
   return (
-    <div className="w-full h-full min-h-[300px]">
-      <h3 className="text-lg font-semibold text-gray-800 mb-4">User Registrations (Last 7 Days)</h3>
+    <div className="w-full h-full">
       <ResponsiveContainer width="100%" height="100%">
-        <AreaChart
+        <BarChart
           data={data}
           margin={{
-            top: 10,
-            right: 30,
-            left: 0,
+            top: 5,
+            right: 10,
+            left: -20,
             bottom: 0,
           }}
         >
-          <defs>
-            <linearGradient id="colorUsers" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.1}/>
-              <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0}/>
-            </linearGradient>
-          </defs>
-          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F5F9" />
           <XAxis 
             dataKey="date" 
             axisLine={false} 
             tickLine={false} 
-            tick={{ fill: '#6b7280', fontSize: 12 }}
+            tick={{ fill: '#94A3B8', fontSize: 10, fontWeight: 600 }}
             dy={10}
+            // Format date to show short day if possible
+            tickFormatter={(value) => {
+              const d = new Date(value);
+              return isNaN(d) ? value : d.toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
+            }}
           />
           <YAxis 
             axisLine={false} 
             tickLine={false} 
-            tick={{ fill: '#6b7280', fontSize: 12 }}
+            tick={{ fill: '#94A3B8', fontSize: 10, fontWeight: 600 }}
           />
           <Tooltip 
+            cursor={{ fill: '#F8FAFC' }}
             contentStyle={{ 
               backgroundColor: '#fff', 
-              borderRadius: '12px', 
+              borderRadius: '16px', 
               border: 'none', 
-              boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' 
+              boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
+              fontSize: '12px',
+              fontWeight: 600
             }}
           />
-          <Area 
-            type="monotone" 
+          <Bar 
             dataKey="users" 
-            stroke="#8b5cf6" 
-            strokeWidth={3}
-            fillOpacity={1} 
-            fill="url(#colorUsers)" 
+            fill={barColor} 
+            radius={[6, 6, 6, 6]} 
+            barSize={20}
           />
-        </AreaChart>
+        </BarChart>
       </ResponsiveContainer>
     </div>
   );
