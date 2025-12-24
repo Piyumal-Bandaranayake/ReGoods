@@ -8,12 +8,13 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import {
     LayoutDashboard, Package, ShoppingBag, MessageCircle,
-    Settings, DollarSign, Eye, TrendingUp, MapPin, 
+    Settings, DollarSign, Eye, TrendingUp, MapPin,
     PlusCircle, ArrowRight, Wallet, Clock, ShieldCheck, Share2, Search, Bell, User as UserIcon, Download, Upload, MoreVertical, CreditCard
 } from "lucide-react";
 import ProfileSettings from "@/components/account/ProfileSettings";
 import ItemActions from "@/components/account/ItemActions";
 import OfferList from "@/components/account/OfferList";
+import SoldItemCard from "@/components/profile/SoldItemCard";
 import { getConversations } from "@/app/actions/message";
 import React from "react";
 
@@ -73,7 +74,7 @@ export default async function AccountPage({ searchParams }) {
     const totalEarnings = mySales.reduce((acc, item) => acc + (item.price || 0), 0);
 
     const displayName = user.name;
-    const joinDate = new Date(user.createdAt).toLocaleDateString("en-US", { month: "long" , day: "numeric", year: "numeric" });
+    const joinDate = new Date(user.createdAt).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
 
     return (
         <div className="min-h-screen bg-sky-50/50 flex flex-col lg:flex-row font-inter">
@@ -111,9 +112,11 @@ export default async function AccountPage({ searchParams }) {
             <main className="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto no-scrollbar pt-[72px]">
 
                 <div className="p-6 md:p-10 space-y-8 max-w-7xl mx-auto w-full">
-                    <div className="flex items-center justify-between">
-                        <h1 className="text-2xl font-bold text-gray-900">Dashboard Overview</h1>
-                    </div>
+                    {currentTab === 'overview' && (
+                        <div className="flex items-center justify-between">
+                            <h1 className="text-2xl font-bold text-gray-900">Dashboard Overview</h1>
+                        </div>
+                    )}
 
                     {/* Content Router */}
                     {currentTab === 'overview' && (
@@ -167,6 +170,18 @@ export default async function AccountPage({ searchParams }) {
                                                 <PerformanceItem label="Trust Score" value="98%" trend="+2%" />
                                                 <PerformanceItem label="Response Time" value="< 2 Hours" trend="Optimal" />
                                                 <PerformanceItem label="Items Sold" value={itemsSold} trend="+5 this week" />
+
+                                                <div className="flex items-center justify-between p-4 rounded-2xl hover:bg-sky-50 transition-colors group">
+                                                    <div className="flex flex-col">
+                                                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">Current Level</span>
+                                                        {itemsSold < 5 && <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-full border border-blue-100 w-fit mt-1">New Seller</span>}
+                                                        {itemsSold >= 5 && itemsSold < 20 && <span className="text-xs font-bold text-purple-600 bg-purple-50 px-2.5 py-1 rounded-full border border-purple-100 w-fit mt-1">Active Seller</span>}
+                                                        {itemsSold >= 20 && <span className="text-xs font-bold text-amber-600 bg-amber-50 px-2.5 py-1 rounded-full border border-amber-100 w-fit mt-1">Pro Seller</span>}
+                                                    </div>
+                                                    <span className="text-[9px] font-black px-2 py-1 rounded-lg bg-gray-100 text-gray-500">
+                                                        STATUS
+                                                    </span>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -192,7 +207,7 @@ export default async function AccountPage({ searchParams }) {
                                                 <tbody className="divide-y divide-sky-50">
                                                     {mySales.length > 0 ? mySales.slice(0, 4).map((item, idx) => (
                                                         <tr key={item._id} className="hover:bg-sky-50/20 transition-colors">
-                                                            <td className="px-8 py-5 text-xs font-bold text-gray-300">{idx+1}</td>
+                                                            <td className="px-8 py-5 text-xs font-bold text-gray-300">{idx + 1}</td>
                                                             <td className="px-4 py-5 text-xs font-medium text-gray-500">{new Date(item.updatedAt).toLocaleDateString()}</td>
                                                             <td className="px-4 py-5 text-xs font-bold text-gray-800">{item.title}</td>
                                                             <td className="px-4 py-5 text-xs font-medium text-gray-500">Premium Member</td>
@@ -238,7 +253,7 @@ export default async function AccountPage({ searchParams }) {
                     {/* Standard Management Tabs */}
                     {currentTab === 'listings' && (
                         <div className="space-y-8 animate-in fade-in duration-500">
-                             <div className="flex items-center justify-between">
+                            <div className="flex items-center justify-between">
                                 <h2 className="text-xl font-bold text-gray-900">Active Listings</h2>
                                 <span className="text-[10px] font-bold text-sky-500 bg-sky-50 px-3 py-1 rounded-full uppercase tracking-widest">{itemsListed} Items Live</span>
                             </div>
@@ -271,7 +286,7 @@ export default async function AccountPage({ searchParams }) {
 
                     {currentTab === 'messages' && (
                         <div className="bg-white rounded-[2.5rem] border border-sky-50 shadow-sm overflow-hidden min-h-[600px] animate-in fade-in duration-500">
-                             <div className="p-10 border-b border-sky-50 flex items-center justify-between">
+                            <div className="p-10 border-b border-sky-50 flex items-center justify-between">
                                 <h2 className="text-xl font-bold text-gray-900">Conversations</h2>
                                 <span className="text-[10px] font-bold text-sky-500 bg-sky-50 px-4 py-1.5 rounded-full uppercase tracking-widest">Active Chats</span>
                             </div>
@@ -307,41 +322,41 @@ export default async function AccountPage({ searchParams }) {
 
                     {currentTab === 'offers' && (
                         <div className="space-y-8 animate-in fade-in duration-500">
-                             <h2 className="text-xl font-bold text-gray-900">Offer Center</h2>
-                             <div className="bg-white rounded-[2.5rem] border border-sky-50 shadow-sm p-10">
-                                 <OfferList offers={offersReceived} />
-                             </div>
+                            <h2 className="text-xl font-bold text-gray-900">Offer Center</h2>
+                            <div className="bg-white rounded-[2.5rem] border border-sky-50 shadow-sm p-10">
+                                <OfferList offers={offersReceived} />
+                            </div>
                         </div>
                     )}
 
                     {currentTab === 'purchases' && (
-                         <div className="space-y-8 animate-in fade-in duration-500">
-                             <h2 className="text-xl font-bold text-gray-900">Purchase History</h2>
-                             <div className="grid grid-cols-1 gap-4">
-                                 {myPurchases.length > 0 ? myPurchases.map(item => (
-                                     <Link key={item._id} href={`/items/${item._id}`} className="bg-white p-6 rounded-[2.5rem] border border-sky-50 flex items-center gap-6 hover:shadow-xl transition-all group">
-                                         <div className="w-20 h-20 bg-sky-50 rounded-2xl overflow-hidden shadow-inner">
-                                             {item.images?.[0] && <img src={item.images[0]} className="w-full h-full object-cover" />}
-                                         </div>
-                                         <div className="flex-1 min-w-0">
-                                             <div className="flex items-center gap-2 mb-1">
-                                                 <span className="text-[9px] font-black bg-sky-500 text-white px-2 py-0.5 rounded-full uppercase tracking-tighter shadow-sm shadow-sky-200">VERIFIED</span>
-                                                 <span className="text-[10px] font-bold text-gray-400">{new Date(item.updatedAt).toLocaleDateString()}</span>
-                                             </div>
-                                             <h3 className="font-bold text-gray-900 text-lg truncate uppercase tracking-tight group-hover:text-sky-500 transition-colors">{item.title}</h3>
-                                             <p className="text-xs text-gray-400 font-medium">From {item.sellerId?.name}</p>
-                                         </div>
-                                         <div className="text-right">
-                                             <div className="text-2xl font-bold text-gray-900 tracking-tighter">${item.price}</div>
-                                             <div className="flex items-center justify-end gap-1.5 text-sky-500">
-                                                 <Clock className="w-3 h-3" />
-                                                 <span className="text-[9px] font-black uppercase">Complete</span>
-                                             </div>
-                                         </div>
-                                     </Link>
-                                 )) : <EmptyDashboard label="No purchases yet" sublabel="Everything you buy will show up in this collection." action="/dashboard" actionLabel="Start Shopping" />}
-                             </div>
-                         </div>
+                        <div className="space-y-8 animate-in fade-in duration-500">
+                            <h2 className="text-xl font-bold text-gray-900">Purchase History</h2>
+                            <div className="grid grid-cols-1 gap-4">
+                                {myPurchases.length > 0 ? myPurchases.map(item => (
+                                    <Link key={item._id} href={`/items/${item._id}`} className="bg-white p-6 rounded-[2.5rem] border border-sky-50 flex items-center gap-6 hover:shadow-xl transition-all group">
+                                        <div className="w-20 h-20 bg-sky-50 rounded-2xl overflow-hidden shadow-inner">
+                                            {item.images?.[0] && <img src={item.images[0]} className="w-full h-full object-cover" />}
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <span className="text-[9px] font-black bg-sky-500 text-white px-2 py-0.5 rounded-full uppercase tracking-tighter shadow-sm shadow-sky-200">VERIFIED</span>
+                                                <span className="text-[10px] font-bold text-gray-400">{new Date(item.updatedAt).toLocaleDateString()}</span>
+                                            </div>
+                                            <h3 className="font-bold text-gray-900 text-lg truncate uppercase tracking-tight group-hover:text-sky-500 transition-colors">{item.title}</h3>
+                                            <p className="text-xs text-gray-400 font-medium">From {item.sellerId?.name}</p>
+                                        </div>
+                                        <div className="text-right">
+                                            <div className="text-2xl font-bold text-gray-900 tracking-tighter">${item.price}</div>
+                                            <div className="flex items-center justify-end gap-1.5 text-sky-500">
+                                                <Clock className="w-3 h-3" />
+                                                <span className="text-[9px] font-black uppercase">Complete</span>
+                                            </div>
+                                        </div>
+                                    </Link>
+                                )) : <EmptyDashboard label="No purchases yet" sublabel="Everything you buy will show up in this collection." action="/dashboard" actionLabel="Start Shopping" />}
+                            </div>
+                        </div>
                     )}
 
                     {currentTab === 'sales' && (
@@ -349,24 +364,7 @@ export default async function AccountPage({ searchParams }) {
                             <h2 className="text-xl font-bold text-gray-900">Completed Sales</h2>
                             <div className="grid grid-cols-1 gap-4">
                                 {mySales.length > 0 ? mySales.map(item => (
-                                    <div key={item._id} className="bg-white p-6 rounded-[2.5rem] border border-sky-50 flex items-center gap-6 group hover:border-sky-100 transition-all">
-                                        <div className="w-20 h-20 rounded-2xl overflow-hidden relative grayscale opacity-40 shadow-inner">
-                                            {item.images?.[0] && <img src={item.images[0]} className="w-full h-full object-cover" />}
-                                            <div className="absolute inset-0 bg-sky-900/10"></div>
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <div className="flex items-center gap-2 mb-1">
-                                                <span className="text-[9px] font-bold bg-green-50 text-green-600 px-2 py-0.5 rounded-full">EARNED</span>
-                                                <span className="text-[10px] font-bold text-gray-400">{new Date(item.updatedAt).toLocaleDateString()}</span>
-                                            </div>
-                                            <h4 className="font-bold text-gray-900 text-lg truncate uppercase tracking-tight">{item.title}</h4>
-                                            <p className="text-xs text-gray-400 font-medium">Funds successfully transferred</p>
-                                        </div>
-                                        <div className="text-right">
-                                            <div className="text-2xl font-bold text-gray-900 tracking-tighter">${item.price}</div>
-                                            <span className="text-[10px] font-bold text-sky-400 uppercase tracking-widest">Closed Order</span>
-                                        </div>
-                                    </div>
+                                    <SoldItemCard key={item._id} item={item} />
                                 )) : <EmptyDashboard label="No sales recorded" sublabel="Once you complete a transaction, it will appear here." action="/items/create" actionLabel="List Item" />}
                             </div>
                         </div>
@@ -380,13 +378,12 @@ export default async function AccountPage({ searchParams }) {
 // Side Helper Components
 function SidebarLink({ href, active, icon, label, count }) {
     return (
-        <Link 
-            href={href} 
-            className={`flex items-center px-4 py-3.5 rounded-2xl transition-all group ${
-                active 
-                ? 'bg-sky-500 text-white shadow-xl shadow-sky-200 translate-x-1' 
+        <Link
+            href={href}
+            className={`flex items-center px-4 py-3.5 rounded-2xl transition-all group ${active
+                ? 'bg-sky-500 text-white shadow-xl shadow-sky-200 translate-x-1'
                 : 'text-gray-500 hover:bg-sky-50 hover:text-sky-600'
-            }`}
+                }`}
         >
             <span className={`mr-4 ${active ? 'text-white' : 'text-gray-300 group-hover:text-sky-400 transition-colors'}`}>
                 {React.cloneElement(icon, { className: "w-5 h-5 transition-transform group-hover:scale-110" })}

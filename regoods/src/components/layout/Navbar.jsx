@@ -24,7 +24,7 @@ export default function Navbar() {
     const controlNavbar = () => {
       if (typeof window !== 'undefined') {
         const currentScrollY = window.scrollY;
-        
+
         // Always show at the very top
         if (currentScrollY < 10) {
           setIsVisible(true);
@@ -59,7 +59,7 @@ export default function Navbar() {
   };
 
   // Determine if we should use dark mode for the navbar based on route or scroll
-  const isDashboard = pathname?.startsWith('/account') || pathname?.startsWith('/profile') || pathname?.startsWith('/auth') || pathname?.startsWith('/cart') || pathname?.startsWith('/wishlist') || pathname?.startsWith('/checkout');
+  const isDashboard = pathname !== '/';
   const useDarkNavbar = lastScrollY > 50 || isDashboard;
 
   return (
@@ -80,24 +80,24 @@ export default function Navbar() {
               { name: 'Home', path: '/' },
               { name: 'Market', path: '/dashboard' }
             ].map((link) => (
-              <Link 
+              <Link
                 key={link.path}
-                href={link.path} 
+                href={link.path}
                 className={`px-4 py-2 rounded-full text-xs font-bold tracking-tight transition-all duration-300 font-inter ${pathname === link.path ? (isDashboard ? 'text-sky-600 bg-sky-50' : 'text-white bg-blue-500/80 shadow-sm') : (isDashboard ? 'text-gray-500 hover:text-sky-600 hover:bg-sky-50/50' : 'text-white/60 hover:text-white hover:bg-white/5')}`}
               >
                 {link.name}
               </Link>
             ))}
-            
+
             {/* Help Dropdown */}
             <div className="relative">
-              <button 
+              <button
                 onClick={() => setIsHelpModalOpen(!isHelpModalOpen)}
                 className={`px-4 py-2 rounded-full text-xs font-bold tracking-tight transition-all font-inter ${isHelpModalOpen ? (isDashboard ? 'text-sky-600 bg-sky-50' : 'text-white bg-white/10') : (isDashboard ? 'text-gray-500 hover:text-sky-600 hover:bg-sky-50/50' : 'text-white/60 hover:text-white hover:bg-white/5')}`}
               >
                 Help
               </button>
-              
+
               {isHelpModalOpen && (
                 <div className={`absolute top-full left-1/2 -translate-x-1/2 mt-4 w-64 rounded-2xl shadow-2xl border overflow-hidden animate-in fade-in slide-in-from-top-2 duration-300 z-[110] ${isDashboard ? 'bg-white border-sky-100' : 'bg-zinc-900/95 backdrop-blur-2xl border-white/10'}`}>
                   <div className={`p-6 text-center ${isDashboard ? 'text-gray-900' : 'text-white'}`}>
@@ -144,7 +144,7 @@ export default function Navbar() {
                 <WishlistDropdown />
                 <CartDropdown />
               </div>
-              
+
               <div className="relative ml-1">
                 <button
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
@@ -158,8 +158,8 @@ export default function Navbar() {
                 {isDropdownOpen && (
                   <div className="absolute top-full right-0 mt-4 w-52 bg-zinc-900/95 backdrop-blur-2xl rounded-2xl shadow-2xl border border-white/10 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-300">
                     <div className="px-4 py-3 bg-white/5 border-b border-white/5">
-                       <h4 className="font-bold text-white text-[11px] truncate font-montserrat">{session.user.name}</h4>
-                       <p className="text-[9px] text-white/40 font-semibold uppercase tracking-wider font-inter">{session.user.email}</p>
+                      <h4 className="font-bold text-white text-[11px] truncate font-montserrat">{session.user.name}</h4>
+                      <p className="text-[9px] text-white/40 font-semibold uppercase tracking-wider font-inter">{session.user.email}</p>
                     </div>
                     <div className="p-1.5 space-y-0.5">
                       {[

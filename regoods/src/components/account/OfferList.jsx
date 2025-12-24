@@ -49,77 +49,70 @@ export default function OfferList({ offers }) {
     return (
         <div className="space-y-4">
             {offers.map((offer) => (
-                <div key={offer._id} className="bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-md transition-shadow group">
-                    <div className="p-5 flex flex-col md:flex-row md:items-center gap-6">
-                        {/* Item Info */}
-                        <div className="flex items-center gap-4 flex-1 min-w-0">
-                            <div className="h-16 w-16 rounded-xl bg-gray-100 overflow-hidden flex-shrink-0">
-                                {offer.itemId?.images?.[0] ? (
-                                    <img src={offer.itemId.images[0]} alt="" className="w-full h-full object-cover" />
-                                ) : (
-                                    <div className="w-full h-full flex items-center justify-center text-gray-300">
-                                        <Package className="w-6 h-6" />
-                                    </div>
-                                )}
-                            </div>
-                            <div className="min-w-0">
-                                <Link href={`/items/${offer.itemId?._id}`} className="font-bold text-gray-900 truncate block hover:underline">
-                                    {offer.itemId?.title || "Unknown Item"}
-                                </Link>
-                                <p className="text-xs text-gray-600 mt-1 uppercase tracking-widest font-bold">Original Price: ${offer.itemId?.price}</p>
-                            </div>
-                        </div>
+                <div key={offer._id} className="bg-white rounded-2xl p-4 flex flex-col md:flex-row md:items-center gap-4 hover:shadow-sm transition-all border border-transparent hover:border-gray-50">
 
-                        {/* Offer Amount */}
-                        <div className="bg-blue-50 px-6 py-3 rounded-2xl border border-blue-100 text-center flex-shrink-0">
-                            <span className="block text-[10px] uppercase font-bold text-blue-500 tracking-wider mb-1">Offered Price</span>
-                            <span className="text-2xl font-bold text-blue-500 font-serif">${offer.offerAmount}</span>
-                        </div>
-
-                        {/* Buyer Info */}
-                        <div className="flex items-center gap-3 px-4 border-l border-r border-gray-50 hidden md:flex min-w-[150px]">
-                            <div className="h-8 w-8 rounded-full bg-gray-100 overflow-hidden">
-                                {offer.buyerId?.image ? <img src={offer.buyerId.image} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-gray-400"><User className="w-4 h-4" /></div>}
-                            </div>
-                            <div className="text-sm">
-                                <span className="block font-bold text-gray-950 truncate max-w-[100px]">{offer.buyerId?.name}</span>
-                                <span className="text-[10px] text-gray-500 uppercase font-bold">{new Date(offer.createdAt).toLocaleDateString()}</span>
-                            </div>
-                        </div>
-
-                        {/* Status & Actions */}
-                        <div className="flex items-center gap-3 ml-auto">
-                            {offer.status === "Pending" ? (
-                                <>
-                                    <button
-                                        onClick={() => handleReject(offer._id)}
-                                        disabled={loadingId === offer._id}
-                                        className="p-3 bg-red-50 text-red-500 rounded-full hover:bg-red-100 transition shadow-sm disabled:opacity-50"
-                                        title="Reject Offer"
-                                    >
-                                        <X className="w-5 h-5" />
-                                    </button>
-                                    <button
-                                        onClick={() => handleAccept(offer._id)}
-                                        disabled={loadingId === offer._id}
-                                        className="px-6 py-3 bg-blue-500 text-white rounded-xl font-bold text-[10px] uppercase tracking-widest hover:bg-gray-900 transition shadow-lg shadow-blue-500/20 flex items-center gap-2 disabled:opacity-50"
-                                    >
-                                        {loadingId === offer._id ? "Processing..." : (
-                                            <>
-                                                <Check className="w-4 h-4" /> Accept Offer
-                                            </>
-                                        )}
-                                    </button>
-                                </>
+                    {/* Item Info */}
+                    <div className="flex items-center gap-4 flex-1 min-w-0">
+                        <div className="h-12 w-12 rounded-xl bg-gray-50 overflow-hidden flex-shrink-0 border border-gray-100">
+                            {offer.itemId?.images?.[0] ? (
+                                <img src={offer.itemId.images[0]} alt="" className="w-full h-full object-cover" />
                             ) : (
-                                <div className={`px-4 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 ${
-                                    offer.status === "Accepted" ? "bg-green-100 text-green-600" : "bg-red-100 text-red-600"
-                                }`}>
-                                    {offer.status === "Accepted" ? <Check className="w-3 h-3" /> : <X className="w-3 h-3" />}
-                                    {offer.status}
+                                <div className="w-full h-full flex items-center justify-center text-gray-300">
+                                    <Package className="w-5 h-5" />
                                 </div>
                             )}
                         </div>
+                        <div className="min-w-0">
+                            <Link href={`/items/${offer.itemId?._id}`} className="font-bold text-gray-900 truncate block hover:text-sky-500 transition-colors text-sm">
+                                {offer.itemId?.title || "Unknown Item"}
+                            </Link>
+                            <p className="text-[10px] text-gray-400 font-medium mt-0.5">Original: ${offer.itemId?.price}</p>
+                        </div>
+                    </div>
+
+                    {/* Offer Price */}
+                    <div className="flex flex-col items-end md:items-center px-4">
+                        <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-0.5">Offer</span>
+                        <span className="text-lg font-black text-gray-900">${offer.offerAmount}</span>
+                    </div>
+
+                    {/* Buyer Info */}
+                    <div className="flex items-center gap-3 px-4 hidden md:flex min-w-[140px]">
+                        <div className="h-8 w-8 rounded-full bg-gray-100 overflow-hidden border border-white shadow-sm">
+                            {offer.buyerId?.image ? <img src={offer.buyerId.image} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-gray-400"><User className="w-4 h-4" /></div>}
+                        </div>
+                        <div className="text-xs">
+                            <span className="block font-bold text-gray-900 truncate max-w-[90px]">{offer.buyerId?.name}</span>
+                            <span className="text-[9px] text-gray-400 font-medium">{new Date(offer.createdAt).toLocaleDateString()}</span>
+                        </div>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex items-center gap-2 ml-auto pl-4 border-l border-gray-50">
+                        {offer.status === "Pending" ? (
+                            <>
+                                <button
+                                    onClick={() => handleReject(offer._id)}
+                                    disabled={loadingId === offer._id}
+                                    className="w-8 h-8 flex items-center justify-center rounded-full bg-red-500 text-white hover:bg-red-600 transition-all shadow-md shadow-red-200"
+                                    title="Reject"
+                                >
+                                    <X className="w-4 h-4" />
+                                </button>
+                                <button
+                                    onClick={() => handleAccept(offer._id)}
+                                    disabled={loadingId === offer._id}
+                                    className="h-8 px-4 bg-green-500 hover:bg-green-600 text-white rounded-full text-[10px] font-bold uppercase tracking-wider transition-all shadow-lg shadow-green-200"
+                                >
+                                    {loadingId === offer._id ? "..." : "Accept"}
+                                </button>
+                            </>
+                        ) : (
+                            <span className={`text-[10px] font-black uppercase tracking-widest py-1 px-3 rounded-full ${offer.status === "Accepted" ? "bg-green-50 text-green-600" : "bg-gray-50 text-gray-400"
+                                }`}>
+                                {offer.status}
+                            </span>
+                        )}
                     </div>
                 </div>
             ))}
