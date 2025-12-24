@@ -111,35 +111,35 @@ export default function ReportUserButton({ userId, userName, iconOnly = false })
             {isOpen && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
                     {/* Modal Content */}
-                    <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+                    <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
                         {/* Header */}
-                        <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-white sticky top-0 z-10">
+                        <div className="px-5 py-3.5 border-b border-gray-100 flex justify-between items-center bg-white sticky top-0 z-10">
                             <div>
-                                <h3 className="text-xl font-serif font-bold text-gray-900">Report Seller</h3>
-                                <p className="text-xs text-gray-500 uppercase tracking-wider font-bold mt-0.5">Reporting {userName}</p>
+                                <h3 className="text-lg font-serif font-bold text-gray-900 leading-tight">Report Seller</h3>
+                                <p className="text-[10px] text-gray-400 uppercase tracking-widest font-black mt-0.5">Target: {userName}</p>
                             </div>
                             <button 
                                 onClick={toggleModal}
-                                className="p-2 hover:bg-gray-100 rounded-full transition text-gray-400 hover:text-gray-900"
+                                className="p-1.5 hover:bg-gray-100 rounded-full transition text-gray-400 hover:text-gray-900"
                             >
-                                <X className="w-5 h-5" />
+                                <X className="w-4 h-4" />
                             </button>
                         </div>
 
                         {/* Form Body */}
-                        <form onSubmit={handleSubmit} className="p-6 space-y-5 overflow-y-auto max-h-[80vh]">
-                            <div className="p-3 bg-amber-50 rounded-lg flex items-start text-amber-800 text-xs leading-relaxed">
-                                <AlertCircle className="w-4 h-4 mr-2 mt-0.5 flex-shrink-0" />
-                                <span>Please provide clear details. False reporting may lead to actions against your account.</span>
+                        <form onSubmit={handleSubmit} className="p-5 space-y-4 overflow-y-auto max-h-[75vh]">
+                            <div className="p-2.5 bg-amber-50/50 rounded-xl flex items-start text-amber-800 text-[10px] leading-relaxed border border-amber-100/50">
+                                <AlertCircle className="w-3.5 h-3.5 mr-2 mt-0.5 flex-shrink-0" />
+                                <span>False reporting may lead to account suspension. Please be specific.</span>
                             </div>
 
                             {/* Reason Dropdown */}
                             <div>
-                                <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">Reason for report</label>
+                                <label className="block text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-1.5 ml-1">Reason</label>
                                 <select 
                                     name="reason" 
                                     required
-                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-black transition"
+                                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-black transition"
                                 >
                                     <option value="">Select a reason...</option>
                                     {COMMON_REASONS.map(reason => (
@@ -150,36 +150,36 @@ export default function ReportUserButton({ userId, userName, iconOnly = false })
 
                             {/* Description */}
                             <div>
-                                <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">Description</label>
+                                <label className="block text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-1.5 ml-1">Details</label>
                                 <textarea 
                                     name="description" 
                                     required
-                                    rows={4}
-                                    placeholder="Please provide specific details about the issue..."
-                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-black transition resize-none"
+                                    rows={3}
+                                    placeholder="Please provide specific details..."
+                                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-black transition resize-none"
                                 ></textarea>
                             </div>
 
                             {/* Image Upload */}
                             <div>
-                                <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">Evidence / Screenshots (Optional)</label>
-                                <div className="grid grid-cols-4 gap-3 mt-2">
+                                <label className="block text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-1.5 ml-1">Evidence (Optional)</label>
+                                <div className="grid grid-cols-5 gap-2 mt-1.5">
                                     {previews.map((src, idx) => (
-                                        <div key={idx} className="relative aspect-square rounded-lg overflow-hidden border border-gray-200 group">
+                                        <div key={idx} className="relative aspect-square rounded-xl overflow-hidden border border-gray-100 group">
                                             <img src={src} alt="Preview" className="w-full h-full object-cover" />
                                             <button 
                                                 type="button"
                                                 onClick={() => removeImage(idx)}
-                                                className="absolute top-1 right-1 p-1 bg-black/50 text-white rounded-full opacity-0 group-hover:opacity-100 transition"
+                                                className="absolute top-1 right-1 p-0.5 bg-black/50 text-white rounded-full opacity-0 group-hover:opacity-100 transition"
                                             >
-                                                <X className="w-3 h-3" />
+                                                <X className="w-2.5 h-2.5" />
                                             </button>
                                         </div>
                                     ))}
                                     {images.length < 5 && (
-                                        <label className="aspect-square rounded-lg border-2 border-dashed border-gray-200 flex flex-col items-center justify-center cursor-pointer hover:border-black hover:bg-gray-50 transition">
-                                            <Camera className="w-5 h-5 text-gray-400 mb-1" />
-                                            <span className="text-[10px] text-gray-400 font-bold uppercase">Add Photo</span>
+                                        <label className="aspect-square rounded-xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center cursor-pointer hover:border-black hover:bg-white transition group">
+                                            <Camera className="w-4 h-4 text-gray-300 group-hover:text-black transition-colors" />
+                                            <span className="text-[7px] text-gray-300 mt-1 font-black group-hover:text-black transition-colors">ADD</span>
                                             <input 
                                                 type="file" 
                                                 accept="image/*" 
@@ -190,31 +190,23 @@ export default function ReportUserButton({ userId, userName, iconOnly = false })
                                         </label>
                                     )}
                                 </div>
-                                <p className="text-[10px] text-gray-400 mt-2 italic">Up to 5 images. Max 2MB each.</p>
                             </div>
 
                             {/* Footer / Action Buttons */}
-                            <div className="pt-4 flex gap-3">
+                            <div className="pt-2 flex gap-2">
                                 <button
                                     type="button"
                                     onClick={toggleModal}
-                                    className="flex-1 py-4 px-6 border border-gray-200 rounded-xl text-sm font-bold uppercase tracking-widest text-gray-500 hover:bg-gray-50 transition"
+                                    className="flex-1 py-3 px-4 border border-gray-100 rounded-xl text-[10px] font-bold uppercase tracking-widest text-gray-400 hover:bg-gray-50 transition"
                                 >
-                                    Cancel
+                                    Dismiss
                                 </button>
                                 <button
                                     type="submit"
                                     disabled={loading}
-                                    className="flex-[2] py-4 px-6 bg-black text-white rounded-xl text-sm font-bold uppercase tracking-widest hover:bg-red-600 transition flex items-center justify-center disabled:opacity-50 shadow-xl shadow-black/10"
+                                    className="flex-[2] py-3 px-4 bg-black text-white rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-red-600 transition flex items-center justify-center disabled:opacity-50"
                                 >
-                                    {loading ? (
-                                        <>
-                                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                            Submitting Report...
-                                        </>
-                                    ) : (
-                                        "Submit Report"
-                                    )}
+                                    {loading ? "Submitting..." : "Send Report"}
                                 </button>
                             </div>
                         </form>

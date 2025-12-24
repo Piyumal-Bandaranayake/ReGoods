@@ -57,7 +57,7 @@ export default function EngagementChart({ data }) {
             }}
           />
           <Bar 
-            dataKey="users" 
+            dataKey="interactions" 
             fill={barColor} 
             radius={[6, 6, 6, 6]} 
             barSize={20}
