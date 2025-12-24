@@ -1,138 +1,156 @@
 "use client";
 
+import { useState } from "react";
+import { Download, ChevronDown, FileText, Calendar, Loader2 } from "lucide-react";
+import { getDetailedReport } from "@/app/actions/admin";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import { FileDown, Loader2 } from "lucide-react";
-import { useState } from "react";
 
-export default function ExportReportButton({ stats, engagementData, itemData, recentOffers }) {
-    const [generating, setGenerating] = useState(false);
+export default function ExportReportButton() {
+    const [isOpen, setIsOpen] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
-    const handleDownload = async () => {
-        setGenerating(true);
+    const generatePDF = async (period) => {
+        setIsLoading(true);
+        setIsOpen(false);
         try {
+            const data = await getDetailedReport(period);
+            if (!data || data.length === 0) {
+                throw new Error("No data available for the selected period.");
+            }
+
             const doc = new jsPDF();
-
-            // Title and Header
-            doc.setFontSize(24);
-            doc.setTextColor(15, 23, 42); // slate-900
-            doc.text("ReGoods", 14, 20);
             
+            // PDF Header
+            doc.setFontSize(22);
+            doc.setTextColor(59, 130, 246); // Blue-500
+            doc.text("ReGoods Business Analytics Report", 20, 20);
+            
+            doc.setFontSize(12);
+            doc.setTextColor(107, 114, 128);
+            doc.text(`Frequency: ${period.charAt(0).toUpperCase() + period.slice(1)}`, 20, 30);
+            doc.text(`Generated on: ${new Date().toLocaleString()}`, 20, 37);
+
+            // Summary Info
+            const totalSales = data.reduce((sum, item) => sum + (item.sales || 0), 0);
+            const totalEngage = data.reduce((sum, item) => sum + (item.engagement || 0), 0);
+            const totalVerify = data.reduce((sum, item) => sum + (item.verifications || 0), 0);
+
+            doc.setFillColor(249, 250, 251);
+            doc.rect(20, 45, 170, 30, 'F');
             doc.setFontSize(10);
-            doc.setTextColor(100);
-            const timestamp = new Date().toLocaleString();
-            doc.text("System Ecosystem Performance Report", 14, 28);
-            doc.text(`Timestamp: ${timestamp}`, 14, 34);
-            
-            // Separator
-            doc.setDrawColor(241, 245, 249);
-            doc.line(14, 40, 196, 40);
+            doc.setTextColor(0, 0, 0);
+            const summaryY = 62;
+            doc.text(`Total Sales: ${totalSales}`, 30, summaryY);
+            doc.text(`Total New Users: ${totalEngage}`, 85, summaryY);
+            doc.text(`Verified Users: ${totalVerify}`, 145, summaryY);
 
-            // 1. Executive Summary
-            doc.setFontSize(16);
-            doc.setTextColor(15, 23, 42);
-            doc.text("1. Executive Overview", 14, 55);
-            
-            const statsTableData = [
-                ["Platform Metric", "Current Metric Value"],
-                ["Active Member Ecosystem", stats?.totalUsers || 0],
-                ["Marketplace Success (Sold Items)", stats?.soldItems || 0],
-                ["Active Inventory Density", stats?.activeItems || 0],
-                ["Platform Circulated Revenue", `$${(stats?.totalRevenue || 0).toLocaleString()}`],
-                ["Critical Governance Alerts", stats?.activeReports || 0],
-                ["Pending Trust Verifications", stats?.verificationRequestsCount || 0]
-            ];
-
-            autoTable(doc, {
-                startY: 62,
-                head: [statsTableData[0]],
-                body: statsTableData.slice(1),
-                theme: 'grid',
-                headStyles: { 
-                    fillColor: [59, 130, 246], 
-                    fontSize: 10, 
-                    fontStyle: 'bold',
-                    halign: 'center'
-                },
-                bodyStyles: { fontSize: 9 },
-                columnStyles: {
-                    0: { fontStyle: 'bold', cellWidth: 80 }
-                }
-            });
-
-            // 2. Market Dynamics (Top Categories)
-            let currentY = (doc).lastAutoTable.finalY + 20;
-            doc.setFontSize(14);
-            doc.text("2. Inventory Categorization", 14, currentY);
-            
-            const itemTableData = [
-                ["Category Segment", "Active Listing Count"],
-                ...(itemData || []).map(item => [item?.name || "Uncategorized", item?.value || 0])
-            ];
-
-            autoTable(doc, {
-                startY: currentY + 7,
-                head: [itemTableData[0]],
-                body: itemTableData.slice(1),
-                theme: 'striped',
-                headStyles: { fillColor: [15, 23, 42] },
-                bodyStyles: { fontSize: 9 }
-            });
-
-            // 3. Precise Market Activity (New Page)
-            doc.addPage();
-            doc.setFontSize(16);
-            doc.text("3. Transactional Velocity (Recent Activity)", 14, 20);
-            
-            const activityTableHeaders = [["Asset Title", "Price Point", "Origin (Seller)", "Recipient (Buyer)", "Governance Status"]];
-            const activityRows = (recentOffers || []).map(offer => [
-                offer?.itemId?.title || "Removed Item",
-                `LKR ${(offer?.offerPrice || 0).toLocaleString()}`,
-                offer?.sellerId?.name || "N/A",
-                offer?.buyerId?.name || "N/A",
-                (offer?.status || "PENDING").toUpperCase()
+            // Table Data
+            const tableColumn = ["Date", "Sales Count", "User Engagement", "Verified Users"];
+            const tableRows = data.map(item => [
+                item.date,
+                item.sales,
+                item.engagement,
+                item.verifications
             ]);
 
             autoTable(doc, {
-                startY: 28,
-                head: activityTableHeaders,
-                body: activityRows,
+                startY: 85,
+                head: [tableColumn],
+                body: tableRows,
                 theme: 'grid',
-                headStyles: { fillColor: [30, 41, 59] },
-                bodyStyles: { fontSize: 8 },
-                alternateRowStyles: { fillColor: [248, 250, 252] }
+                headStyles: { fillColor: [59, 130, 246], fontStyle: 'bold' },
+                alternateRowStyles: { fillColor: [245, 247, 250] },
+                margin: { top: 10 }
             });
 
-            // Footer / Page Numbers
-            const pageCount = doc.internal.getNumberOfPages();
-            for (let i = 1; i <= pageCount; i++) {
-                doc.setPage(i);
-                doc.setFontSize(8);
-                doc.setTextColor(150);
-                doc.text(`ReGoods Governance Report | Page ${i} of ${pageCount}`, doc.internal.pageSize.width / 2, doc.internal.pageSize.height - 10, { align: 'center' });
-            }
-
-            doc.save(`ReGoods_Intelligence_Report_${new Date().toISOString().split('T')[0]}.pdf`);
-        } catch (err) {
-            console.error("PDF Generation Error Details:", err);
-            alert(`Compilation failed: ${err.message || "Unknown internal error"}`);
+            doc.save(`ReGoods_Report_${period}_${new Date().toISOString().split('T')[0]}.pdf`);
+        } catch (error) {
+            console.error("PDF Generation Error Details:", error);
+            alert(`Failed to generate report: ${error.message}`);
         } finally {
-            setGenerating(false);
+            setIsLoading(false);
         }
     };
 
     return (
-        <button 
-            onClick={handleDownload}
-            disabled={generating}
-            className="px-6 py-3 bg-white border border-gray-100 rounded-2xl text-[10px] font-black uppercase tracking-widest text-gray-500 hover:text-blue-500 hover:border-blue-100 transition-all shadow-sm flex items-center space-x-2 disabled:opacity-50"
-        >
-            {generating ? (
-                <Loader2 className="w-4 h-4 animate-spin text-blue-500" />
-            ) : (
-                <FileDown className="w-4 h-4" />
+        <div className="relative">
+            <button 
+                onClick={() => setIsOpen(!isOpen)}
+                className="flex items-center space-x-2 px-6 py-3 bg-black text-white rounded-2xl text-sm font-bold hover:bg-gray-800 transition-all shadow-lg shadow-black/10 disabled:opacity-50"
+                disabled={isLoading}
+            >
+                {isLoading ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                    <Download className="w-4 h-4" />
+                )}
+                <span>Export Report</span>
+                <ChevronDown className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+            </button>
+
+            {isOpen && (
+                <div className="absolute right-0 mt-3 w-56 bg-white rounded-2xl shadow-2xl border border-gray-100 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                    <button 
+                        onClick={() => generatePDF('weekly')}
+                        className="w-full flex items-center space-x-3 px-4 py-3 hover:bg-gray-50 transition-colors text-left group"
+                    >
+                        <div className="p-2 bg-blue-50 text-blue-500 rounded-lg group-hover:bg-blue-500 group-hover:text-white transition-colors">
+                            <Calendar className="w-4 h-4" />
+                        </div>
+                        <div>
+                            <p className="text-xs font-bold text-gray-900">Weekly Report</p>
+                            <p className="text-[10px] text-gray-400">Last 7 days activity</p>
+                        </div>
+                    </button>
+                    
+                    <button 
+                        onClick={() => generatePDF('monthly')}
+                        className="w-full flex items-center space-x-3 px-4 py-3 hover:bg-gray-50 transition-colors text-left group"
+                    >
+                        <div className="p-2 bg-purple-50 text-purple-500 rounded-lg group-hover:bg-purple-500 group-hover:text-white transition-colors">
+                            <FileText className="w-4 h-4" />
+                        </div>
+                        <div>
+                            <p className="text-xs font-bold text-gray-900">Monthly Report</p>
+                            <p className="text-[10px] text-gray-400">Monthly breakdown</p>
+                        </div>
+                    </button>
+
+                    <button 
+                        onClick={() => generatePDF('yearly')}
+                        className="w-full flex items-center space-x-3 px-4 py-3 hover:bg-gray-50 transition-colors text-left group"
+                    >
+                        <div className="p-2 bg-emerald-50 text-emerald-500 rounded-lg group-hover:bg-emerald-500 group-hover:text-white transition-colors">
+                            <TrendingUp className="w-4 h-4" />
+                        </div>
+                        <div>
+                            <p className="text-xs font-bold text-gray-900">Yearly Report</p>
+                            <p className="text-[10px] text-gray-400">Full year overview</p>
+                        </div>
+                    </button>
+                </div>
             )}
-            <span>{generating ? "Compiling..." : "Export System Report"}</span>
-        </button>
+        </div>
     );
+}
+
+function TrendingUp(props) {
+    return (
+        <svg
+            {...props}
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+        >
+            <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
+            <polyline points="16 7 22 7 22 13" />
+        </svg>
+    )
 }

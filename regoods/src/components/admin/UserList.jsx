@@ -1,14 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { deleteUser } from "@/app/actions/admin";
-import { Trash2, Shield, User, Search, X, MoreHorizontal, Filter, CheckCircle, Users as UsersIcon, Plus } from "lucide-react";
+import { deleteUser, unbanUser } from "@/app/actions/admin";
+import { Trash2, Shield, User, Search, X, MoreHorizontal, Filter, CheckCircle, Plus, Ban, Power } from "lucide-react";
 import { useRouter } from "next/navigation";
 import CreateUserModal from "./CreateUserModal";
 
 export default function UserList({ initialUsers }) {
     const [searchTerm, setSearchTerm] = useState("");
-    const [activeTab, setActiveTab] = useState("all");
+    const [activeTab, setActiveTab] = useState("sellers");
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const router = useRouter();
 
@@ -16,9 +16,10 @@ export default function UserList({ initialUsers }) {
         const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
                              user.email.toLowerCase().includes(searchTerm.toLowerCase());
         
-        if (activeTab === "sellers") return matchesSearch && user.isVerified && user.role !== 'admin';
-        if (activeTab === "buyers") return matchesSearch && !user.isVerified && user.role !== 'admin';
+        if (activeTab === "sellers") return matchesSearch && user.isVerified && user.role !== 'admin' && !user.isBanned;
+        if (activeTab === "buyers") return matchesSearch && !user.isVerified && user.role !== 'admin' && !user.isBanned;
         if (activeTab === "admins") return matchesSearch && user.role === 'admin';
+        if (activeTab === "banned") return matchesSearch && user.isBanned;
         return matchesSearch;
     });
 
@@ -29,11 +30,22 @@ export default function UserList({ initialUsers }) {
         }
     };
 
+    const handleUnban = async (id) => {
+        if (confirm("Are you sure you want to restore access for this user?")) {
+            const result = await unbanUser(id);
+            if (result.success) {
+                router.refresh();
+            } else {
+                alert(result.error);
+            }
+        }
+    };
+
     const tabs = [
-        { id: "all", label: "All Users", icon: UsersIcon },
         { id: "sellers", label: "Verified Sellers", icon: CheckCircle },
         { id: "buyers", label: "Buyers", icon: User },
         { id: "admins", label: "Administrators", icon: Shield },
+        { id: "banned", label: "Banned Sellers", icon: Ban },
     ];
 
     return (
@@ -52,11 +64,6 @@ export default function UserList({ initialUsers }) {
                     >
                         <tab.icon className="w-4 h-4" />
                         <span>{tab.label}</span>
-                        {activeTab === tab.id && (
-                            <span className="ml-2 bg-blue-50 px-2 py-0.5 rounded-full text-[10px]">
-                                {filteredUsers.length}
-                            </span>
-                        )}
                     </button>
                 ))}
             </div>
@@ -126,7 +133,11 @@ export default function UserList({ initialUsers }) {
                                     </td>
                                     <td className="px-8 py-5">
                                         <div className="flex flex-col space-y-1">
-                                            {user.role === 'admin' ? (
+                                            {user.isBanned ? (
+                                                <span className="inline-flex items-center w-fit px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest bg-rose-50 text-rose-600 border border-rose-100">
+                                                    <Ban className="w-3 h-3 mr-1" /> Banned
+                                                </span>
+                                            ) : user.role === 'admin' ? (
                                                 <span className="inline-flex items-center w-fit px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest bg-gray-900 text-white">
                                                     <Shield className="w-3 h-3 mr-1" /> Admin
                                                 </span>
@@ -143,22 +154,39 @@ export default function UserList({ initialUsers }) {
                                     </td>
                                     <td className="px-8 py-5 text-sm font-medium text-gray-500 underline decoration-gray-200 underline-offset-4">{user.email}</td>
                                     <td className="px-8 py-5 text-sm font-medium text-gray-500">
-                                        {new Date(user.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
+                                        {activeTab === 'banned' ? (
+                                            <span className="text-rose-500 text-xs italic">{user.banReason || "Policy violation"}</span>
+                                        ) : (
+                                            new Date(user.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })
+                                        )}
                                     </td>
                                     <td className="px-8 py-5 text-right">
                                         <div className="flex items-center justify-end space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                            {user.role !== 'admin' && (
+                                            {user.isBanned ? (
                                                 <button
-                                                    onClick={() => handleDelete(user._id)}
-                                                    className="p-2 text-rose-400 hover:bg-rose-50 rounded-xl transition-all"
-                                                    title="Delete User"
+                                                    onClick={() => handleUnban(user._id)}
+                                                    className="flex items-center space-x-2 px-4 py-2 bg-emerald-50 text-emerald-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-emerald-600 hover:text-white transition-all border border-emerald-100"
+                                                    title="Reactivate Account"
                                                 >
-                                                    <Trash2 className="w-4 h-4" />
+                                                    <Power className="w-3 h-3" />
+                                                    <span>Reactivate</span>
                                                 </button>
+                                            ) : (
+                                                <>
+                                                    {user.role !== 'admin' && (
+                                                        <button
+                                                            onClick={() => handleDelete(user._id)}
+                                                            className="p-2 text-rose-400 hover:bg-rose-50 rounded-xl transition-all"
+                                                            title="Delete User"
+                                                        >
+                                                            <Trash2 className="w-4 h-4" />
+                                                        </button>
+                                                    )}
+                                                    <button className="p-2 text-gray-400 hover:bg-white rounded-xl transition-all border border-transparent hover:border-gray-100">
+                                                        <MoreHorizontal className="w-4 h-4" />
+                                                    </button>
+                                                </>
                                             )}
-                                            <button className="p-2 text-gray-400 hover:bg-white rounded-xl transition-all border border-transparent hover:border-gray-100">
-                                                <MoreHorizontal className="w-4 h-4" />
-                                            </button>
                                         </div>
                                     </td>
                                 </tr>
