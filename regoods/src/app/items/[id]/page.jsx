@@ -118,32 +118,42 @@ export default async function ItemPage({ params }) {
                             <p>{item.description}</p>
                         </div>
 
-                        {/* 4. Price & Buy Action */}
-                        {!isOwner && !isSold && (
-                            <div className="flex items-center justify-between mb-6 border-b border-gray-100 pb-6">
-                                <div>
-                                    <h2 className="text-2xl font-black text-gray-900 tracking-tight">
-                                        ${displayPrice.toLocaleString()}
-                                    </h2>
-                                    {acceptedOffer && (
-                                        <div className="flex items-center gap-2 mt-1">
-                                            <span className="text-[10px] text-sky-600 font-bold uppercase tracking-wider bg-sky-50 px-2 py-0.5 rounded">Offer Accepted</span>
-                                            <span className="text-[10px] text-gray-400 font-medium line-through">${item.price.toLocaleString()}</span>
+                        {/* 4. Price Display - Always visible */}
+                        {!isSold && (
+                            <div className="mb-6 border-b border-gray-100 pb-6">
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <h2 className="text-2xl font-black text-gray-900 tracking-tight">
+                                            ${displayPrice.toLocaleString()}
+                                        </h2>
+                                        {acceptedOffer && !isOwner && (
+                                            <div className="flex items-center gap-2 mt-1">
+                                                <span className="text-[10px] text-sky-600 font-bold uppercase tracking-wider bg-sky-50 px-2 py-0.5 rounded">Offer Accepted</span>
+                                                <span className="text-[10px] text-gray-400 font-medium line-through">${item.price.toLocaleString()}</span>
+                                            </div>
+                                        )}
+                                        {!acceptedOffer && item.negotiable && <span className="text-[10px] text-green-600 font-bold uppercase tracking-wider">Negotiable</span>}
+                                    </div>
+                                    {/* Buy Button - Only for non-owners */}
+                                    {!isOwner && (
+                                        <div className="flex items-center gap-4 w-60">
+                                            <BuyNowButton itemId={item._id} />
                                         </div>
                                     )}
-                                    {!acceptedOffer && item.negotiable && <span className="text-[10px] text-green-600 font-bold uppercase tracking-wider">Negotiable</span>}
-                                </div>
-                                <div className="flex items-center gap-4 w-60">
-                                    <BuyNowButton itemId={item._id} />
                                 </div>
                             </div>
                         )}
 
                         {isSold && (
                             <div className="mb-6 border-b border-gray-100 pb-6">
-                                <button disabled className="w-full py-3 bg-gray-100 text-gray-400 font-bold text-xs uppercase tracking-widest cursor-not-allowed rounded-full">
-                                    Item Sold
-                                </button>
+                                <div className="flex items-center justify-between">
+                                    <h2 className="text-2xl font-black text-gray-400 tracking-tight line-through">
+                                        ${item.price.toLocaleString()}
+                                    </h2>
+                                    <button disabled className="px-6 py-3 bg-gray-100 text-gray-400 font-bold text-xs uppercase tracking-widest cursor-not-allowed rounded-full">
+                                        Item Sold
+                                    </button>
+                                </div>
                             </div>
                         )}
 
