@@ -150,9 +150,9 @@ export default function Navbar() {
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                   className={`relative h-8 w-8 rounded-full overflow-hidden border transition-all duration-300 ${isDropdownOpen ? 'border-blue-500' : 'border-white/20 hover:border-blue-400/50'}`}
                 >
-                  <div className="h-full w-full bg-blue-500/20 flex items-center justify-center text-blue-400 font-extrabold text-[10px]">
+                  <span className="h-full w-full bg-blue-500/20 flex items-center justify-center text-blue-400 font-extrabold text-[10px]">
                     {session.user.name ? session.user.name[0].toUpperCase() : "U"}
-                  </div>
+                  </span>
                 </button>
 
                 {isDropdownOpen && (
