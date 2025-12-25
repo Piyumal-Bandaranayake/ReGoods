@@ -71,7 +71,9 @@ const UserSchema = new mongoose.Schema({
   requiresPasswordReset: {
     type: Boolean,
     default: false
-  }
+  },
+  resetPasswordToken: String,
+  resetPasswordExpires: Date
 }, { timestamps: true });
 
 if (process.env.NODE_ENV === "development") {

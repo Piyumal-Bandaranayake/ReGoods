@@ -185,6 +185,10 @@ export default function Navbar() {
                         <LogOut className="w-3.5 h-3.5 mr-2.5" /> Sign out
                       </button>
                     </div>
+                    <div className="px-4 py-3 bg-white/5 border-t border-white/5 flex items-center justify-between">
+                      <span className="text-[7px] font-black text-white/20 uppercase tracking-[0.2em]">© 2025 REGOODS INC.</span>
+                      <span className="text-[7px] font-black text-blue-500/40 uppercase tracking-[0.2em]">v0.1.0</span>
+                    </div>
                   </div>
                 )}
               </div>

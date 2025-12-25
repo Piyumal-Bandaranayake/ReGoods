@@ -181,13 +181,20 @@ export async function getWishlistItems() {
     const user = await User.findById(session.user.id).populate({
         path: 'wishlist',
         model: Item,
-        select: 'title price images slug _id' // Select fields needed for dropdown
+        select: 'title price images slug _id status' // Added status
     });
 
     if (!user) return { wishlist: [] };
 
-    // Filter out nulls if items were deleted
-    const items = user.wishlist.filter(item => item !== null);
+    // ⚡ Filter out nulls (deleted) AND Sold items
+    const items = user.wishlist.filter(item => item !== null && item.status === "Active");
+
+    // Sync database if items were removed due to being sold or deleted
+    if (items.length !== user.wishlist.length) {
+        await User.findByIdAndUpdate(session.user.id, {
+            wishlist: items.map(i => i._id)
+        });
+    }
 
     return { 
         wishlist: JSON.parse(JSON.stringify(items))
@@ -207,8 +214,16 @@ export async function getCartItems() {
 
     if (!user) return { cart: [] };
 
-    // Filter out nulls if items were deleted
-    const items = user.cart.filter(item => item !== null);
+    // ⚡ Filter out nulls (deleted) AND Sold items
+    // This ensures that if someone else buys an item in your cart, it automatically disappears
+    const items = user.cart.filter(item => item !== null && item.status === "Active");
+
+    // Sync database if items were removed due to being sold or deleted
+    if (items.length !== user.cart.length) {
+        await User.findByIdAndUpdate(session.user.id, {
+            cart: items.map(i => i._id)
+        });
+    }
 
     // ⚡ Check for accepted offers for each cart item
     const processedItems = await Promise.all(items.map(async (item) => {

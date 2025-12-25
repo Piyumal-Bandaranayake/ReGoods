@@ -7,22 +7,15 @@ import stripePromise from "@/lib/stripe";
 import StripePaymentForm from "@/components/checkout/StripePaymentForm";
 import { purchaseItem } from "@/app/actions/item";
 import { generateReceipt } from "@/lib/receiptGenerator";
+import { useCart } from "@/components/providers/CartProvider";
 
 export default function PaymentPageClient({ item, clientSecret, deliveryDetails }) {
     const router = useRouter();
+    const { refreshCart } = useCart();
     const [success, setSuccess] = useState(false);
 
     const handleStripeSuccess = async (paymentIntent) => {
-        // Confirm purchase in database
-        // We'll use the delivery details passed from the previous step
-        // In a real app, you might want to validate these again or store them in a more persistent state
-        // For this flow, we will attach them here.
-
-        // Note: deliveryDetails might be empty if user refreshed the page directly on /checkout/payment
-        // In a robust app we'd use a session store or recreating intent with shipping details.
-        // For this quick integration, valid details are assumed if they came from checkout.
-        // If they are missing, we might use placeholders or fail.
-
+        // ... previous comments ...
         const finalDelivery = deliveryDetails || {
             fullName: "Stripe User",
             email: "stripe@example.com",
@@ -47,6 +40,9 @@ export default function PaymentPageClient({ item, clientSecret, deliveryDetails 
                 } catch (pdfErr) {
                     console.error("Receipt download failed", pdfErr);
                 }
+                
+                // Refresh cart state
+                await refreshCart();
                 setSuccess(true);
             } else {
                 alert("Payment succeeded but order recording failed: " + result.error);

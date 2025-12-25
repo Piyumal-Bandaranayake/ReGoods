@@ -10,7 +10,7 @@ const transporter = nodemailer.createTransport({
     },
 });
 
-export async function sendWelcomeEmail({ to, name, email, password, role }) {
+export async function sendAdminCredentials({ to, name, email, password, role }) {
     const isSystemAdmin = role === "admin";
     
     const mailOptions = {
@@ -47,6 +47,59 @@ export async function sendWelcomeEmail({ to, name, email, password, role }) {
                 <p style="font-size: 12px; color: #9ca3af; text-align: center; margin-top: 20px;">
                     &copy; ${new Date().getFullYear()} ReGoods Platform. All rights reserved.
                 </p>
+            </div>
+        `,
+    };
+
+    return transporter.sendMail(mailOptions);
+}
+
+export async function sendWelcomeNotice({ to, name }) {
+    const mailOptions = {
+        from: `"ReGoods" <${process.env.EMAIL_FROM}>`,
+        to: to,
+        subject: "Welcome to ReGoods!",
+        html: `
+            <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px; background-color: #ffffff; border: 1px solid #e5e7eb; border-radius: 24px;">
+                <div style="text-align: center; margin-bottom: 32px;">
+                    <div style="display: inline-block; width: 48px; height: 48px; background-color: #3b82f6; border-radius: 12px; line-height: 48px; color: #ffffff; font-size: 24px; font-weight: 900; margin-bottom: 16px;">R</div>
+                    <h1 style="font-size: 24px; font-weight: 800; color: #111827; margin: 0; letter-spacing: -0.025em;">Welcome to ReGoods!</h1>
+                </div>
+                
+                <p style="font-size: 16px; color: #4b5563; line-height: 1.6; text-align: center; margin-bottom: 24px;">
+                    Hi <strong>${name}</strong>, we're thrilled to have you join our eco-friendly community. 
+                    ReGoods is more than just a marketplace—it's a step towards a more sustainable future.
+                </p>
+                
+                <div style="background-color: #f3f4f6; padding: 24px; border-radius: 16px; margin-bottom: 32px;">
+                    <h2 style="font-size: 14px; font-weight: 700; color: #111827; text-transform: uppercase; letter-spacing: 0.1em; margin: 0 0 12px 0;">Getting Started</h2>
+                    <ul style="margin: 0; padding: 0; list-style: none;">
+                        <li style="font-size: 14px; color: #4b5563; margin-bottom: 8px; display: flex; align-items: center;">
+                            <span style="color: #3b82f6; margin-right: 8px;">✓</span> Discover unique pre-owned treasures
+                        </li>
+                        <li style="font-size: 14px; color: #4b5563; margin-bottom: 8px; display: flex; align-items: center;">
+                            <span style="color: #3b82f6; margin-right: 8px;">✓</span> List your items and give them a second life
+                        </li>
+                        <li style="font-size: 14px; color: #4b5563; display: flex; align-items: center;">
+                            <span style="color: #3b82f6; margin-right: 8px;">✓</span> Connect with verified buyers and sellers
+                        </li>
+                    </ul>
+                </div>
+
+                <div style="text-align: center;">
+                    <a href="${process.env.NEXTAUTH_URL}/dashboard" style="display: inline-block; background-color: #3b82f6; color: #ffffff; padding: 14px 32px; border-radius: 12px; text-decoration: none; font-weight: 700; font-size: 14px; box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.3);">
+                        Explore the Marketplace
+                    </a>
+                </div>
+
+                <div style="margin-top: 48px; padding-top: 24px; border-top: 1px solid #e5e7eb; text-align: center;">
+                    <p style="font-size: 12px; color: #9ca3af; margin: 0;">
+                        &copy; ${new Date().getFullYear()} ReGoods Platform. All rights reserved.
+                    </p>
+                    <p style="font-size: 11px; color: #9ca3af; margin: 8px 0 0 0;">
+                        You're receiving this because you signed up at regoods.com.
+                    </p>
+                </div>
             </div>
         `,
     };
@@ -129,6 +182,55 @@ export async function sendUnbanEmail({ to, name }) {
                 <p style="font-size: 11px; color: #9ca3af; text-align: center; margin-top: 20px;">
                     &copy; ${new Date().getFullYear()} ReGoods Platform. All rights reserved.
                 </p>
+            </div>
+        `,
+    };
+
+    return transporter.sendMail(mailOptions);
+}
+
+export async function sendResetPasswordEmail({ to, name, resetUrl }) {
+    const mailOptions = {
+        from: `"ReGoods Security" <${process.env.EMAIL_FROM}>`,
+        to: to,
+        subject: "Action Required: Reset Your ReGoods Password",
+        html: `
+            <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px; background-color: #ffffff; border: 1px solid #e5e7eb; border-radius: 24px;">
+                <div style="text-align: center; margin-bottom: 32px;">
+                    <div style="display: inline-block; width: 48px; height: 48px; background-color: #ef4444; border-radius: 12px; line-height: 48px; color: #ffffff; font-size: 24px; font-weight: 900; margin-bottom: 16px;">R</div>
+                    <h1 style="font-size: 24px; font-weight: 800; color: #111827; margin: 0; letter-spacing: -0.025em;">Password Reset Request</h1>
+                </div>
+                
+                <p style="font-size: 16px; color: #4b5563; line-height: 1.6; text-align: center; margin-bottom: 24px;">
+                    Hello ${name},<br />
+                    We received a request to reset the password for your ReGoods account. 
+                    Click the button below to choose a new password.
+                </p>
+                
+                <div style="text-align: center; margin: 32px 0;">
+                    <a href="${resetUrl}" style="display: inline-block; background-color: #111827; color: #ffffff; padding: 16px 36px; border-radius: 12px; text-decoration: none; font-weight: 700; font-size: 14px; box-shadow: 0 10px 15px -3px rgba(17, 24, 39, 0.2);">
+                        Reset Password
+                    </a>
+                </div>
+
+                <div style="background-color: #fef2f2; padding: 20px; border-radius: 16px; margin-bottom: 32px; border: 1px solid #fee2e2;">
+                    <p style="font-size: 13px; color: #991b1b; margin: 0; text-align: center;">
+                        <strong>Security Note:</strong> This link will expire in 1 hour. If you didn't request this change, you can safely ignore this email.
+                    </p>
+                </div>
+
+                <p style="font-size: 12px; color: #9ca3af; text-align: center; margin-bottom: 8px;">
+                    If the button above doesn't work, copy and paste this link into your browser:
+                </p>
+                <p style="font-size: 11px; color: #3b82f6; text-align: center; word-break: break-all; margin-bottom: 32px;">
+                    ${resetUrl}
+                </p>
+
+                <div style="margin-top: 48px; padding-top: 24px; border-top: 1px solid #e5e7eb; text-align: center;">
+                    <p style="font-size: 12px; color: #9ca3af; margin: 0;">
+                        &copy; ${new Date().getFullYear()} ReGoods Security Team. All rights reserved.
+                    </p>
+                </div>
             </div>
         `,
     };
