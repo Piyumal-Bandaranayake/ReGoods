@@ -4,7 +4,8 @@ import { signIn, getSession } from "next-auth/react";
 import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Loader2, Mail, Lock, ArrowRight, ShieldCheck, Sparkles, Phone, HelpCircle } from "lucide-react";
+import { Loader2, Mail, Lock, ArrowRight, ShieldCheck, Sparkles, Phone, HelpCircle, X, CheckCircle2 } from "lucide-react";
+import { requestPasswordReset } from "@/app/actions/auth";
 
 function LoginForm() {
   const router = useRouter();
@@ -12,6 +13,13 @@ function LoginForm() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
+  
+  // Forgot Password States
+  const [isForgotModalOpen, setIsForgotModalOpen] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState("");
+  const [forgotLoading, setForgotLoading] = useState(false);
+  const [forgotSuccess, setForgotSuccess] = useState(false);
+  const [forgotError, setForgotError] = useState("");
 
   // Form State
   const [formValues, setFormValues] = useState({
@@ -94,6 +102,27 @@ function LoginForm() {
     }
   };
 
+  const handleForgotSubmit = async (e) => {
+    e.preventDefault();
+    setForgotError("");
+    setForgotSuccess(false);
+
+    if (!forgotEmail.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(forgotEmail)) {
+        setForgotError("Please enter a valid business email.");
+        return;
+    }
+
+    setForgotLoading(true);
+    const result = await requestPasswordReset(forgotEmail);
+    setForgotLoading(false);
+
+    if (result.error) {
+        setForgotError(result.error);
+    } else {
+        setForgotSuccess(true);
+    }
+  };
+
   const inputClasses = (name) => `w-full pl-10 pr-4 py-3 bg-white/5 border rounded-xl text-xs font-bold text-white focus:outline-none focus:bg-white/10 transition-all placeholder:text-white/5 ${touched[name] && formErrors[name] ? 'border-rose-500/50 ring-1 ring-rose-500/20' : 'border-white/5 focus:border-sky-400/20'}`;
 
   return (
@@ -130,8 +159,8 @@ function LoginForm() {
           </div>
 
           <div className="relative z-20 mt-4 flex items-center justify-between text-[8px] font-black text-gray-300 uppercase tracking-widest">
-            <span>© 2024 REGOODS. GLOBAL</span>
-            <span>Est. 2023</span>
+            <span>© 2025 REGOODS INC. ALL RIGHTS RESERVED.</span>
+            <span>v0.1.0</span>
           </div>
         </div>
 
@@ -181,7 +210,13 @@ function LoginForm() {
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between px-1">
                   <label className="text-[8px] font-black text-sky-200/30 uppercase tracking-[0.2em]">Secret Key (Password)</label>
-                  <Link href="#" className="text-[8px] font-black text-sky-400/60 hover:text-sky-300 transition-colors uppercase tracking-tight">Recover Key?</Link>
+                  <button 
+                    type="button"
+                    onClick={() => setIsForgotModalOpen(true)}
+                    className="text-[8px] font-black text-sky-400/60 hover:text-sky-300 transition-colors uppercase tracking-tight"
+                  >
+                    Recover Key?
+                  </button>
                 </div>
                 <div className="relative group">
                   <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-sky-200/20 group-focus-within:text-sky-400 transition-colors" />
@@ -232,6 +267,89 @@ function LoginForm() {
           </div>
         </div>
       </div>
+
+      {/* Forgot Password Modal */}
+      {isForgotModalOpen && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-zinc-950/80 backdrop-blur-md animate-in fade-in duration-300" onClick={() => setIsForgotModalOpen(false)}></div>
+          <div className="relative bg-[#1A365D] border border-white/10 rounded-[2rem] shadow-2xl max-w-md w-full overflow-hidden animate-in zoom-in duration-500">
+            <div className="p-6 border-b border-white/5 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-sky-500/20 rounded-xl flex items-center justify-center text-sky-400">
+                  <Lock className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-black text-white tracking-tighter uppercase">Recover Access</h3>
+                  <p className="text-[9px] font-bold text-sky-400 uppercase tracking-widest">Security Protocol</p>
+                </div>
+              </div>
+              <button onClick={() => setIsForgotModalOpen(false)} className="p-2 text-sky-200/20 hover:text-white transition-colors"><X className="w-5 h-5" /></button>
+            </div>
+
+            <div className="p-8">
+              {forgotSuccess ? (
+                <div className="text-center py-4 animate-in fade-in slide-in-from-bottom-4">
+                  <div className="w-16 h-16 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-6 text-emerald-400 shadow-lg shadow-emerald-500/20">
+                    <CheckCircle2 className="w-8 h-8" />
+                  </div>
+                  <h4 className="text-lg font-black text-white mb-2 uppercase tracking-tight">Email Dispatched</h4>
+                  <p className="text-[10px] text-sky-200/50 font-bold uppercase tracking-widest leading-relaxed">
+                    If this account exists in our network, <br /> you will receive recovery instructions shortly.
+                  </p>
+                  <button 
+                    onClick={() => setIsForgotModalOpen(false)}
+                    className="mt-8 w-full py-3 bg-white text-gray-900 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-sky-50 transition-all active:scale-95"
+                  >
+                    Back to Login
+                  </button>
+                </div>
+              ) : (
+                <form onSubmit={handleForgotSubmit} className="space-y-6">
+                  <p className="text-[10px] text-sky-200/40 font-bold uppercase tracking-widest leading-relaxed">
+                    Enter your registered email address below. <br /> We will send an authenticated reset link to your inbox.
+                  </p>
+                  
+                  <div className="space-y-1.5">
+                    <label className="text-[8px] font-black text-sky-200/30 uppercase tracking-[0.2em] px-1">Business Identity</label>
+                    <div className="relative group">
+                      <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-sky-200/20 group-focus-within:text-sky-400 transition-colors" />
+                      <input
+                        type="email"
+                        value={forgotEmail}
+                        onChange={(e) => setForgotEmail(e.target.value)}
+                        className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/5 rounded-xl text-xs font-bold text-white focus:outline-none focus:bg-white/10 focus:border-sky-400/20 transition-all placeholder:text-white/5"
+                        placeholder="name@company.com"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  {forgotError && (
+                    <div className="bg-rose-500/10 border border-rose-500/20 p-2 rounded-xl text-rose-400 text-[8px] font-black uppercase tracking-widest text-center animate-in shake duration-500">
+                      {forgotError}
+                    </div>
+                  )}
+
+                  <button
+                    type="submit"
+                    disabled={forgotLoading}
+                    className="w-full py-3 bg-sky-500 hover:bg-sky-600 active:scale-95 text-white rounded-xl text-[10px] font-black uppercase tracking-[0.3em] transition-all shadow-xl shadow-sky-500/20 disabled:opacity-50"
+                  >
+                    {forgotLoading ? (
+                      <Loader2 className="w-4 h-4 animate-spin mx-auto text-white" />
+                    ) : (
+                      <span className="flex items-center justify-center gap-2">
+                        INITIALIZE RECOVERY
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </span>
+                    )}
+                  </button>
+                </form>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
