@@ -11,7 +11,7 @@ import { optimizeCloudinaryUrl } from "@/lib/imageOptimization";
 
 async function getItems(filters = {}) {
     await dbConnect();
-    const query = { status: { $in: ["Active", "Sold"] } };
+    const query = { status: "Active" };
 
     if (filters.category && filters.category !== "All") {
         query.category = { $regex: new RegExp(`^${filters.category}$`, "i") };

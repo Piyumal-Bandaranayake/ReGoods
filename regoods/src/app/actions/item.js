@@ -188,9 +188,15 @@ export async function markAsSold(itemId) {
 
     await Item.findByIdAndUpdate(itemId, { status: "Sold" });
 
+    // If a seller marks an item as sold, we should logically clear it from potential buyer carts 
+    // or just let it stay for a "Sold" badge. However, following the request to "remove details in cart" 
+    // when sold, we can optionally clear it from the SELLER'S cart if they had it there for some reason
+    // but usually, this logic applies more to the checkout flow.
+    
     revalidatePath(`/items/${itemId}`);
     revalidatePath("/account");
     revalidatePath("/dashboard");
+    revalidatePath("/cart");
 
     return { success: true };
   } catch (error) {
@@ -242,8 +248,15 @@ export async function purchaseItem({ itemId, paymentMethod, deliveryDetails }) {
     item.deliveryDetails = deliveryDetails;
     await item.save();
 
+    // ⚡ Remove from Buyer's cart and wishlist after purchase
+    await User.findByIdAndUpdate(session.user.id, { 
+        $pull: { cart: itemId, wishlist: itemId } 
+    });
+
     revalidatePath(`/items/${itemId}`);
     revalidatePath("/dashboard");
+    revalidatePath("/cart");
+    revalidatePath("/wishlist");
     
     return { success: true };
   } catch (error) {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { LogOut, Settings as SettingsIcon } from "lucide-react";
+import { LogOut } from "lucide-react";
 import { signOut } from "next-auth/react";
 import AdminPasswordResetModal from "./AdminPasswordResetModal";
 
@@ -67,21 +67,6 @@ export default function AdminProfileDropdown({ adminName, adminImage, requiresPa
                         </div>
 
                         <div className="p-2">
-                            <button
-                                onClick={() => {
-                                    setIsModalOpen(true);
-                                    setIsOpen(false);
-                                }}
-                                className="w-full flex items-center space-x-3 p-4 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-2xl transition-all group"
-                            >
-                                <div className="w-8 h-8 rounded-lg bg-gray-50 group-hover:bg-blue-100 flex items-center justify-center transition-colors">
-                                    <SettingsIcon className="w-4 h-4" />
-                                </div>
-                                <span className="text-xs font-bold">Security Settings</span>
-                            </button>
-
-                            <div className="h-px bg-gray-50 my-2 mx-4" />
-
                             <button
                                 onClick={() => signOut({ callbackUrl: "/" })}
                                 className="w-full flex items-center space-x-3 p-4 text-rose-500 hover:bg-rose-50 rounded-2xl transition-all group"

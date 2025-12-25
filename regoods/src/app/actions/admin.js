@@ -12,7 +12,7 @@ import Report from "@/lib/models/Report";
 import Notification from "@/lib/models/Notification";
 import Verification from "@/lib/models/Verification";
 import bcrypt from "bcryptjs";
-import { sendWelcomeEmail, sendBanEmail, sendUnbanEmail } from "@/lib/mail";
+import { sendAdminCredentials, sendBanEmail, sendUnbanEmail } from "@/lib/mail";
 
 // Middleware-like check for admin
 async function checkAdmin() {
@@ -467,7 +467,7 @@ export async function adminCreateUser(userData) {
         let emailSent = false;
         let emailError = null;
         try {
-            await sendWelcomeEmail({
+            await sendAdminCredentials({
                 to: email,
                 name,
                 email,

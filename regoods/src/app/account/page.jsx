@@ -26,7 +26,9 @@ async function getAccountData(userId) {
 
     // Fetch User's Items
     const myListings = await Item.find({ sellerId: userId, status: "Active" }).sort({ createdAt: -1 });
-    const mySales = await Item.find({ sellerId: userId, status: "Sold" }).sort({ updatedAt: -1 });
+    const mySales = await Item.find({ sellerId: userId, status: "Sold" })
+        .populate("buyerId", "name email image")
+        .sort({ updatedAt: -1 });
 
     // Fetch Offers Received
     const offersReceived = await Offer.find({ sellerId: userId })
@@ -212,43 +214,63 @@ export default async function AccountPage({ searchParams }) {
                                         )}
                                     </div>
 
-                                    {/* History Table - Only for Verified */}
-                                    {user.isVerified && (
-                                        <div className="bg-white rounded-[2.5rem] border border-sky-100 shadow-sm overflow-hidden">
-                                            <div className="px-8 py-6 flex items-center justify-between border-b border-sky-50">
-                                                <h3 className="text-sm font-bold text-gray-900">Contribution History</h3>
-                                                <Link href="?tab=sales" className="text-[10px] font-bold text-sky-500 uppercase tracking-widest hover:underline">See All</Link>
-                                            </div>
-                                            <div className="overflow-x-auto">
-                                                <table className="w-full">
-                                                    <thead className="bg-sky-50/30">
-                                                        <tr>
-                                                            <th className="px-8 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-left">#</th>
-                                                            <th className="px-4 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-left">Date</th>
-                                                            <th className="px-4 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-left">Item Name</th>
-                                                            <th className="px-4 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-left">Buyer/Seller</th>
-                                                            <th className="px-4 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-left">Amount</th>
-                                                            <th className="px-8 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-right"></th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody className="divide-y divide-sky-50">
-                                                        {mySales.length > 0 ? mySales.slice(0, 4).map((item, idx) => (
-                                                            <tr key={item._id} className="hover:bg-sky-50/20 transition-colors">
-                                                                <td className="px-8 py-5 text-xs font-bold text-gray-300">{idx + 1}</td>
-                                                                <td className="px-4 py-5 text-xs font-medium text-gray-500">{new Date(item.updatedAt).toLocaleDateString()}</td>
-                                                                <td className="px-4 py-5 text-xs font-bold text-gray-800">{item.title}</td>
-                                                                <td className="px-4 py-5 text-xs font-medium text-gray-500">Premium Member</td>
-                                                                <td className="px-4 py-5 text-xs font-bold text-sky-600">${item.price}</td>
-                                                                <td className="px-8 py-5 text-right"><button className="p-1 hover:text-sky-500 text-gray-300 transition-colors"><Download className="w-3.5 h-3.5" /></button></td>
-                                                            </tr>
-                                                        )) : (
-                                                            <tr><td colSpan="6" className="py-12 text-center text-[10px] font-bold text-gray-300 uppercase italic">No recent sales</td></tr>
-                                                        )}
-                                                    </tbody>
-                                                </table>
+                                    {/* History Table - Contribution (Sales Only) */}
+                                    <div className="bg-white rounded-[2.5rem] border border-sky-100 shadow-sm overflow-hidden animate-in fade-in duration-700">
+                                        <div className="px-8 py-6 flex items-center justify-between border-b border-sky-50">
+                                            <div className="flex flex-col">
+                                                <h3 className="text-sm font-bold text-gray-900">Your Contributions</h3>
+                                                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-0.5">Items listed & successfully rehomed</p>
                                             </div>
                                         </div>
-                                    )}
+                                        <div className="overflow-x-auto">
+                                            <table className="w-full">
+                                                <thead className="bg-sky-50/30">
+                                                    <tr>
+                                                        <th className="px-8 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-left">Ref</th>
+                                                        <th className="px-4 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-left">Completion Date</th>
+                                                        <th className="px-4 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-left">Contributed Item</th>
+                                                        <th className="px-4 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-left">Value Generated</th>
+                                                        <th className="px-8 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-right">Action</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody className="divide-y divide-sky-50">
+                                                    {mySales.length > 0 ? mySales.slice(0, 6).map((item, idx) => (
+                                                        <tr key={item._id} className="hover:bg-sky-50/20 transition-colors">
+                                                            <td className="px-8 py-5 text-xs font-bold text-gray-300">#{item._id.slice(-4).toUpperCase()}</td>
+                                                            <td className="px-4 py-5 text-xs font-medium text-gray-500">{new Date(item.updatedAt).toLocaleDateString()}</td>
+                                                            <td className="px-4 py-5">
+                                                                <div className="flex flex-col">
+                                                                    <span className="text-xs font-bold text-gray-800 truncate max-w-[200px]">{item.title}</span>
+                                                                    <span className="text-[9px] font-black uppercase tracking-tighter text-emerald-500">
+                                                                        Sustainability Impact: High
+                                                                    </span>
+                                                                </div>
+                                                            </td>
+                                                            <td className="px-4 py-5 font-bold">
+                                                                <span className="text-xs text-emerald-600">
+                                                                    +${item.price}
+                                                                </span>
+                                                            </td>
+                                                            <td className="px-8 py-5 text-right">
+                                                                <Link href={`/items/${item._id}`} className="inline-flex p-2 bg-sky-50 hover:bg-sky-100 text-sky-500 rounded-lg transition-all shadow-sm">
+                                                                    <Eye className="w-4 h-4" />
+                                                                </Link>
+                                                            </td>
+                                                        </tr>
+                                                    )) : (
+                                                        <tr>
+                                                            <td colSpan="5" className="py-16 text-center">
+                                                                <div className="flex flex-col items-center gap-2 opacity-30">
+                                                                    <Package className="w-8 h-8 mb-2" />
+                                                                    <p className="text-[10px] font-black uppercase tracking-[0.2em]">Zero Contributions Recorded</p>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    )}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 {/* Right Section: Stats & Notifications */}
