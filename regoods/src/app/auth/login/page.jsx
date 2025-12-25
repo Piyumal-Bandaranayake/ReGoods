@@ -13,23 +13,67 @@ function LoginForm() {
   const [loading, setLoading] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
 
+  // Form State
+  const [formValues, setFormValues] = useState({
+    email: "",
+    password: ""
+  });
+  const [formErrors, setFormErrors] = useState({});
+  const [touched, setTouched] = useState({});
+
   useEffect(() => {
     if (searchParams.get("registered") === "true") {
       setSuccessMsg("Account created! Please log in.");
     }
   }, [searchParams]);
 
+  const validateField = (name, value) => {
+    let error = "";
+    if (name === "email") {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!value.trim()) error = "Email is required";
+      else if (!emailRegex.test(value)) error = "Invalid email format";
+    } else if (name === "password") {
+      if (!value) error = "Password is required";
+    }
+    setFormErrors(prev => ({ ...prev, [name]: error }));
+    return error;
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormValues(prev => ({ ...prev, [name]: value }));
+    if (touched[name]) {
+      validateField(name, value);
+    }
+  };
+
+  const handleBlur = (e) => {
+    const { name, value } = e.target;
+    setTouched(prev => ({ ...prev, [name]: true }));
+    validateField(name, value);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
     setError("");
 
-    const email = e.target.email.value;
-    const password = e.target.password.value;
+    // Validate all
+    const eError = validateField("email", formValues.email);
+    const pError = validateField("password", formValues.password);
+
+    setTouched({ email: true, password: true });
+
+    if (eError || pError) {
+      setError("Please enter valid credentials.");
+      return;
+    }
+
+    setLoading(true);
 
     const res = await signIn("credentials", {
-      email,
-      password,
+      email: formValues.email,
+      password: formValues.password,
       redirect: false,
     });
 
@@ -50,12 +94,14 @@ function LoginForm() {
     }
   };
 
+  const inputClasses = (name) => `w-full pl-10 pr-4 py-3 bg-white/5 border rounded-xl text-xs font-bold text-white focus:outline-none focus:bg-white/10 transition-all placeholder:text-white/5 ${touched[name] && formErrors[name] ? 'border-rose-500/50 ring-1 ring-rose-500/20' : 'border-white/5 focus:border-sky-400/20'}`;
+
   return (
     <div className="min-h-screen bg-[#F8FAFF] flex items-center justify-center p-4 pt-20">
       <div className="w-full max-w-4xl bg-white rounded-[2rem] shadow-[0_40px_80px_-20px_rgba(0,102,255,0.12)] overflow-hidden flex flex-col md:flex-row relative border border-white">
 
         {/* LEFT SIDE: BRANDING & ILLUSTRATION (WHITE) */}
-        <div className="w-full md:w-[45%] p-8 flex flex-col justify-between relative bg-white z-10 overflow-hidden">
+        <div className="w-full md:w-[45%] p-8 flex flex-col justify-between relative bg-white z-10 overflow-hidden text-sky-900">
           <div className="relative z-20">
             <div className="flex items-center gap-3 mb-6 group">
               <div className="w-8 h-8 bg-sky-500 rounded-lg flex items-center justify-center text-white font-black text-lg shadow-lg shadow-sky-500/20 group-hover:scale-110 transition-transform">R</div>
@@ -122,11 +168,14 @@ function LoginForm() {
                   <input
                     name="email"
                     type="email"
-                    required
-                    className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/5 rounded-xl text-xs font-bold text-white focus:outline-none focus:bg-white/10 focus:border-sky-400/20 transition-all placeholder:text-white/5"
+                    value={formValues.email}
+                    onChange={handleInputChange}
+                    onBlur={handleBlur}
+                    className={inputClasses("email")}
                     placeholder="Enter your email"
                   />
                 </div>
+                {touched.email && formErrors.email && <p className="text-[8px] text-rose-400 font-bold uppercase tracking-widest px-1">{formErrors.email}</p>}
               </div>
 
               <div className="space-y-1.5">
@@ -139,11 +188,14 @@ function LoginForm() {
                   <input
                     name="password"
                     type="password"
-                    required
-                    className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/5 rounded-xl text-xs font-bold text-white focus:outline-none focus:bg-white/10 focus:border-sky-400/20 transition-all placeholder:text-white/5"
+                    value={formValues.password}
+                    onChange={handleInputChange}
+                    onBlur={handleBlur}
+                    className={inputClasses("password")}
                     placeholder="••••••••"
                   />
                 </div>
+                {touched.password && formErrors.password && <p className="text-[8px] text-rose-400 font-bold uppercase tracking-widest px-1">{formErrors.password}</p>}
               </div>
 
               {error && (

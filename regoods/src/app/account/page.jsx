@@ -93,8 +93,10 @@ export default async function AccountPage({ searchParams }) {
                         <h3 className="px-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">Main Menu</h3>
                         <div className="space-y-1">
                             <SidebarLink href="?tab=overview" active={currentTab === 'overview'} icon={<LayoutDashboard />} label="Dashboard" />
-                            <SidebarLink href={`/profile/${user._id}`} icon={<UserIcon />} label={user.isVerified ? "My public profile" : "My Profile"} />
                             <SidebarLink href="?tab=settings" active={currentTab === 'settings'} icon={<Settings />} label="My Account" />
+                            {user.isVerified && (
+                                <SidebarLink href={`/profile/${user._id}`} icon={<UserIcon />} label="My public profile" />
+                            )}
                             {user.isVerified && (
                                 <>
                                     <SidebarLink href="?tab=sales" active={currentTab === 'sales'} icon={<TrendingUp />} label="Sales History" />

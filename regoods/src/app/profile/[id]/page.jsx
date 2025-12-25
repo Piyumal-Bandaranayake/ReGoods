@@ -46,7 +46,7 @@ export default async function ProfilePage({ params, searchParams }) {
 
     const isOwner = session?.user?.id === user._id;
 
-    if (!user.isVerified && !isOwner) {
+    if (!user.isVerified) {
         return (
             <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4 font-inter">
                 <div className="bg-white rounded-3xl p-8 shadow-xl text-center max-w-md w-full border border-gray-100">
@@ -55,9 +55,9 @@ export default async function ProfilePage({ params, searchParams }) {
                     </div>
                     <h1 className="text-2xl font-bold text-gray-900 mb-2">Profile Not Public</h1>
                     <p className="text-gray-600 mb-8 font-medium">
-                        This user has not verified their seller profile yet.
+                        This seller profile is only available for verified members.
                     </p>
-                    <Link href="/" className="inline-flex items-center justify-center w-full py-3.5 bg-sky-500 hover:bg-sky-600 text-white rounded-2xl font-bold transition-all">
+                    <Link href="/" className="inline-flex items-center justify-center w-full py-3.5 bg-blue-900 hover:bg-black text-white rounded-2xl font-bold transition-all">
                         Return to Home
                     </Link>
                 </div>
@@ -159,65 +159,51 @@ export default async function ProfilePage({ params, searchParams }) {
 
                     {/* 3. CENTER COLUMN: TABS & CONTENT */}
                     <div className="lg:col-span-6 mt-8 lg:mt-6">
-                        {isOwner && user.isVerified && (
+                        {isOwner && (
                             <div className="mb-8">
                                 <h1 className="text-2xl font-black text-gray-900 tracking-tight uppercase">My Public Profile</h1>
                                 <p className="text-[10px] font-bold text-gray-400 mt-1 uppercase tracking-widest">This is how other users see your store</p>
                             </div>
                         )}
-                        {!user.isVerified ? (
-                            <div className="bg-white rounded-[2rem] p-8 shadow-sm border border-white text-center py-20">
-                                <div className="w-20 h-20 bg-sky-50 rounded-full flex items-center justify-center mx-auto mb-6 text-sky-400">
-                                    <Shield className="w-10 h-10" />
-                                </div>
-                                <h2 className="text-xl font-bold text-gray-900 mb-2">Complete Verification to Enable Storefront</h2>
-                                <p className="text-gray-500 max-w-md mx-auto mb-8 font-medium">
-                                    Your public seller profile is currently hidden. Verify your identity to unlock selling features, reviews, and your public store URL.
-                                </p>
-                            </div>
-                        ) : (
-                            <>
-                                {/* Tab Navigation */}
-                                <div className="flex border-b border-gray-200 mb-8 sticky top-0 bg-slate-50/50 backdrop-blur-md z-30 px-2 overflow-x-auto no-scrollbar">
-                                    <TabTrigger id="active" label="Storefront" active={currentTab === 'active'} count={activeItems.length} />
-                                    <TabTrigger id="sold" label="Sold Out" active={currentTab === 'sold'} count={soldItems.length} />
-                                    <TabTrigger id="reviews" label="Reviews" active={currentTab === 'reviews'} count={ratingData.count} />
-                                </div>
+                        {/* Tab Navigation */}
+                        <div className="flex border-b border-gray-200 mb-8 sticky top-0 bg-slate-50/50 backdrop-blur-md z-30 px-2 overflow-x-auto no-scrollbar">
+                            <TabTrigger id="active" label="Storefront" active={currentTab === 'active'} count={activeItems.length} />
+                            <TabTrigger id="sold" label="Sold Out" active={currentTab === 'sold'} count={soldItems.length} />
+                            <TabTrigger id="reviews" label="Reviews" active={currentTab === 'reviews'} count={ratingData.count} />
+                        </div>
 
-                                {/* Content Area */}
-                                <div className="space-y-8 min-h-[600px]">
-                                    {currentTab === 'active' && (
-                                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 pb-20">
-                                            {activeItems.length > 0 ? activeItems.map(item => (
-                                                <ItemCard key={item._id} item={item} />
-                                            )) : (
-                                                <EmptyState icon={<Package className="w-16 h-16" />} message="No active items available right now." />
-                                            )}
-                                        </div>
-                                    )}
-
-                                    {currentTab === 'sold' && (
-                                        <div className="space-y-4 pb-20">
-                                            {soldItems.length > 0 ? soldItems.map(item => (
-                                                <SoldItemCard key={item._id} item={item} disableModal={true} />
-                                            )) : (
-                                                <EmptyState icon={<TrendingUp className="w-16 h-16" />} message="No items sold yet." />
-                                            )}
-                                        </div>
-                                    )}
-
-                                    {currentTab === 'reviews' && (
-                                        <div className="bg-white rounded-[2rem] p-8 shadow-sm border border-white mb-20">
-                                            <ReviewSection
-                                                sellerId={id}
-                                                reviews={reviews}
-                                                currentUserId={session?.user?.id}
-                                            />
-                                        </div>
+                        {/* Content Area */}
+                        <div className="space-y-8 min-h-[600px]">
+                            {currentTab === 'active' && (
+                                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 pb-20">
+                                    {activeItems.length > 0 ? activeItems.map(item => (
+                                        <ItemCard key={item._id} item={item} />
+                                    )) : (
+                                        <EmptyState icon={<Package className="w-16 h-16" />} message="No active items available right now." />
                                     )}
                                 </div>
-                            </>
-                        )}
+                            )}
+
+                            {currentTab === 'sold' && (
+                                <div className="space-y-4 pb-20">
+                                    {soldItems.length > 0 ? soldItems.map(item => (
+                                        <SoldItemCard key={item._id} item={item} disableModal={true} />
+                                    )) : (
+                                        <EmptyState icon={<TrendingUp className="w-16 h-16" />} message="No items sold yet." />
+                                    )}
+                                </div>
+                            )}
+
+                            {currentTab === 'reviews' && (
+                                <div className="bg-white rounded-[2rem] p-8 shadow-sm border border-white mb-20">
+                                    <ReviewSection
+                                        sellerId={id}
+                                        reviews={reviews}
+                                        currentUserId={session?.user?.id}
+                                    />
+                                </div>
+                            )}
+                        </div>
                     </div>
 
                     {/* 4. RIGHT SIDEBAR: STATS & PROMO */}

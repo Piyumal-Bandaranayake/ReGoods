@@ -166,7 +166,7 @@ export default function Navbar() {
                         { name: 'Dashboard', path: '/account', icon: LayoutDashboard },
                         ...(session.user.role === 'admin' ? [{ name: 'Admin Panel', path: '/admin', icon: ShieldCheck }] : []),
                         { name: 'Inbox', path: '/inbox', icon: MessageCircle },
-                        { name: session.user.isVerified ? 'My public profile' : 'My profile', path: `/profile/${session.user.id}`, icon: User }
+                        ...(session.user.isVerified ? [{ name: 'My public profile', path: `/profile/${session.user.id}`, icon: User }] : [])
                       ].map((item) => (
                         <Link
                           key={item.path}

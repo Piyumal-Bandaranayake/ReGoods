@@ -27,11 +27,76 @@ export default function ProfileSettings({ user }) {
         }
     };
 
+    const [formValues, setFormValues] = useState({
+        name: user.name || "",
+        phone: user.phone || "",
+        nationality: user.nationality || "",
+        bio: user.bio || ""
+    });
+    const [formErrors, setFormErrors] = useState({});
+    const [touched, setTouched] = useState({});
+
+    const validateField = (name, value) => {
+        let error = "";
+        switch (name) {
+            case "name":
+                if (!value.trim()) error = "Name is required";
+                else if (value.trim().length < 3) error = "Name must be at least 3 characters";
+                else if (!/^[a-zA-Z\s]+$/.test(value)) error = "Name can only contain letters";
+                break;
+            case "phone":
+                if (value) {
+                    const phoneRegex = /^\+?[0-9\s-]{10,20}$/;
+                    if (!phoneRegex.test(value)) error = "Invalid format (min 10 digits)";
+                }
+                break;
+            case "nationality":
+                if (value && value.trim().length < 3) error = "Min 3 characters required";
+                break;
+            default:
+                break;
+        }
+        setFormErrors(prev => ({ ...prev, [name]: error }));
+        return error;
+    };
+
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setFormValues(prev => ({ ...prev, [name]: value }));
+        if (touched[name]) {
+            validateField(name, value);
+        }
+    };
+
+    const handleBlur = (e) => {
+        const { name, value } = e.target;
+        setTouched(prev => ({ ...prev, [name]: true }));
+        validateField(name, value);
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        const errors = {};
+        Object.keys(formValues).forEach(key => {
+            errors[key] = validateField(key, formValues[key]);
+        });
+        setTouched({ name: true, phone: true, nationality: true, bio: true });
+
+        if (Object.values(errors).some(err => err)) {
+            return;
+        }
+
         setLoading(true);
 
-        const formData = new FormData(e.currentTarget);
+        const formData = new FormData();
+        Object.entries(formValues).forEach(([key, value]) => formData.append(key, value));
+
+        // Handle image if selected
+        if (fileInputRef.current?.files?.[0]) {
+            formData.append("image", fileInputRef.current.files[0]);
+        }
+
         const result = await updateProfile(formData);
 
         if (result.success) {
@@ -189,11 +254,13 @@ export default function ProfileSettings({ user }) {
                             <input
                                 name="name"
                                 type="text"
-                                defaultValue={user.name}
-                                required
-                                className="block w-full rounded-2xl border border-sky-50 py-2.5 px-5 text-gray-900 placeholder:text-gray-300 focus:ring-4 focus:ring-sky-500/5 focus:border-sky-300 outline-none bg-sky-50/30 transition-all text-sm font-medium"
+                                value={formValues.name}
+                                onChange={handleInputChange}
+                                onBlur={handleBlur}
+                                className={`block w-full rounded-2xl border py-2.5 px-5 text-gray-900 placeholder:text-gray-300 focus:ring-4 focus:ring-sky-500/5 focus:border-sky-300 outline-none transition-all text-sm font-medium ${touched.name && formErrors.name ? 'border-red-400 bg-red-50/10' : 'border-sky-50 bg-sky-50/30'}`}
                                 placeholder="Full Name"
                             />
+                            {touched.name && formErrors.name && <p className="mt-1.5 text-[10px] text-red-500 font-bold uppercase px-1">{formErrors.name}</p>}
                         </div>
 
                         <div>
@@ -208,10 +275,13 @@ export default function ProfileSettings({ user }) {
                             <input
                                 name="phone"
                                 type="tel"
-                                defaultValue={user.phone}
-                                className="block w-full rounded-2xl border border-sky-50 py-2.5 px-5 text-gray-900 placeholder:text-gray-300 focus:ring-4 focus:ring-sky-500/5 focus:border-sky-300 outline-none bg-sky-50/30 transition-all text-sm font-medium"
+                                value={formValues.phone}
+                                onChange={handleInputChange}
+                                onBlur={handleBlur}
+                                className={`block w-full rounded-2xl border py-2.5 px-5 text-gray-900 placeholder:text-gray-300 focus:ring-4 focus:ring-sky-500/5 focus:border-sky-300 outline-none transition-all text-sm font-medium ${touched.phone && formErrors.phone ? 'border-red-400 bg-red-50/10' : 'border-sky-50 bg-sky-50/30'}`}
                                 placeholder="+1 234 567 890"
                             />
+                            {touched.phone && formErrors.phone && <p className="mt-1.5 text-[10px] text-red-500 font-bold uppercase px-1">{formErrors.phone}</p>}
                         </div>
 
                         <div className="md:col-span-2">
@@ -219,10 +289,13 @@ export default function ProfileSettings({ user }) {
                             <input
                                 name="nationality"
                                 type="text"
-                                defaultValue={user.nationality}
-                                className="block w-full rounded-2xl border border-sky-50 py-2.5 px-5 text-gray-900 placeholder:text-gray-300 focus:ring-4 focus:ring-sky-500/5 focus:border-sky-300 outline-none bg-sky-50/30 transition-all text-sm font-medium"
+                                value={formValues.nationality}
+                                onChange={handleInputChange}
+                                onBlur={handleBlur}
+                                className={`block w-full rounded-2xl border py-2.5 px-5 text-gray-900 placeholder:text-gray-300 focus:ring-4 focus:ring-sky-500/5 focus:border-sky-300 outline-none transition-all text-sm font-medium ${touched.nationality && formErrors.nationality ? 'border-red-400 bg-red-50/10' : 'border-sky-50 bg-sky-50/30'}`}
                                 placeholder="e.g. United Kingdom"
                             />
+                            {touched.nationality && formErrors.nationality && <p className="mt-1.5 text-[10px] text-red-500 font-bold uppercase px-1">{formErrors.nationality}</p>}
                         </div>
 
                         <div className="md:col-span-2">
@@ -230,7 +303,9 @@ export default function ProfileSettings({ user }) {
                             <textarea
                                 name="bio"
                                 rows={3}
-                                defaultValue={user.bio}
+                                value={formValues.bio}
+                                onChange={handleInputChange}
+                                onBlur={handleBlur}
                                 className="block w-full rounded-2xl border border-sky-50 py-3 px-5 text-gray-900 placeholder:text-gray-300 focus:ring-4 focus:ring-sky-500/5 focus:border-sky-300 outline-none bg-sky-50/30 transition-all resize-none text-sm font-medium leading-relaxed"
                                 placeholder="Tell us about yourself..."
                             />
@@ -256,18 +331,85 @@ export default function ProfileSettings({ user }) {
 function PasswordSection() {
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState({ type: "", text: "" });
+    const [formValues, setFormValues] = useState({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: ""
+    });
+    const [formErrors, setFormErrors] = useState({});
+    const [touched, setTouched] = useState({});
+
+    const validateField = (name, value) => {
+        let error = "";
+        switch (name) {
+            case "currentPassword":
+                if (!value) error = "Current password is required";
+                break;
+            case "newPassword":
+                if (!value) error = "New password is required";
+                else if (value.length < 8) error = "Must be at least 8 characters";
+                else if (!/[A-Z]/.test(value)) error = "Include an uppercase letter";
+                else if (!/[a-z]/.test(value)) error = "Include a lowercase letter";
+                else if (!/[0-9]/.test(value)) error = "Include a number";
+                else if (!/[!@#$%^&*(),.?":{}|<>]/.test(value)) error = "Include a special character";
+                break;
+            case "confirmPassword":
+                if (!value) error = "Confirmation is required";
+                else if (value !== formValues.newPassword) error = "Passwords do not match";
+                break;
+            default:
+                break;
+        }
+        setFormErrors(prev => ({ ...prev, [name]: error }));
+        return error;
+    };
+
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setFormValues(prev => {
+            const newValues = { ...prev, [name]: value };
+            if (name === "newPassword" && prev.confirmPassword) {
+                validateField("confirmPassword", prev.confirmPassword);
+            }
+            return newValues;
+        });
+        if (touched[name]) {
+            validateField(name, value);
+        }
+    };
+
+    const handleBlur = (e) => {
+        const { name, value } = e.target;
+        setTouched(prev => ({ ...prev, [name]: true }));
+        validateField(name, value);
+    };
 
     const handlePasswordSubmit = async (e) => {
         e.preventDefault();
+
+        // Full validation
+        const errors = {};
+        Object.keys(formValues).forEach(key => {
+            errors[key] = validateField(key, formValues[key]);
+        });
+        setTouched({ currentPassword: true, newPassword: true, confirmPassword: true });
+
+        if (Object.values(errors).some(err => err)) {
+            setMessage({ type: "error", text: "Please fix the validation errors before submitting." });
+            return;
+        }
+
         setLoading(true);
         setMessage({ type: "", text: "" });
 
-        const formData = new FormData(e.currentTarget);
+        const formData = new FormData();
+        Object.entries(formValues).forEach(([key, value]) => formData.append(key, value));
+
         const result = await updatePassword(formData);
 
         if (result.success) {
-            setMessage({ type: "success", text: result.message + " You will be signed out in a moment. Please log in with your new password." });
-            e.target.reset();
+            setMessage({ type: "success", text: result.message + " Signing out for security..." });
+            setFormValues({ currentPassword: "", newPassword: "", confirmPassword: "" });
             setTimeout(async () => {
                 await signOut({ redirect: false });
                 window.location.href = "/auth/login";
@@ -277,6 +419,19 @@ function PasswordSection() {
             setLoading(false);
         }
     };
+
+    const getStrength = () => {
+        const p = formValues.newPassword;
+        if (!p) return 0;
+        let s = 0;
+        if (p.length >= 8) s++;
+        if (/[A-Z]/.test(p) && /[a-z]/.test(p)) s++;
+        if (/[0-9]/.test(p)) s++;
+        if (/[!@#$%^&*(),.?":{}|<>]/.test(p)) s++;
+        return s;
+    };
+
+    const inputClasses = (name) => `block w-full rounded-2xl border py-2.5 px-5 text-gray-900 placeholder:text-gray-300 focus:ring-4 focus:ring-sky-500/5 focus:border-sky-300 outline-none transition-all text-sm font-medium ${touched[name] && formErrors[name] ? 'border-red-400 bg-red-50/10' : 'border-sky-50 bg-sky-50/30'}`;
 
     return (
         <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 pt-4">
@@ -292,21 +447,34 @@ function PasswordSection() {
                         <input
                             name="currentPassword"
                             type="password"
-                            required
-                            className="block w-full rounded-2xl border border-sky-50 py-2.5 px-5 text-gray-900 placeholder:text-gray-300 focus:ring-4 focus:ring-sky-500/5 focus:border-sky-300 outline-none bg-sky-50/30 transition-all text-sm font-medium"
+                            value={formValues.currentPassword}
+                            onChange={handleInputChange}
+                            onBlur={handleBlur}
+                            className={inputClasses("currentPassword")}
                             placeholder="••••••••"
                         />
+                        {touched.currentPassword && formErrors.currentPassword && <p className="mt-1.5 text-[10px] text-red-500 font-bold uppercase px-1">{formErrors.currentPassword}</p>}
                     </div>
 
                     <div>
-                        <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5 px-1">New Password</label>
+                        <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5 px-1 flex justify-between">
+                            New Password
+                            {formValues.newPassword && (
+                                <span className={`text-[8px] px-2 py-0.5 rounded-full border ${getStrength() <= 1 ? 'border-red-200 text-red-500' : getStrength() <= 3 ? 'border-amber-200 text-amber-500' : 'border-emerald-200 text-emerald-500'}`}>
+                                    {getStrength() <= 1 ? 'Weak' : getStrength() <= 3 ? 'Fair' : 'Strong'}
+                                </span>
+                            )}
+                        </label>
                         <input
                             name="newPassword"
                             type="password"
-                            required
-                            className="block w-full rounded-2xl border border-sky-50 py-2.5 px-5 text-gray-900 placeholder:text-gray-300 focus:ring-4 focus:ring-sky-500/5 focus:border-sky-300 outline-none bg-sky-50/30 transition-all text-sm font-medium"
-                            placeholder="Min. 6 characters"
+                            value={formValues.newPassword}
+                            onChange={handleInputChange}
+                            onBlur={handleBlur}
+                            className={inputClasses("newPassword")}
+                            placeholder="Min. 8 characters + mixed"
                         />
+                        {touched.newPassword && formErrors.newPassword && <p className="mt-1.5 text-[10px] text-red-500 font-bold uppercase px-1 leading-tight">{formErrors.newPassword}</p>}
                     </div>
 
                     <div>
@@ -314,15 +482,19 @@ function PasswordSection() {
                         <input
                             name="confirmPassword"
                             type="password"
-                            required
-                            className="block w-full rounded-2xl border border-sky-50 py-2.5 px-5 text-gray-900 placeholder:text-gray-300 focus:ring-4 focus:ring-sky-500/5 focus:border-sky-300 outline-none bg-sky-50/30 transition-all text-sm font-medium"
+                            value={formValues.confirmPassword}
+                            onChange={handleInputChange}
+                            onBlur={handleBlur}
+                            className={inputClasses("confirmPassword")}
                             placeholder="Repeat new password"
                         />
+                        {touched.confirmPassword && formErrors.confirmPassword && <p className="mt-1.5 text-[10px] text-red-500 font-bold uppercase px-1">{formErrors.confirmPassword}</p>}
                     </div>
                 </div>
 
                 {message.text && (
-                    <div className={`p-4 rounded-2xl text-[11px] font-bold uppercase tracking-tight ${message.type === 'success' ? 'bg-green-50 text-green-600 border border-green-100' : 'bg-rose-50 text-rose-600 border border-rose-100'}`}>
+                    <div className={`p-4 rounded-2xl text-[11px] font-bold uppercase tracking-tight flex items-center gap-3 ${message.type === 'success' ? 'bg-green-50 text-green-600 border border-green-100' : 'bg-rose-50 text-rose-600 border border-rose-100'}`}>
+                        {message.type === 'error' && <AlertCircle className="w-4 h-4" />}
                         {message.text}
                     </div>
                 )}
@@ -331,9 +503,10 @@ function PasswordSection() {
                     <button
                         type="submit"
                         disabled={loading}
-                        className="flex items-center justify-center gap-3 px-10 py-4 bg-zinc-900 text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl hover:bg-sky-500 transition-all disabled:opacity-70 shadow-xl shadow-zinc-900/10 active:scale-95"
+                        className="flex items-center justify-center gap-3 px-10 py-4 bg-zinc-900 text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl hover:bg-sky-500 transition-all disabled:opacity-70 shadow-xl shadow-zinc-900/10 active:scale-95 group"
                     >
-                        {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Update Password"}
+                        {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Verify & Update Password"}
+                        {!loading && <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />}
                     </button>
                 </div>
             </form>
