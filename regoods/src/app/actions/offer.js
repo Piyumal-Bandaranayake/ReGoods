@@ -30,15 +30,14 @@ export async function createOffer(itemId, offerAmount) {
       return { error: "This item is not open for negotiation." };
     }
 
-    // Check if there's already a pending offer from this buyer for this item
+    // Check if there's already an offer from this buyer for this item
     const existingOffer = await Offer.findOne({
       itemId,
       buyerId: session.user.id,
-      status: "Pending",
     });
 
     if (existingOffer) {
-      return { error: "You already have a pending offer for this item." };
+      return { error: "You have already made an offer for this item." };
     }
 
     const newOffer = await Offer.create({
