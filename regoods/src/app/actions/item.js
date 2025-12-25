@@ -3,6 +3,7 @@
 import dbConnect from "@/lib/db";
 import Item from "@/lib/models/Item";
 import User from "@/lib/models/User";
+import Offer from "@/lib/models/Offer";
 import { uploadToCloudinary } from "@/lib/cloudinary";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
@@ -28,7 +29,8 @@ export async function createItem(formData) {
     const condition = formData.get("condition");
     const location = formData.get("location");
     const delivery = formData.get("delivery");
-    const negotiable = formData.get("negotiable") === "on";
+    const negotiableValue = formData.get("negotiable");
+    const negotiable = negotiableValue === "on" || negotiableValue === "true";
     const returnPolicy = formData.get("returnPolicy");
 
     // Handle Images
@@ -126,7 +128,8 @@ export async function updateItem(itemId, formData) {
     const condition = formData.get("condition");
     const location = formData.get("location");
     const delivery = formData.get("delivery");
-    const negotiable = formData.get("negotiable") === "on";
+    const negotiableValue = formData.get("negotiable");
+    const negotiable = negotiableValue === "on" || negotiableValue === "true";
     const returnPolicy = formData.get("returnPolicy");
 
     // Handle Images
@@ -221,6 +224,17 @@ export async function purchaseItem({ itemId, paymentMethod, deliveryDetails }) {
 
     // Allow buying own item for testing purposes (User Request to fix "unavailable" issue which often triggers this)
     // if (item.sellerId.toString() === session.user.id) return { error: "Cannot buy your own item" };
+
+    // ⚡ Check for accepted offer to record the correct final price
+    const acceptedOffer = await Offer.findOne({
+        itemId: item._id,
+        buyerId: session.user.id,
+        status: "Accepted"
+    });
+
+    if (acceptedOffer) {
+        item.price = acceptedOffer.offerAmount;
+    }
 
     item.status = "Sold";
     item.buyerId = session.user.id;

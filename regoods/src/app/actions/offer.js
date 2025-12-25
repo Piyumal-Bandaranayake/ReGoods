@@ -131,13 +131,9 @@ export async function acceptOffer(offerId) {
     offer.status = "Accepted";
     await offer.save();
 
-    // Update Item Price and Mark as Negotiated (Optional: you might want to mark it as sold or just update price)
-    // The requirement says: "once seller accept the price want to update item price automaticaly"
-    const item = await Item.findById(offer.itemId._id);
-    if (item) {
-      item.price = offer.offerAmount;
-      await item.save();
-    }
+    // Note: We no longer update the global item.price here.
+    // Instead, we will check for Accepted offers on the item page and checkout page
+    // to show the discounted price only to the buyer.
 
     // Reject all other pending offers for this item
     await Offer.updateMany(
