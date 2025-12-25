@@ -12,38 +12,121 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [isTermsOpen, setIsTermsOpen] = useState(false);
 
-  // Password State
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [passwordsMatch, setPasswordsMatch] = useState(null);
+  // Form State
+  const [formValues, setFormValues] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    nationality: "",
+    password: "",
+    confirmPassword: "",
+    terms: false
+  });
 
-  useEffect(() => {
-    if (confirmPassword.length > 0) {
-      setPasswordsMatch(password === confirmPassword);
-    } else {
-      setPasswordsMatch(null);
+  const [formErrors, setFormErrors] = useState({});
+  const [touched, setTouched] = useState({});
+  const [showPassword, setShowPassword] = useState(false);
+
+  const validateField = (name, value) => {
+    let error = "";
+    switch (name) {
+      case "name":
+        if (!value.trim()) error = "Legal name is required";
+        else if (value.trim().length < 3) error = "Name must be at least 3 characters";
+        else if (!/^[a-zA-Z\s]+$/.test(value)) error = "Name can only contain letters";
+        break;
+      case "email":
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!value.trim()) error = "Email is required";
+        else if (!emailRegex.test(value)) error = "Invalid email format";
+        break;
+      case "phone":
+        const phoneRegex = /^\+?[0-9\s-]{10,20}$/;
+        if (!value.trim()) error = "Phone number is required";
+        else if (!phoneRegex.test(value)) error = "Invalid format (min 10 digits)";
+        break;
+      case "nationality":
+        if (!value.trim()) error = "Jurisdiction is required";
+        else if (value.trim().length < 3) error = "Include full region (min 3 chars)";
+        break;
+      case "password":
+        if (!value) error = "Password is required";
+        else if (value.length < 8) error = "Must be at least 8 characters";
+        else if (!/[A-Z]/.test(value)) error = "Include at least one uppercase letter";
+        else if (!/[a-z]/.test(value)) error = "Include at least one lowercase letter";
+        else if (!/[0-9]/.test(value)) error = "Include at least one number";
+        else if (!/[!@#$%^&*(),.?":{}|<>]/.test(value)) error = "Include at least one special character";
+        break;
+      case "confirmPassword":
+        if (!value) error = "Confirmation is required";
+        else if (value !== formValues.password) error = "Passwords do not match";
+        break;
+      case "terms":
+        if (!value) error = "Acceptance required";
+        break;
+      default:
+        break;
     }
-  }, [password, confirmPassword]);
+    setFormErrors(prev => ({ ...prev, [name]: error }));
+    return error;
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    const val = type === "checkbox" ? checked : value;
+    setFormValues(prev => {
+      const newValues = { ...prev, [name]: val };
+      // If password is changed, re-validate confirmPassword
+      if (name === "password" && prev.confirmPassword) {
+        validateField("confirmPassword", prev.confirmPassword);
+      }
+      return newValues;
+    });
+    if (touched[name]) {
+      validateField(name, val);
+    }
+  };
+
+  const handleBlur = (e) => {
+    const { name, value, type, checked } = e.target;
+    const val = type === "checkbox" ? checked : value;
+    setTouched(prev => ({ ...prev, [name]: true }));
+    validateField(name, val);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
-    if (password !== confirmPassword) {
-      setError("Credentials mismatch: Passwords do not align.");
-      return;
-    }
+    // Validate all fields
+    const errors = {};
+    Object.keys(formValues).forEach(key => {
+      errors[key] = validateField(key, formValues[key]);
+    });
 
-    const termsChecked = e.currentTarget.terms.checked;
-    if (!termsChecked) {
-      setError("Please accept the Terms and Conditions to proceed.");
+    setTouched({
+      name: true,
+      email: true,
+      phone: true,
+      nationality: true,
+      password: true,
+      confirmPassword: true,
+      terms: true
+    });
+
+    const hasErrors = Object.values(errors).some(err => err);
+    if (hasErrors) {
+      setError("Compliance failure: Please resolve all validation errors.");
       return;
     }
 
     setLoading(true);
 
-    const formData = new FormData(e.currentTarget);
+    const formData = new FormData();
+    Object.entries(formValues).forEach(([key, value]) => {
+      formData.append(key, value);
+    });
+
     const result = await registerUser(formData);
 
     if (result.error) {
@@ -54,12 +137,26 @@ export default function RegisterPage() {
     }
   };
 
+  const inputClasses = (name) => `w-full pl-10 pr-4 py-3 bg-white/5 border rounded-xl text-xs font-bold text-white focus:outline-none focus:bg-white/10 transition-all placeholder:text-white/5 ${touched[name] && formErrors[name] ? 'border-rose-500/50 ring-1 ring-rose-500/20' : 'border-white/5 focus:border-sky-400/20'}`;
+
+  // Helper for password strength indicators
+  const getPasswordStrength = () => {
+    const p = formValues.password;
+    if (!p) return 0;
+    let strength = 0;
+    if (p.length >= 8) strength++;
+    if (/[A-Z]/.test(p) && /[a-z]/.test(p)) strength++;
+    if (/[0-9]/.test(p)) strength++;
+    if (/[!@#$%^&*(),.?":{}|<>]/.test(p)) strength++;
+    return strength;
+  };
+
   return (
     <div className="min-h-screen bg-[#F8FAFF] flex items-center justify-center p-4 pt-20">
       <div className="w-full max-w-5xl bg-white rounded-[2rem] shadow-[0_40px_80px_-20px_rgba(0,102,255,0.12)] overflow-hidden flex flex-col lg:flex-row relative border border-white">
 
         {/* LEFT SIDE: BRANDING & BENEFITS (WHITE) */}
-        <div className="w-full lg:w-[40%] p-8 flex flex-col justify-between relative bg-white z-10 overflow-hidden">
+        <div className="w-full lg:w-[40%] p-8 flex flex-col justify-between relative bg-white z-10 overflow-hidden text-sky-900">
           <div className="relative z-20">
             <div className="flex items-center gap-3 mb-6 group">
               <div className="w-8 h-8 bg-sky-500 rounded-lg flex items-center justify-center text-white font-black text-lg shadow-lg shadow-sky-500/20 group-hover:scale-110 transition-transform">R</div>
@@ -133,8 +230,17 @@ export default function RegisterPage() {
                   <label className="text-[8px] font-black text-sky-200/30 uppercase tracking-[0.2em] px-1">Legal Full Name</label>
                   <div className="relative group">
                     <User className="absolute left-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-sky-200/20 group-focus-within:text-sky-400 transition-colors" />
-                    <input name="name" type="text" required className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/5 rounded-xl text-xs font-bold text-white focus:outline-none focus:bg-white/10 focus:border-sky-400/20 transition-all placeholder:text-white/5" placeholder="John Doe" />
+                    <input
+                      name="name"
+                      type="text"
+                      value={formValues.name}
+                      onChange={handleInputChange}
+                      onBlur={handleBlur}
+                      className={inputClasses("name")}
+                      placeholder="John Doe"
+                    />
                   </div>
+                  {touched.name && formErrors.name && <p className="text-[8px] text-rose-400 font-bold uppercase tracking-widest px-1">{formErrors.name}</p>}
                 </div>
 
                 {/* Email */}
@@ -142,8 +248,17 @@ export default function RegisterPage() {
                   <label className="text-[8px] font-black text-sky-200/30 uppercase tracking-[0.2em] px-1">Business Contact</label>
                   <div className="relative group">
                     <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-sky-200/20 group-focus-within:text-sky-400 transition-colors" />
-                    <input name="email" type="email" required className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/5 rounded-xl text-xs font-bold text-white focus:outline-none focus:bg-white/10 focus:border-sky-400/20 transition-all placeholder:text-white/5" placeholder="name@company.com" />
+                    <input
+                      name="email"
+                      type="email"
+                      value={formValues.email}
+                      onChange={handleInputChange}
+                      onBlur={handleBlur}
+                      className={inputClasses("email")}
+                      placeholder="name@company.com"
+                    />
                   </div>
+                  {touched.email && formErrors.email && <p className="text-[8px] text-rose-400 font-bold uppercase tracking-widest px-1">{formErrors.email}</p>}
                 </div>
 
                 {/* Phone */}
@@ -151,8 +266,17 @@ export default function RegisterPage() {
                   <label className="text-[8px] font-black text-sky-200/30 uppercase tracking-[0.2em] px-1">Identity Token (Phone)</label>
                   <div className="relative group">
                     <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-sky-200/20 group-focus-within:text-sky-400 transition-colors" />
-                    <input name="phone" type="tel" required className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/5 rounded-xl text-xs font-bold text-white focus:outline-none focus:bg-white/10 focus:border-sky-400/20 transition-all placeholder:text-white/5" placeholder="+1 (234) 567 890" />
+                    <input
+                      name="phone"
+                      type="tel"
+                      value={formValues.phone}
+                      onChange={handleInputChange}
+                      onBlur={handleBlur}
+                      className={inputClasses("phone")}
+                      placeholder="+1 (234) 567 890"
+                    />
                   </div>
+                  {touched.phone && formErrors.phone && <p className="text-[8px] text-rose-400 font-bold uppercase tracking-widest px-1">{formErrors.phone}</p>}
                 </div>
 
                 {/* Nationality */}
@@ -160,54 +284,84 @@ export default function RegisterPage() {
                   <label className="text-[8px] font-black text-sky-200/30 uppercase tracking-[0.2em] px-1">Jurisdiction</label>
                   <div className="relative group">
                     <Globe className="absolute left-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-sky-200/20 group-focus-within:text-sky-400 transition-colors" />
-                    <input name="nationality" type="text" required className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/5 rounded-xl text-xs font-bold text-white focus:outline-none focus:bg-white/10 focus:border-sky-400/20 transition-all placeholder:text-white/5" placeholder="United States" />
+                    <input
+                      name="nationality"
+                      type="text"
+                      value={formValues.nationality}
+                      onChange={handleInputChange}
+                      onBlur={handleBlur}
+                      className={inputClasses("nationality")}
+                      placeholder="United States"
+                    />
                   </div>
+                  {touched.nationality && formErrors.nationality && <p className="text-[8px] text-rose-400 font-bold uppercase tracking-widest px-1">{formErrors.nationality}</p>}
                 </div>
 
                 {/* Password */}
                 <div className="space-y-1.5">
-                  <label className="text-[8px] font-black text-sky-200/30 uppercase tracking-[0.2em] px-1">Access Key</label>
+                  <label className="text-[8px] font-black text-sky-200/30 uppercase tracking-[0.2em] px-1 flex justify-between items-center">
+                    Access Key
+                    {formValues.password && (
+                      <span className={`text-[7px] px-1.5 py-0.5 rounded-full border ${getPasswordStrength() <= 1 ? 'border-rose-500/30 text-rose-400' :
+                        getPasswordStrength() <= 3 ? 'border-amber-500/30 text-amber-400' :
+                          'border-emerald-500/30 text-emerald-400'
+                        }`}>
+                        Strength: {getPasswordStrength() <= 1 ? 'Weak' : getPasswordStrength() <= 3 ? 'Medium' : 'Strong'}
+                      </span>
+                    )}
+                  </label>
                   <div className="relative group">
                     <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-sky-200/20 group-focus-within:text-sky-400 transition-colors" />
                     <input
                       name="password"
                       type={showPassword ? "text" : "password"}
-                      required
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="w-full pl-10 pr-10 py-3 bg-white/5 border border-white/5 rounded-xl text-xs font-bold text-white focus:outline-none focus:bg-white/10 focus:border-sky-400/20 transition-all placeholder:text-white/5"
+                      value={formValues.password}
+                      onChange={handleInputChange}
+                      onBlur={handleBlur}
+                      className={inputClasses("password")}
                       placeholder="••••••••"
                     />
                     <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-sky-200/20 hover:text-sky-400 transition-colors">
                       {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                     </button>
                   </div>
+                  {touched.password && formErrors.password && <p className="text-[8px] text-rose-400 font-bold uppercase tracking-widest px-1 leading-tight">{formErrors.password}</p>}
                 </div>
 
                 {/* Confirm Password */}
                 <div className="space-y-1.5">
                   <label className="text-[8px] font-black text-sky-200/30 uppercase tracking-[0.2em] px-1">Verify Key</label>
                   <div className="relative group">
-                    <Check className={`absolute left-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 transition-colors ${passwordsMatch === true ? 'text-emerald-400' : 'text-sky-200/20'}`} />
+                    <Check className={`absolute left-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 transition-colors ${formValues.confirmPassword && formValues.password === formValues.confirmPassword ? 'text-emerald-400' : 'text-sky-200/20'}`} />
                     <input
                       name="confirmPassword"
                       type={showPassword ? "text" : "password"}
-                      required
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      className={`w-full pl-10 pr-4 py-3 bg-white/5 border rounded-xl text-xs font-bold text-white focus:outline-none focus:bg-white/10 transition-all placeholder:text-white/5 ${passwordsMatch === true ? 'border-emerald-500/30' : passwordsMatch === false ? 'border-rose-500/30' : 'border-white/5 focus:border-sky-400/20'}`}
+                      value={formValues.confirmPassword}
+                      onChange={handleInputChange}
+                      onBlur={handleBlur}
+                      className={inputClasses("confirmPassword")}
                       placeholder="••••••••"
                     />
                   </div>
+                  {touched.confirmPassword && formErrors.confirmPassword && <p className="text-[8px] text-rose-400 font-bold uppercase tracking-widest px-1">{formErrors.confirmPassword}</p>}
                 </div>
               </div>
 
-              <div className="flex items-start gap-3 p-4 bg-white/5 border border-white/5 rounded-2xl mt-4 group hover:border-sky-400/20 transition-all">
-                <input id="terms" name="terms" type="checkbox" className="h-4 w-4 rounded border-white/10 bg-white/5 text-sky-500 focus:ring-sky-500/20 transition-all cursor-pointer mt-0.5" />
+              <div className={`flex items-start gap-3 p-4 bg-white/5 border rounded-2xl mt-4 group transition-all ${touched.terms && formErrors.terms ? 'border-rose-500/30 ring-1 ring-rose-500/20' : 'border-white/5 hover:border-sky-400/20'}`}>
+                <input
+                  id="terms"
+                  name="terms"
+                  type="checkbox"
+                  checked={formValues.terms}
+                  onChange={handleInputChange}
+                  onBlur={handleBlur}
+                  className="h-4 w-4 rounded border-white/10 bg-white/5 text-sky-500 focus:ring-sky-500/20 transition-all cursor-pointer mt-0.5"
+                />
                 <label htmlFor="terms" className="text-[9px] font-bold text-sky-200/50 leading-relaxed cursor-pointer group-hover:text-sky-200/70 transition-colors">
                   Authorized Agreement to the <button type="button" onClick={() => setIsTermsOpen(true)} className="text-sky-400 hover:underline underline-offset-4 decoration-2">Verified Merchant Protocols</button> and our encrypted data standards.
                 </label>
               </div>
+              {touched.terms && formErrors.terms && <p className="text-[8px] text-rose-400 font-bold uppercase tracking-widest px-4">{formErrors.terms}</p>}
 
               {error && (
                 <div className="bg-rose-500/10 border border-rose-500/20 p-2 rounded-xl text-rose-400 text-[8px] font-black uppercase tracking-widest text-center">

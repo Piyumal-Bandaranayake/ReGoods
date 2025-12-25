@@ -13,8 +13,35 @@ export async function registerUser(formData) {
     const password = formData.get("password");
     const confirmPassword = formData.get("confirmPassword");
 
-    if (!name || !email || !password || !confirmPassword) {
+    if (!name || !email || !password || !confirmPassword || !nationality || !phone) {
       return { error: "Please fill in all required fields." };
+    }
+
+    // Name Validation
+    if (name.trim().length < 3 || !/^[a-zA-Z\s]+$/.test(name)) {
+        return { error: "Legal name must be letters only and min 3 characters." };
+    }
+
+    // Nationality Validation
+    if (nationality.trim().length < 3) {
+        return { error: "Jurisdiction must be at least 3 characters." };
+    }
+
+    // Phone Validation
+    if (!/^\+?[0-9\s-]{10,20}$/.test(phone)) {
+        return { error: "Invalid phone number format (min 10 digits)." };
+    }
+
+    // Password Complexity
+    if (password.length < 8) {
+        return { error: "Password must be at least 8 characters." };
+    }
+    const hasUpper = /[A-Z]/.test(password);
+    const hasLower = /[a-z]/.test(password);
+    const hasNumber = /[0-9]/.test(password);
+    const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+    if (!hasUpper || !hasLower || !hasNumber || !hasSpecial) {
+        return { error: "Password does not meet complexity requirements." };
     }
 
     if (password !== confirmPassword) {
