@@ -21,31 +21,75 @@ export default function ExportReportButton() {
 
             const doc = new jsPDF();
             
-            // PDF Header
-            doc.setFontSize(22);
-            doc.setTextColor(59, 130, 246); // Blue-500
-            doc.text("ReGoods Business Analytics Report", 20, 20);
-            
-            doc.setFontSize(12);
-            doc.setTextColor(107, 114, 128);
-            doc.text(`Frequency: ${period.charAt(0).toUpperCase() + period.slice(1)}`, 20, 30);
-            doc.text(`Generated on: ${new Date().toLocaleString()}`, 20, 37);
+            // --- Header & Branding ---
+            // Top Accent Bar
+            doc.setFillColor(33, 150, 243); // #2196F3
+            doc.rect(0, 0, 210, 5, "F");
 
-            // Summary Info
+            // Brand Logo
+            doc.setTextColor(33, 150, 243);
+            doc.setFontSize(24);
+            doc.setFont("helvetica", "bold");
+            doc.text("ReGoods", 20, 25);
+            doc.setFillColor(33, 150, 243);
+            doc.circle(58, 22, 1, "F"); // Dot in logo
+            
+            // Report Info (Right Align)
+            doc.setFontSize(14);
+            doc.setTextColor(60, 60, 60);
+            doc.text("BUSINESS ANALYTICS", 190, 25, { align: 'right' });
+            
+            doc.setFontSize(9);
+            doc.setFont("helvetica", "normal");
+            doc.setTextColor(120, 120, 120);
+            doc.text(`Frequency: ${period.toUpperCase()}`, 190, 32, { align: 'right' });
+            doc.text(`Generated: ${new Date().toLocaleString()}`, 190, 37, { align: 'right' });
+
+            // Divider
+            doc.setDrawColor(240, 240, 240);
+            doc.line(20, 45, 190, 45);
+
+            // --- Stats Summary (Metric Cards) ---
             const totalSales = data.reduce((sum, item) => sum + (item.sales || 0), 0);
             const totalEngage = data.reduce((sum, item) => sum + (item.engagement || 0), 0);
             const totalVerify = data.reduce((sum, item) => sum + (item.verifications || 0), 0);
 
-            doc.setFillColor(249, 250, 251);
-            doc.rect(20, 45, 170, 30, 'F');
-            doc.setFontSize(10);
-            doc.setTextColor(0, 0, 0);
-            const summaryY = 62;
-            doc.text(`Total Sales: ${totalSales}`, 30, summaryY);
-            doc.text(`Total New Users: ${totalEngage}`, 85, summaryY);
-            doc.text(`Verified Users: ${totalVerify}`, 145, summaryY);
+            // Sales Metric
+            doc.setFillColor(248, 250, 252);
+            doc.roundedRect(20, 55, 50, 25, 3, 3, 'F');
+            doc.setFontSize(8);
+            doc.setTextColor(100, 100, 100);
+            doc.text("TOTAL SALES", 25, 62);
+            doc.setFontSize(14);
+            doc.setFont("helvetica", "bold");
+            doc.setTextColor(33, 150, 243);
+            doc.text(totalSales.toLocaleString(), 25, 74);
 
-            // Table Data
+            // Users Metric
+            doc.setFillColor(248, 250, 252);
+            doc.roundedRect(80, 55, 50, 25, 3, 3, 'F');
+            doc.setFontSize(8);
+            doc.setFont("helvetica", "normal");
+            doc.setTextColor(100, 100, 100);
+            doc.text("NEW USERS", 85, 62);
+            doc.setFontSize(14);
+            doc.setFont("helvetica", "bold");
+            doc.setTextColor(59, 130, 246);
+            doc.text(totalEngage.toLocaleString(), 85, 74);
+
+            // Verification Metric
+            doc.setFillColor(248, 250, 252);
+            doc.roundedRect(140, 55, 50, 25, 3, 3, 'F');
+            doc.setFontSize(8);
+            doc.setFont("helvetica", "normal");
+            doc.setTextColor(100, 100, 100);
+            doc.text("VERIFICATIONS", 145, 62);
+            doc.setFontSize(14);
+            doc.setFont("helvetica", "bold");
+            doc.setTextColor(34, 197, 94);
+            doc.text(totalVerify.toLocaleString(), 145, 74);
+
+            // --- Detailed Data Table ---
             const tableColumn = ["Date", "Sales Count", "User Engagement", "Verified Users"];
             const tableRows = data.map(item => [
                 item.date,
@@ -55,14 +99,42 @@ export default function ExportReportButton() {
             ]);
 
             autoTable(doc, {
-                startY: 85,
+                startY: 95,
                 head: [tableColumn],
                 body: tableRows,
-                theme: 'grid',
-                headStyles: { fillColor: [59, 130, 246], fontStyle: 'bold' },
-                alternateRowStyles: { fillColor: [245, 247, 250] },
-                margin: { top: 10 }
+                headStyles: { 
+                    fillColor: [33, 150, 243],
+                    textColor: [255, 255, 255],
+                    fontSize: 9, 
+                    fontStyle: 'bold',
+                    halign: 'center',
+                    cellPadding: 4
+                },
+                columnStyles: {
+                    0: { halign: 'left' },
+                    1: { halign: 'center' },
+                    2: { halign: 'center' },
+                    3: { halign: 'center' }
+                },
+                styles: { 
+                    fontSize: 8,
+                    cellPadding: 4,
+                    lineColor: [245, 245, 245],
+                    lineWidth: 0.1
+                },
+                alternateRowStyles: {
+                    fillColor: [252, 252, 252]
+                },
+                margin: { left: 20, right: 20 }
             });
+
+            // --- Footer ---
+            const pageHeight = doc.internal.pageSize.height;
+            doc.setFontSize(8);
+            doc.setFont("helvetica", "normal");
+            doc.setTextColor(180, 180, 180);
+            doc.text("Confidential - ReGoods Internal Use Only", 105, pageHeight - 15, { align: "center" });
+            doc.text(`Page 1 of 1`, 190, pageHeight - 15, { align: 'right' });
 
             doc.save(`ReGoods_Report_${period}_${new Date().toISOString().split('T')[0]}.pdf`);
         } catch (error) {
