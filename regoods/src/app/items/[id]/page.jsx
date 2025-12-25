@@ -46,14 +46,21 @@ export default async function ItemPage({ params }) {
     const isOwner = session?.user?.id === seller?._id?.toString();
     const isSold = item.status === "Sold";
 
-    // ⚡ Check if the current user has an ACCEPTED offer for this item
+    // ⚡ Check if the current user has an offer for this item
     let acceptedOffer = null;
+    let hasOffer = false;
     if (session && !isOwner) {
-        acceptedOffer = await Offer.findOne({
+        const userOffer = await Offer.findOne({
             itemId: item._id,
-            buyerId: session.user.id,
-            status: "Accepted"
+            buyerId: session.user.id
         });
+        
+        if (userOffer) {
+            hasOffer = true;
+            if (userOffer.status === "Accepted") {
+                acceptedOffer = userOffer;
+            }
+        }
     }
 
     const displayPrice = acceptedOffer ? acceptedOffer.offerAmount : item.price;
@@ -194,7 +201,13 @@ export default async function ItemPage({ params }) {
 
                                 <div className="flex-1">
                                     {item.negotiable ? (
-                                        <NegotiateButton itemId={item._id} currentPrice={item.price} />
+                                        hasOffer ? (
+                                            <div className="w-full py-4 flex items-center justify-center rounded-full bg-gray-50 text-gray-500 font-bold text-xs uppercase tracking-widest border border-gray-100 italic">
+                                                Offer already made
+                                            </div>
+                                        ) : (
+                                            <NegotiateButton itemId={item._id} currentPrice={item.price} />
+                                        )
                                     ) : (
                                         <Link
                                             href={`/inbox/${seller._id}?itemId=${item._id}`}
