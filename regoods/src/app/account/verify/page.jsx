@@ -13,6 +13,14 @@ export default function VerificationPage() {
     const [userStatus, setUserStatus] = useState(null);
     const [previews, setPreviews] = useState({ front: null, back: null });
 
+    // Form State
+    const [formValues, setFormValues] = useState({
+        fullName: "",
+        nicNumber: ""
+    });
+    const [formErrors, setFormErrors] = useState({});
+    const [touched, setTouched] = useState({});
+
     useEffect(() => {
         const fetchStatus = async () => {
             const status = await getCurrentUserStatus();
@@ -25,6 +33,43 @@ export default function VerificationPage() {
         fetchStatus();
     }, [router]);
 
+    const validateField = (name, value) => {
+        let error = "";
+        switch (name) {
+            case "fullName":
+                if (!value.trim()) error = "Legal name is required";
+                else if (value.trim().length < 3) error = "Name must be at least 3 characters";
+                else if (!/^[a-zA-Z\s]+$/.test(value)) error = "Name can only contain letters";
+                break;
+            case "nicNumber":
+                const oldNICRegex = /^[0-9]{9}[vVxX]$/;
+                const newNICRegex = /^[0-9]{12}$/;
+                if (!value.trim()) error = "NIC number is required";
+                else if (!oldNICRegex.test(value) && !newNICRegex.test(value)) {
+                    error = "Invalid NIC format (e.g., 123456789V or 12-digits)";
+                }
+                break;
+            default:
+                break;
+        }
+        setFormErrors(prev => ({ ...prev, [name]: error }));
+        return error;
+    };
+
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setFormValues(prev => ({ ...prev, [name]: value }));
+        if (touched[name]) {
+            validateField(name, value);
+        }
+    };
+
+    const handleBlur = (e) => {
+        const { name, value } = e.target;
+        setTouched(prev => ({ ...prev, [name]: true }));
+        validateField(name, value);
+    };
+
     const handleFileChange = (e, side) => {
         const file = e.target.files[0];
         if (file) {
@@ -32,25 +77,32 @@ export default function VerificationPage() {
                 ...prev,
                 [side]: URL.createObjectURL(file)
             }));
+            // Clear error for images if any (images don't have explicit formErrors yet but could)
         }
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        // Full validation
+        const errors = {};
+        Object.keys(formValues).forEach(key => {
+            errors[key] = validateField(key, formValues[key]);
+        });
+        setTouched({ fullName: true, nicNumber: true });
+
+        if (Object.values(errors).some(err => err)) {
+            return;
+        }
+
+        if (!previews.front || !previews.back) {
+            alert("Please upload both sides of your NIC.");
+            return;
+        }
+
         setLoading(true);
 
         const formData = new FormData(e.currentTarget);
-        const nicNumber = formData.get("nicNumber");
-
-        // Client-side validation (matching modal logic)
-        const oldNICRegex = /^[0-9]{9}[vVxX]$/;
-        const newNICRegex = /^[0-9]{12}$/;
-
-        if (!oldNICRegex.test(nicNumber) && !newNICRegex.test(nicNumber)) {
-            alert("Invalid NIC number format. Use 123456789V or 200012345678 format.");
-            setLoading(false);
-            return;
-        }
 
         try {
             const result = await submitVerification(formData);
@@ -94,6 +146,8 @@ export default function VerificationPage() {
         );
     }
 
+    const inputClasses = (name) => `w-full px-5 py-4 bg-white border rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-blue-500/5 transition-all font-bold ${touched[name] && formErrors[name] ? 'border-red-400 focus:border-red-400' : 'border-gray-100 focus:border-blue-200'}`;
+
     return (
         <div className="h-screen bg-white overflow-hidden flex items-center justify-center">
             <main className="max-w-6xl w-full mx-auto px-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -132,10 +186,13 @@ export default function VerificationPage() {
                                         <input
                                             name="fullName"
                                             type="text"
-                                            required
+                                            value={formValues.fullName}
+                                            onChange={handleInputChange}
+                                            onBlur={handleBlur}
+                                            className={inputClasses("fullName")}
                                             placeholder="Full Name"
-                                            className="w-full px-5 py-4 bg-white border border-gray-100 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-200 transition-all font-bold"
                                         />
+                                        {touched.fullName && formErrors.fullName && <p className="mt-1 text-[10px] text-red-500 font-bold uppercase px-1">{formErrors.fullName}</p>}
                                     </div>
 
                                     <div className="space-y-2">
@@ -143,10 +200,13 @@ export default function VerificationPage() {
                                         <input
                                             name="nicNumber"
                                             type="text"
-                                            required
+                                            value={formValues.nicNumber}
+                                            onChange={handleInputChange}
+                                            onBlur={handleBlur}
+                                            className={inputClasses("nicNumber")}
                                             placeholder="Ex: 123456789V"
-                                            className="w-full px-5 py-4 bg-white border border-gray-100 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-200 transition-all font-bold"
                                         />
+                                        {touched.nicNumber && formErrors.nicNumber && <p className="mt-1 text-[10px] text-red-500 font-bold uppercase px-1">{formErrors.nicNumber}</p>}
                                     </div>
                                 </div>
 
