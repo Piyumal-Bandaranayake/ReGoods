@@ -15,6 +15,7 @@ import ProfileSettings from "@/components/account/ProfileSettings";
 import ItemActions from "@/components/account/ItemActions";
 import OfferList from "@/components/account/OfferList";
 import SoldItemCard from "@/components/profile/SoldItemCard";
+import PurchaseItemCard from "@/components/account/PurchaseItemCard";
 import { getConversations } from "@/app/actions/message";
 import { optimizeCloudinaryUrl } from "@/lib/imageOptimization";
 import React from "react";
@@ -41,12 +42,19 @@ async function getAccountData(userId) {
         .populate("sellerId", "name email image")
         .sort({ updatedAt: -1 });
 
+    // Combine for Contributions History
+    const contributions = [
+        ...mySales.map(item => ({ ...item.toObject(), type: 'sale' })),
+        ...myPurchases.map(item => ({ ...item.toObject(), type: 'purchase' }))
+    ].sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+
     return {
         user: JSON.parse(JSON.stringify(user)),
         myListings: JSON.parse(JSON.stringify(myListings)),
         mySales: JSON.parse(JSON.stringify(mySales)),
         myPurchases: JSON.parse(JSON.stringify(myPurchases)),
-        offersReceived: JSON.parse(JSON.stringify(offersReceived))
+        offersReceived: JSON.parse(JSON.stringify(offersReceived)),
+        contributions: JSON.parse(JSON.stringify(contributions))
     };
 }
 
@@ -59,7 +67,7 @@ export default async function AccountPage({ searchParams }) {
     const data = await getAccountData(session.user.id);
     if (!data) return redirect("/auth/login");
 
-    const { user, myListings, mySales, myPurchases, offersReceived } = data;
+    const { user, myListings, mySales, myPurchases, offersReceived, contributions } = data;
 
     // Default tab
     const { tab } = await searchParams || { tab: 'overview' };
@@ -218,43 +226,51 @@ export default async function AccountPage({ searchParams }) {
                                     <div className="bg-white rounded-[2.5rem] border border-sky-100 shadow-sm overflow-hidden animate-in fade-in duration-700">
                                         <div className="px-8 py-6 flex items-center justify-between border-b border-sky-50">
                                             <div className="flex flex-col">
-                                                <h3 className="text-sm font-bold text-gray-900">Your Contributions</h3>
-                                                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-0.5">Items listed & successfully rehomed</p>
+                                                <h3 className="text-sm font-bold text-gray-900">Contribution History</h3>
+                                                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-0.5">Your complete sales and purchase record</p>
                                             </div>
                                         </div>
                                         <div className="overflow-x-auto">
                                             <table className="w-full">
                                                 <thead className="bg-sky-50/30">
                                                     <tr>
-                                                        <th className="px-8 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-left">Ref</th>
-                                                        <th className="px-4 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-left">Completion Date</th>
-                                                        <th className="px-4 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-left">Contributed Item</th>
-                                                        <th className="px-4 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-left">Value Generated</th>
-                                                        <th className="px-8 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-right">Action</th>
+                                                        <th className="px-8 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-left">Type</th>
+                                                        <th className="px-4 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-left">Date</th>
+                                                        <th className="px-4 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-left">Item Name</th>
+                                                        <th className="px-4 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-left">Transaction</th>
+                                                        <th className="px-8 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-right">Value</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody className="divide-y divide-sky-50">
-                                                    {mySales.length > 0 ? mySales.slice(0, 6).map((item, idx) => (
+                                                    {contributions.length > 0 ? contributions.slice(0, 10).map((item, idx) => (
                                                         <tr key={item._id} className="hover:bg-sky-50/20 transition-colors">
-                                                            <td className="px-8 py-5 text-xs font-bold text-gray-300">#{item._id.slice(-4).toUpperCase()}</td>
+                                                            <td className="px-8 py-5">
+                                                                <span className={`text-[9px] font-black px-2 py-1 rounded-lg uppercase tracking-wider ${item.type === 'sale' ? 'bg-emerald-50 text-emerald-600' : 'bg-blue-50 text-blue-600'}`}>
+                                                                    {item.type}
+                                                                </span>
+                                                            </td>
                                                             <td className="px-4 py-5 text-xs font-medium text-gray-500">{new Date(item.updatedAt).toLocaleDateString()}</td>
                                                             <td className="px-4 py-5">
                                                                 <div className="flex flex-col">
                                                                     <span className="text-xs font-bold text-gray-800 truncate max-w-[200px]">{item.title}</span>
-                                                                    <span className="text-[9px] font-black uppercase tracking-tighter text-emerald-500">
-                                                                        Sustainability Impact: High
+                                                                    <span className="text-[9px] font-black uppercase tracking-tighter text-gray-400">
+                                                                        ID: {item._id.slice(-8).toUpperCase()}
                                                                     </span>
                                                                 </div>
                                                             </td>
-                                                            <td className="px-4 py-5 font-bold">
-                                                                <span className="text-xs text-emerald-600">
-                                                                    +${item.price}
+                                                            <td className="px-4 py-5">
+                                                                <span className="text-xs font-medium text-gray-600">
+                                                                    {item.type === 'sale' ? (
+                                                                        <>Sold to <span className="font-bold">{item.buyerId?.name || 'User'}</span></>
+                                                                    ) : (
+                                                                        <>Bought from <span className="font-bold">{item.sellerId?.name || 'Seller'}</span></>
+                                                                    )}
                                                                 </span>
                                                             </td>
-                                                            <td className="px-8 py-5 text-right">
-                                                                <Link href={`/items/${item._id}`} className="inline-flex p-2 bg-sky-50 hover:bg-sky-100 text-sky-500 rounded-lg transition-all shadow-sm">
-                                                                    <Eye className="w-4 h-4" />
-                                                                </Link>
+                                                            <td className="px-8 py-5 text-right font-black">
+                                                                <span className={`text-xs ${item.type === 'sale' ? 'text-emerald-600' : 'text-blue-600'}`}>
+                                                                    {item.type === 'sale' ? '+' : '-'}${item.price}
+                                                                </span>
                                                             </td>
                                                         </tr>
                                                     )) : (
@@ -262,7 +278,7 @@ export default async function AccountPage({ searchParams }) {
                                                             <td colSpan="5" className="py-16 text-center">
                                                                 <div className="flex flex-col items-center gap-2 opacity-30">
                                                                     <Package className="w-8 h-8 mb-2" />
-                                                                    <p className="text-[10px] font-black uppercase tracking-[0.2em]">Zero Contributions Recorded</p>
+                                                                    <p className="text-[10px] font-black uppercase tracking-[0.2em]">Zero Activities Recorded</p>
                                                                 </div>
                                                             </td>
                                                         </tr>
@@ -396,26 +412,7 @@ export default async function AccountPage({ searchParams }) {
                             <h2 className="text-xl font-bold text-gray-900">Purchase History</h2>
                             <div className="grid grid-cols-1 gap-4">
                                 {myPurchases.length > 0 ? myPurchases.map(item => (
-                                    <Link key={item._id} href={`/items/${item._id}`} className="bg-white p-6 rounded-[2.5rem] border border-sky-50 flex items-center gap-6 hover:shadow-xl transition-all group">
-                                        <div className="w-20 h-20 bg-sky-50 rounded-2xl overflow-hidden shadow-inner">
-                                            {item.images?.[0] && <img src={optimizeCloudinaryUrl(item.images[0], 'q_auto,f_auto,w_200')} className="w-full h-full object-cover [image-rendering:-webkit-optimize-contrast]" />}
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <div className="flex items-center gap-2 mb-1">
-                                                <span className="text-[9px] font-black bg-sky-500 text-white px-2 py-0.5 rounded-full uppercase tracking-tighter shadow-sm shadow-sky-200">VERIFIED</span>
-                                                <span className="text-[10px] font-bold text-gray-400">{new Date(item.updatedAt).toLocaleDateString()}</span>
-                                            </div>
-                                            <h3 className="font-bold text-gray-900 text-lg truncate uppercase tracking-tight group-hover:text-sky-500 transition-colors">{item.title}</h3>
-                                            <p className="text-xs text-gray-400 font-medium">From {item.sellerId?.name}</p>
-                                        </div>
-                                        <div className="text-right">
-                                            <div className="text-2xl font-bold text-gray-900 tracking-tighter">${item.price}</div>
-                                            <div className="flex items-center justify-end gap-1.5 text-sky-500">
-                                                <Clock className="w-3 h-3" />
-                                                <span className="text-[9px] font-black uppercase">Complete</span>
-                                            </div>
-                                        </div>
-                                    </Link>
+                                    <PurchaseItemCard key={item._id} item={item} />
                                 )) : <EmptyDashboard label="No purchases yet" sublabel="Everything you buy will show up in this collection." action="/dashboard" actionLabel="Start Shopping" />}
                             </div>
                         </div>

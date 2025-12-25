@@ -264,3 +264,31 @@ export async function purchaseItem({ itemId, paymentMethod, deliveryDetails }) {
     return { error: `Failed to complete purchase: ${error.message}` };
   }
 }
+
+export async function removePurchaseFromHistory(itemId) {
+    try {
+        const session = await getServerSession(authOptions);
+        if (!session) return { error: "Not logged in" };
+
+        await dbConnect();
+        const item = await Item.findById(itemId);
+        
+        if (!item) return { error: "Item not found" };
+        
+        // Ensure only the buyer can remove it from their history
+        if (item.buyerId?.toString() !== session.user.id) {
+            return { error: "Unauthorized" };
+        }
+
+        // Technically we just clear the buyerId to "remove" it from their history
+        // This is a simple implementation. In a real app, you might use a 'hiddenByBuyer' flag.
+        item.buyerId = undefined;
+        await item.save();
+
+        revalidatePath("/account");
+        return { success: true };
+    } catch (error) {
+        console.error("Remove purchase error:", error);
+        return { error: "Failed to remove from history" };
+    }
+}
