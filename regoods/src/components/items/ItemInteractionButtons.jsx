@@ -63,7 +63,9 @@ export function AddToCartButton({ itemId, initialIsInCart }) {
     const { toggleCart: toggleCartContext } = useCart() || {};
 
     const handleToggle = async () => {
-        if (loading) return;
+        // Prevent action if already in cart
+        if (isInCart || loading) return;
+
         setLoading(true);
 
         const action = toggleCartContext || toggleCart;
@@ -85,13 +87,13 @@ export function AddToCartButton({ itemId, initialIsInCart }) {
     return (
         <button
             onClick={handleToggle}
-            disabled={loading}
+            disabled={loading || isInCart}
             className={`w-full py-2.5 rounded-full font-bold text-xs uppercase tracking-widest transition flex items-center justify-center ${isInCart
-                ? 'bg-gray-200 text-gray-900 cursor-default'
+                ? 'bg-gray-100 text-gray-500 cursor-not-allowed border border-gray-200'
                 : 'bg-yellow-400 text-black hover:bg-yellow-500'
                 }`}
         >
-            {isInCart ? "Added" : "Add to Cart"}
+            {isInCart ? "Already in Cart" : "Add to Cart"}
             <ShoppingCart className={`w-3.5 h-3.5 ml-2 ${isInCart ? 'fill-current' : ''}`} />
         </button>
     );

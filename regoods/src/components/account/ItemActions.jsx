@@ -18,6 +18,8 @@ export default function ItemActions({ item, hideView = false }) {
             const result = await deleteItem(item._id);
             if (result.success) {
                 setLoading(false);
+                // Navigate to dashboard after successful deletion
+                router.push("/dashboard");
             } else {
                 alert(result.error);
                 setLoading(false);

@@ -76,50 +76,84 @@ export default function PaymentPageClient({ item, clientSecret, deliveryDetails 
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-            <div className="sm:mx-auto sm:w-full sm:max-w-md">
-                <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-                    Complete Payment
-                </h2>
-                <p className="mt-2 text-center text-sm text-gray-600">
-                    secure checkout for <span className="font-bold text-gray-900">{item.title}</span>
-                </p>
-            </div>
+        <div className="min-h-screen bg-gray-50/50 py-32 px-4 sm:px-6 lg:px-8">
+            <div className="max-w-7xl mx-auto">
+                {/* Header */}
+                <div className="text-center mb-12">
+                    <h1 className="text-4xl font-black text-gray-900 tracking-tight uppercase mb-3">
+                        Complete Payment
+                    </h1>
+                    <p className="text-sm text-gray-500 font-medium">
+                        Secure checkout for <span className="font-bold text-gray-900">{item.title}</span>
+                    </p>
+                </div>
 
-            <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-                <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-                    <div className="mb-6 bg-blue-50 p-4 rounded-lg flex flex-col gap-2 text-blue-900">
-                        <div className="flex justify-between items-center text-sm border-b border-blue-100 pb-2">
-                            <span>Item Price</span>
-                            <span>${item.price}</span>
+                {/* Two Column Layout */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
+
+                    {/* LEFT CARD: Price Summary */}
+                    <div className="bg-white p-8 shadow-xl rounded-3xl border border-gray-100 h-fit sticky top-32">
+                        <h2 className="text-xl font-black text-gray-900 uppercase tracking-tight mb-6">Order Summary</h2>
+
+                        {/* Item Details */}
+                        <div className="mb-6 pb-6 border-b border-gray-100">
+                            <div className="flex items-start gap-4">
+                                {item.images && item.images[0] && (
+                                    <div className="w-20 h-20 rounded-xl overflow-hidden bg-gray-100 flex-shrink-0">
+                                        <img src={item.images[0]} alt={item.title} className="w-full h-full object-cover" />
+                                    </div>
+                                )}
+                                <div className="flex-1">
+                                    <h3 className="font-bold text-gray-900 text-sm mb-1">{item.title}</h3>
+                                    <p className="text-xs text-gray-500">{item.category}</p>
+                                </div>
+                            </div>
                         </div>
-                        <div className="flex justify-between items-center text-sm border-b border-blue-100 pb-2">
-                            <span>Shipping Charge</span>
-                            <span>$40</span>
+
+                        {/* Price Breakdown */}
+                        <div className="space-y-4 mb-6">
+                            <div className="flex justify-between items-center text-sm">
+                                <span className="text-gray-600 font-medium">Item Price</span>
+                                <span className="font-bold text-gray-900">${item.price}</span>
+                            </div>
+                            <div className="flex justify-between items-center text-sm">
+                                <span className="text-gray-600 font-medium">Shipping Charge</span>
+                                <span className="font-bold text-gray-900">$40</span>
+                            </div>
                         </div>
-                        <div className="flex justify-between items-center">
-                            <span className="font-medium">Total Amount</span>
-                            <span className="font-bold text-xl">${(item.price + 40).toLocaleString()}</span>
+
+                        {/* Total */}
+                        <div className="pt-6 border-t-2 border-gray-200">
+                            <div className="flex justify-between items-center">
+                                <span className="font-black text-gray-900 text-lg uppercase tracking-wider">Total</span>
+                                <span className="font-black text-blue-900 text-3xl">${(item.price + 40).toLocaleString()}</span>
+                            </div>
+                        </div>
+
+                        {/* Security Badge */}
+                        <div className="mt-8 pt-6 border-t border-gray-100">
+                            <div className="flex items-center justify-center gap-2 text-gray-400">
+                                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+                                </svg>
+                                <span className="text-xs font-bold uppercase tracking-widest">Secured by Stripe</span>
+                            </div>
                         </div>
                     </div>
 
-                    <div className="mb-6 bg-yellow-50 border border-yellow-200 p-4 rounded-lg text-sm text-yellow-800">
-                        <p className="font-bold mb-1">Test Mode Enabled</p>
-                        <p>Use this dummy card to test:</p>
-                        <div className="mt-2 bg-white p-2 rounded border border-yellow-200 font-mono text-xs select-all cursor-copy" title="Click to select">
-                            Card: 4242 4242 4242 4242<br />
-                            Date: Any future (e.g. 12/30)<br />
-                            CVC: Any (e.g. 123)
-                        </div>
-                    </div>
+                    {/* RIGHT CARD: Payment Form */}
+                    <div className="bg-white p-8 shadow-xl rounded-3xl border border-gray-100">
+                        <h2 className="text-xl font-black text-gray-900 uppercase tracking-tight mb-6">Payment Details</h2>
 
-                    <Elements options={options} stripe={stripePromise}>
-                        <StripePaymentForm
-                            amount={item.price + 40}
-                            onSuccess={handleStripeSuccess}
-                            onError={(msg) => alert(msg)}
-                        />
-                    </Elements>
+                        {/* Stripe Payment Form */}
+                        <Elements options={options} stripe={stripePromise}>
+                            <StripePaymentForm
+                                amount={item.price + 40}
+                                onSuccess={handleStripeSuccess}
+                                onError={(msg) => alert(msg)}
+                            />
+                        </Elements>
+                    </div>
                 </div>
             </div>
         </div>

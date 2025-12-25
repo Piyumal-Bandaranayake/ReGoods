@@ -139,13 +139,19 @@ export default function CreateItemPage() {
             formData.append("images", img.file);
         });
 
-        const result = await createItem(formData);
+        try {
+            const result = await createItem(formData);
 
-        if (result.error) {
-            setError(result.error);
+            if (result.error) {
+                setError(result.error);
+                setLoading(false);
+            } else {
+                // Success! Navigate to dashboard
+                router.push("/dashboard");
+            }
+        } catch (error) {
+            setError("Failed to create item. Please try again.");
             setLoading(false);
-        } else {
-            router.push("/dashboard");
         }
     };
 
