@@ -1,12 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import { ShieldCheck, Clock, CheckCircle, AlertCircle } from "lucide-react";
-import VerifyAccountModal from "./VerifyAccountModal";
+import { ShieldCheck, Clock } from "lucide-react";
+import Link from "next/link";
 
 export default function VerifyAccountButton({ currentStatus }) {
-    const [isModalOpen, setIsModalOpen] = useState(false);
-
     if (currentStatus === "Verified") {
         return null;
     }
@@ -21,23 +18,15 @@ export default function VerifyAccountButton({ currentStatus }) {
     }
 
     return (
-        <>
-            <button
-                onClick={() => setIsModalOpen(true)}
-                className="w-full flex items-center justify-center px-8 py-4 bg-blue-500 text-white rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-blue-600 transition shadow-xl shadow-blue-500/20"
-            >
-                <ShieldCheck className="w-4 h-4 mr-2" />
-                Verify Identity
-                {currentStatus === "Rejected" && (
-                    <span className="ml-2 bg-red-600 text-white px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-tighter">Action Required</span>
-                )}
-            </button>
-
-            <VerifyAccountModal 
-                isOpen={isModalOpen} 
-                onClose={() => setIsModalOpen(false)} 
-                currentStatus={currentStatus}
-            />
-        </>
+        <Link
+            href="/account/verify"
+            className="w-full flex items-center justify-center px-8 py-4 bg-blue-500 text-white rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-blue-600 transition shadow-xl shadow-blue-500/20"
+        >
+            <ShieldCheck className="w-4 h-4 mr-2" />
+            Verify Identity
+            {currentStatus === "Rejected" && (
+                <span className="ml-2 bg-red-600 text-white px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-tighter">Action Required</span>
+            )}
+        </Link>
     );
 }

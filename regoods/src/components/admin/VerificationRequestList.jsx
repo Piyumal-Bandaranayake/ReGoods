@@ -111,19 +111,16 @@ export default function VerificationRequestList({ requests }) {
                         <button
                             onClick={() => handleResolve(request._id, "approve")}
                             disabled={loading}
-                            className="w-full py-3 bg-black text-white rounded-xl text-[9px] font-bold uppercase tracking-[0.15em] hover:bg-gray-800 active:scale-95 transition-all shadow-md flex items-center justify-center disabled:opacity-50"
+                            className="w-full py-3 bg-emerald-500 text-white rounded-xl text-[9px] font-bold uppercase tracking-[0.15em] hover:bg-emerald-600 active:scale-95 transition-all shadow-md shadow-emerald-500/20 flex items-center justify-center disabled:opacity-50"
                         >
                             <CheckCircle className="w-3.5 h-3.5 mr-2" /> Approve
                         </button>
                         <button
                             onClick={() => handleResolve(request._id, "reject")}
                             disabled={loading}
-                            className="w-full py-3 bg-white border border-gray-100 text-gray-500 rounded-xl text-[9px] font-bold uppercase tracking-[0.15em] hover:bg-rose-50 hover:text-rose-600 hover:border-rose-100 active:scale-95 transition-all flex items-center justify-center disabled:opacity-50"
+                            className="w-full py-3 bg-rose-500 text-white rounded-xl text-[9px] font-bold uppercase tracking-[0.15em] hover:bg-rose-600 active:scale-95 transition-all shadow-md shadow-rose-500/20 flex items-center justify-center disabled:opacity-50"
                         >
                             <XCircle className="w-3.5 h-3.5 mr-2" /> Reject
-                        </button>
-                        <button className="w-full py-2 text-gray-400 hover:text-gray-900 transition-colors flex items-center justify-center">
-                            <MoreHorizontal className="w-4 h-4" />
                         </button>
                     </div>
                 </div>

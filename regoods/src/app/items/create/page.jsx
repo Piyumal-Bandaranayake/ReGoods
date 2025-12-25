@@ -29,7 +29,8 @@ export default function CreateItemPage() {
     const onDrop = useCallback((acceptedFiles) => {
         // For this demo, we will create object URLs. 
         // In production, these should be uploaded to a storage provider, and the URLs returned.
-        const newImages = acceptedFiles.map(file => Object.assign(file, {
+        const newImages = acceptedFiles.map(file => ({
+            file,
             preview: URL.createObjectURL(file)
         }));
         setUploadedImages(prev => [...prev, ...newImages]);
@@ -40,7 +41,7 @@ export default function CreateItemPage() {
         accept: {
             'image/*': []
         },
-        minFiles: 2 // Requirement: 2 pics minimum (we'll validate on submit)
+        minFiles: 1 // Requirement: 1 pic minimum (we'll validate on submit)
     });
 
     const removeImage = (index) => {
@@ -52,8 +53,8 @@ export default function CreateItemPage() {
         setLoading(true);
         setError("");
 
-        if (uploadedImages.length < 2) {
-            setError("Please upload at least 2 images.");
+        if (uploadedImages.length < 1) {
+            setError("Please upload at least 1 image.");
             setLoading(false);
             return;
         }
@@ -61,8 +62,8 @@ export default function CreateItemPage() {
         const formData = new FormData(e.currentTarget);
 
         // Append files from the dropzone
-        uploadedImages.forEach((file) => {
-            formData.append("images", file);
+        uploadedImages.forEach((img) => {
+            formData.append("images", img.file);
         });
 
         // Remove any empty "images" strings that might be there from potential hidden inputs or previous logic
@@ -108,7 +109,7 @@ export default function CreateItemPage() {
                         </p>
                         <div className="space-y-3">
                             <Link
-                                href={userStatus?._id ? `/profile/${userStatus._id}` : '/auth/login'}
+                                href='/account/verify'
                                 className="block w-full bg-blue-900 text-white font-bold py-3 px-6 rounded-xl text-sm"
                             >
                                 Go to Verification
@@ -140,14 +141,14 @@ export default function CreateItemPage() {
                             <Upload className="h-6 w-6 text-gray-400" />
                         </div>
                         <p className="text-sm font-bold text-gray-900">Click to Upload</p>
-                        <p className="text-[10px] text-gray-400 mt-1">or drag and drop (Min 2)</p>
+                        <p className="text-[10px] text-gray-400 mt-1">or drag and drop (Min 1)</p>
                     </div>
 
                     {/* Preview Grid (Scrollable if too many, but typically limited) */}
                     <div className="flex-1 overflow-y-auto scrollbar-hide grid grid-cols-3 gap-3 auto-rows-min">
                         {uploadedImages.map((file, index) => (
                             <div key={index} className="relative aspect-square rounded-xl overflow-hidden border border-gray-200 group bg-white">
-                                <img src={file.preview} alt="preview" className="w-full h-full object-cover" />
+                                <img src={file.preview} alt="preview" className="w-full h-full object-cover [image-rendering:-webkit-optimize-contrast]" />
                                 <button
                                     type="button"
                                     onClick={() => removeImage(index)}

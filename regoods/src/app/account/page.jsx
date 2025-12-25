@@ -16,6 +16,7 @@ import ItemActions from "@/components/account/ItemActions";
 import OfferList from "@/components/account/OfferList";
 import SoldItemCard from "@/components/profile/SoldItemCard";
 import { getConversations } from "@/app/actions/message";
+import { optimizeCloudinaryUrl } from "@/lib/imageOptimization";
 import React from "react";
 
 async function getAccountData(userId) {
@@ -62,6 +63,12 @@ export default async function AccountPage({ searchParams }) {
     const { tab } = await searchParams || { tab: 'overview' };
     const currentTab = tab || 'overview';
 
+    // Security check: Redirect unverified users trying to access seller tabs
+    const sellerTabs = ['sales', 'offers', 'listings'];
+    if (!user.isVerified && sellerTabs.includes(currentTab)) {
+        redirect("/account?tab=overview");
+    }
+
     let conversations = [];
     if (currentTab === 'messages') {
         conversations = await getConversations();
@@ -86,24 +93,30 @@ export default async function AccountPage({ searchParams }) {
                         <h3 className="px-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">Main Menu</h3>
                         <div className="space-y-1">
                             <SidebarLink href="?tab=overview" active={currentTab === 'overview'} icon={<LayoutDashboard />} label="Dashboard" />
-                            <SidebarLink href={`/profile/${user._id}`} icon={<UserIcon />} label="Profile" />
+                            <SidebarLink href={`/profile/${user._id}`} icon={<UserIcon />} label={user.isVerified ? "My public profile" : "My Profile"} />
                             <SidebarLink href="?tab=settings" active={currentTab === 'settings'} icon={<Settings />} label="My Account" />
-                            <SidebarLink href="?tab=sales" active={currentTab === 'sales'} icon={<TrendingUp />} label="Sales History" />
-                            <SidebarLink href="?tab=offers" active={currentTab === 'offers'} icon={<DollarSign />} label="Offers Received" count={pendingOffers} />
+                            {user.isVerified && (
+                                <>
+                                    <SidebarLink href="?tab=sales" active={currentTab === 'sales'} icon={<TrendingUp />} label="Sales History" />
+                                    <SidebarLink href="?tab=offers" active={currentTab === 'offers'} icon={<DollarSign />} label="Offers Received" count={pendingOffers} />
+                                </>
+                            )}
                             <SidebarLink href="?tab=purchases" active={currentTab === 'purchases'} icon={<ShoppingBag />} label="Purchases" />
                             <SidebarLink href="?tab=messages" active={currentTab === 'messages'} icon={<MessageCircle />} label="Messages" />
                         </div>
                     </div>
 
-                    <div>
-                        <h3 className="px-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">Inventory</h3>
-                        <div className="space-y-1">
-                            <SidebarLink href="?tab=listings" active={currentTab === 'listings'} icon={<Package />} label="My Items" count={itemsListed} />
-                            <Link href="/items/create" className="flex items-center px-4 py-3 text-sm font-bold text-sky-500 hover:bg-sky-50 rounded-2xl transition-all">
-                                <PlusCircle className="mr-3 w-5 h-5" /> Add New Item
-                            </Link>
+                    {user.isVerified && (
+                        <div>
+                            <h3 className="px-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">Inventory</h3>
+                            <div className="space-y-1">
+                                <SidebarLink href="?tab=listings" active={currentTab === 'listings'} icon={<Package />} label="My Items" count={itemsListed} />
+                                <Link href="/items/create" className="flex items-center px-4 py-3 text-sm font-bold text-sky-500 hover:bg-sky-50 rounded-2xl transition-all">
+                                    <PlusCircle className="mr-3 w-5 h-5" /> Add New Item
+                                </Link>
+                            </div>
                         </div>
-                    </div>
+                    )}
 
                 </nav>
             </aside>
@@ -138,7 +151,7 @@ export default async function AccountPage({ searchParams }) {
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                         {/* User Summary */}
                                         <div className="bg-white p-8 rounded-[2.5rem] border border-sky-50 shadow-sm relative group overflow-hidden">
-                                            <h3 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-6 px-1">Member Profile</h3>
+                                            <h3 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-6 px-1">{user.isVerified ? "My Public Profile" : "Identity Overview"}</h3>
                                             <div className="flex flex-col gap-6 relative z-10">
                                                 <div className="flex items-center gap-5 px-1">
                                                     <div className="w-16 h-16 rounded-2xl bg-sky-50 flex items-center justify-center text-2xl font-bold text-sky-500 border border-sky-100 overflow-hidden shadow-inner">
@@ -163,64 +176,77 @@ export default async function AccountPage({ searchParams }) {
                                             <div className="absolute top-0 right-0 w-32 h-32 bg-sky-50 rounded-full -mr-16 -mt-16 transition-transform group-hover:scale-110"></div>
                                         </div>
 
-                                        {/* Stats Card */}
-                                        <div className="bg-white p-8 rounded-[2.5rem] border border-sky-50 shadow-sm">
-                                            <h3 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-6 px-1">Store Stats</h3>
-                                            <div className="space-y-4">
-                                                <PerformanceItem label="Trust Score" value="98%" trend="+2%" />
-                                                <PerformanceItem label="Response Time" value="< 2 Hours" trend="Optimal" />
-                                                <PerformanceItem label="Items Sold" value={itemsSold} trend="+5 this week" />
+                                        {/* Stats Card - Only for Verified */}
+                                        {user.isVerified ? (
+                                            <div className="bg-white p-8 rounded-[2.5rem] border border-sky-50 shadow-sm">
+                                                <h3 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-6 px-1">Store Stats</h3>
+                                                <div className="space-y-4">
+                                                    <PerformanceItem label="Trust Score" value="98%" trend="+2%" />
+                                                    <PerformanceItem label="Response Time" value="< 2 Hours" trend="Optimal" />
+                                                    <PerformanceItem label="Items Sold" value={itemsSold} trend="+5 this week" />
 
-                                                <div className="flex items-center justify-between p-4 rounded-2xl hover:bg-sky-50 transition-colors group">
-                                                    <div className="flex flex-col">
-                                                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">Current Level</span>
-                                                        {itemsSold < 5 && <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-full border border-blue-100 w-fit mt-1">New Seller</span>}
-                                                        {itemsSold >= 5 && itemsSold < 20 && <span className="text-xs font-bold text-purple-600 bg-purple-50 px-2.5 py-1 rounded-full border border-purple-100 w-fit mt-1">Active Seller</span>}
-                                                        {itemsSold >= 20 && <span className="text-xs font-bold text-amber-600 bg-amber-50 px-2.5 py-1 rounded-full border border-amber-100 w-fit mt-1">Pro Seller</span>}
+                                                    <div className="flex items-center justify-between p-4 rounded-2xl hover:bg-sky-50 transition-colors group">
+                                                        <div className="flex flex-col">
+                                                            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">Current Level</span>
+                                                            {itemsSold < 5 && <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-full border border-blue-100 w-fit mt-1">New Seller</span>}
+                                                            {itemsSold >= 5 && itemsSold < 20 && <span className="text-xs font-bold text-purple-600 bg-purple-50 px-2.5 py-1 rounded-full border border-purple-100 w-fit mt-1">Active Seller</span>}
+                                                            {itemsSold >= 20 && <span className="text-xs font-bold text-amber-600 bg-amber-50 px-2.5 py-1 rounded-full border border-amber-100 w-fit mt-1">Pro Seller</span>}
+                                                        </div>
+                                                        <span className="text-[9px] font-black px-2 py-1 rounded-lg bg-gray-100 text-gray-500">
+                                                            STATUS
+                                                        </span>
                                                     </div>
-                                                    <span className="text-[9px] font-black px-2 py-1 rounded-lg bg-gray-100 text-gray-500">
-                                                        STATUS
-                                                    </span>
                                                 </div>
                                             </div>
-                                        </div>
+                                        ) : (
+                                            <div className="bg-white p-8 rounded-[2.5rem] border border-sky-50 shadow-sm flex flex-col items-center justify-center text-center">
+                                                <div className="w-16 h-16 bg-sky-50 rounded-2xl flex items-center justify-center text-sky-400 mb-4">
+                                                    <ShieldCheck className="w-8 h-8" />
+                                                </div>
+                                                <h3 className="text-sm font-bold text-gray-900 mb-2">Verified Status</h3>
+                                                <p className="text-[11px] text-gray-400 font-medium px-4">Verify your account to unlock selling features and track your store performance.</p>
+                                                <Link href="/account/verify" className="mt-6 text-[10px] font-black text-sky-500 uppercase tracking-[0.2em] hover:underline">Verify Now</Link>
+                                            </div>
+                                        )}
                                     </div>
 
-                                    {/* History Table */}
-                                    <div className="bg-white rounded-[2.5rem] border border-sky-100 shadow-sm overflow-hidden">
-                                        <div className="px-8 py-6 flex items-center justify-between border-b border-sky-50">
-                                            <h3 className="text-sm font-bold text-gray-900">Contribution History</h3>
-                                            <Link href="?tab=sales" className="text-[10px] font-bold text-sky-500 uppercase tracking-widest hover:underline">See All</Link>
-                                        </div>
-                                        <div className="overflow-x-auto">
-                                            <table className="w-full">
-                                                <thead className="bg-sky-50/30">
-                                                    <tr>
-                                                        <th className="px-8 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-left">#</th>
-                                                        <th className="px-4 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-left">Date</th>
-                                                        <th className="px-4 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-left">Item Name</th>
-                                                        <th className="px-4 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-left">Buyer/Seller</th>
-                                                        <th className="px-4 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-left">Amount</th>
-                                                        <th className="px-8 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-right"></th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody className="divide-y divide-sky-50">
-                                                    {mySales.length > 0 ? mySales.slice(0, 4).map((item, idx) => (
-                                                        <tr key={item._id} className="hover:bg-sky-50/20 transition-colors">
-                                                            <td className="px-8 py-5 text-xs font-bold text-gray-300">{idx + 1}</td>
-                                                            <td className="px-4 py-5 text-xs font-medium text-gray-500">{new Date(item.updatedAt).toLocaleDateString()}</td>
-                                                            <td className="px-4 py-5 text-xs font-bold text-gray-800">{item.title}</td>
-                                                            <td className="px-4 py-5 text-xs font-medium text-gray-500">Premium Member</td>
-                                                            <td className="px-4 py-5 text-xs font-bold text-sky-600">${item.price}</td>
-                                                            <td className="px-8 py-5 text-right"><button className="p-1 hover:text-sky-500 text-gray-300 transition-colors"><Download className="w-3.5 h-3.5" /></button></td>
+                                    {/* History Table - Only for Verified */}
+                                    {user.isVerified && (
+                                        <div className="bg-white rounded-[2.5rem] border border-sky-100 shadow-sm overflow-hidden">
+                                            <div className="px-8 py-6 flex items-center justify-between border-b border-sky-50">
+                                                <h3 className="text-sm font-bold text-gray-900">Contribution History</h3>
+                                                <Link href="?tab=sales" className="text-[10px] font-bold text-sky-500 uppercase tracking-widest hover:underline">See All</Link>
+                                            </div>
+                                            <div className="overflow-x-auto">
+                                                <table className="w-full">
+                                                    <thead className="bg-sky-50/30">
+                                                        <tr>
+                                                            <th className="px-8 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-left">#</th>
+                                                            <th className="px-4 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-left">Date</th>
+                                                            <th className="px-4 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-left">Item Name</th>
+                                                            <th className="px-4 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-left">Buyer/Seller</th>
+                                                            <th className="px-4 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-left">Amount</th>
+                                                            <th className="px-8 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-right"></th>
                                                         </tr>
-                                                    )) : (
-                                                        <tr><td colSpan="6" className="py-12 text-center text-[10px] font-bold text-gray-300 uppercase italic">No recent sales</td></tr>
-                                                    )}
-                                                </tbody>
-                                            </table>
+                                                    </thead>
+                                                    <tbody className="divide-y divide-sky-50">
+                                                        {mySales.length > 0 ? mySales.slice(0, 4).map((item, idx) => (
+                                                            <tr key={item._id} className="hover:bg-sky-50/20 transition-colors">
+                                                                <td className="px-8 py-5 text-xs font-bold text-gray-300">{idx + 1}</td>
+                                                                <td className="px-4 py-5 text-xs font-medium text-gray-500">{new Date(item.updatedAt).toLocaleDateString()}</td>
+                                                                <td className="px-4 py-5 text-xs font-bold text-gray-800">{item.title}</td>
+                                                                <td className="px-4 py-5 text-xs font-medium text-gray-500">Premium Member</td>
+                                                                <td className="px-4 py-5 text-xs font-bold text-sky-600">${item.price}</td>
+                                                                <td className="px-8 py-5 text-right"><button className="p-1 hover:text-sky-500 text-gray-300 transition-colors"><Download className="w-3.5 h-3.5" /></button></td>
+                                                            </tr>
+                                                        )) : (
+                                                            <tr><td colSpan="6" className="py-12 text-center text-[10px] font-bold text-gray-300 uppercase italic">No recent sales</td></tr>
+                                                        )}
+                                                    </tbody>
+                                                </table>
+                                            </div>
                                         </div>
-                                    </div>
+                                    )}
                                 </div>
 
                                 {/* Right Section: Stats & Notifications */}
@@ -237,14 +263,26 @@ export default async function AccountPage({ searchParams }) {
                                                     <p className="text-[10px] text-gray-500 font-bold uppercase">Trending: Electronics</p>
                                                 </div>
                                             </div>
-                                            <p className="text-xs text-gray-500 leading-relaxed">Your store visibility has increased by <span className="text-green-500 font-bold">12%</span> in the last 24 hours.</p>
+                                            {user.isVerified && (
+                                                <p className="text-xs text-gray-500 leading-relaxed">Your store visibility has increased by <span className="text-green-500 font-bold">12%</span> in the last 24 hours.</p>
+                                            )}
                                         </div>
                                     </div>
 
-                                    <div className="bg-[#1e2235] p-8 rounded-[2.5rem] text-white shadow-xl shadow-sky-900/10">
-                                        <h3 className="text-[10px] font-bold text-sky-400 uppercase tracking-[0.2em] mb-4">Quick Tip</h3>
-                                        <p className="text-sm font-medium leading-relaxed italic opacity-80">"Items with clear, well-lit photos sell 3x faster than average listings. Update your covers today!"</p>
-                                    </div>
+                                    {user.isVerified ? (
+                                        <div className="bg-[#1e2235] p-8 rounded-[2.5rem] text-white shadow-xl shadow-sky-900/10">
+                                            <h3 className="text-[10px] font-bold text-sky-400 uppercase tracking-[0.2em] mb-4">Quick Tip</h3>
+                                            <p className="text-sm font-medium leading-relaxed italic opacity-80">"Items with clear, well-lit photos sell 3x faster than average listings. Update your covers today!"</p>
+                                        </div>
+                                    ) : (
+                                        <div className="bg-[#1e2235] p-8 rounded-[2.5rem] text-white shadow-xl shadow-sky-900/10">
+                                            <h3 className="text-[10px] font-bold text-sky-400 uppercase tracking-[0.2em] mb-4">How it works</h3>
+                                            <p className="text-sm font-medium leading-relaxed italic opacity-80 mb-6">"Verified sellers can reach thousands of buyers instantly. Start your journey today."</p>
+                                            <Link href="/account/verify" className="text-[10px] font-black text-sky-400 uppercase tracking-widest hover:text-white transition-colors flex items-center gap-2">
+                                                Verify My Account <ArrowRight className="w-3 h-3" />
+                                            </Link>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -336,7 +374,7 @@ export default async function AccountPage({ searchParams }) {
                                 {myPurchases.length > 0 ? myPurchases.map(item => (
                                     <Link key={item._id} href={`/items/${item._id}`} className="bg-white p-6 rounded-[2.5rem] border border-sky-50 flex items-center gap-6 hover:shadow-xl transition-all group">
                                         <div className="w-20 h-20 bg-sky-50 rounded-2xl overflow-hidden shadow-inner">
-                                            {item.images?.[0] && <img src={item.images[0]} className="w-full h-full object-cover" />}
+                                            {item.images?.[0] && <img src={optimizeCloudinaryUrl(item.images[0], 'q_auto,f_auto,w_200')} className="w-full h-full object-cover [image-rendering:-webkit-optimize-contrast]" />}
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <div className="flex items-center gap-2 mb-1">

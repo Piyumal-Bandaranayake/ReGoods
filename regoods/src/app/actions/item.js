@@ -144,8 +144,8 @@ export async function updateItem(itemId, formData) {
 
     const finalImages = [...existingImages, ...newImageUrls];
 
-    if (finalImages.length < 2) {
-        return { error: "Please ensure at least 2 images are attached to the listing." };
+    if (finalImages.length < 1) {
+        return { error: "Please ensure at least 1 image is attached to the listing." };
     }
 
     item.title = title;

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Package, X } from "lucide-react";
+import { optimizeCloudinaryUrl } from "@/lib/imageOptimization";
 
 export default function SoldItemCard({ item, disableModal = false }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -15,7 +16,7 @@ export default function SoldItemCard({ item, disableModal = false }) {
                 <div className="flex items-center gap-6">
                     <div className="h-20 w-20 rounded-2xl overflow-hidden bg-gray-100 flex-shrink-0 relative">
                         {item.images?.[0] ? (
-                            <img src={item.images[0]} className="w-full h-full object-cover grayscale opacity-60" alt={item.title} />
+                            <img src={optimizeCloudinaryUrl(item.images[0], 'q_auto,f_auto,w_200')} className="w-full h-full object-cover grayscale opacity-60 [image-rendering:-webkit-optimize-contrast]" alt={item.title} />
                         ) : (
                             <Package className="w-8 h-8 text-gray-300 m-auto mt-6" />
                         )}
@@ -43,7 +44,7 @@ export default function SoldItemCard({ item, disableModal = false }) {
                         {/* Header Image */}
                         <div className="h-32 bg-gray-100 relative">
                             {item.images?.[0] && (
-                                <img src={item.images[0]} className="w-full h-full object-cover grayscale opacity-50" />
+                                <img src={optimizeCloudinaryUrl(item.images[0], 'q_auto,f_auto,w_400')} className="w-full h-full object-cover grayscale opacity-50 [image-rendering:-webkit-optimize-contrast]" />
                             )}
                             <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-transparent"></div>
                             <button

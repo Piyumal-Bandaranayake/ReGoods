@@ -318,6 +318,7 @@ export async function resolveVerification(requestId, action, adminNotes) {
                 type: "verification_rejected",
                 title: "Verification Rejected",
                 content: `Your verification request was rejected. ${adminNotes ? `Reason: ${adminNotes}` : "Please ensure your NIC images are clear and valid."}`,
+                link: "/account/verify"
             });
         }
 
@@ -509,7 +510,7 @@ export async function getAdminNotifications() {
                 title: "New Verification Request",
                 content: `${v.userId?.name || "A user"} has submitted their identity for verification.`,
                 createdAt: v.createdAt,
-                link: "/admin/activity" // Verifications are usually in activity/verification
+                link: "/admin/settings"
             })),
             ...userReports.map(r => ({
                 id: r._id,

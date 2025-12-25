@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronLeft, ChevronRight, Maximize2, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Maximize2, X, ZoomIn } from "lucide-react";
+import { optimizeCloudinaryUrl } from "@/lib/imageOptimization";
 
 export default function ItemImageGallery({ images, title, isSold }) {
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -47,9 +48,9 @@ export default function ItemImageGallery({ images, title, isSold }) {
 
                 {currentImage ? (
                     <img
-                        src={currentImage}
+                        src={optimizeCloudinaryUrl(currentImage, 'q_auto:best,f_auto,w_1000')}
                         alt={title}
-                        className={`w-full h-full object-cover transition-all duration-500 ${isSold ? 'grayscale opacity-90' : 'hover:scale-105'}`}
+                        className={`w-full h-full object-cover transition-all duration-500 ease-out ${isSold ? 'grayscale opacity-90' : 'hover:scale-105'} [image-rendering:-webkit-optimize-contrast]`}
                         onClick={() => setIsZoomed(true)}
                     />
                 ) : (
@@ -118,9 +119,9 @@ export default function ItemImageGallery({ images, title, isSold }) {
                     </button>
 
                     <img
-                        src={currentImage}
+                        src={optimizeCloudinaryUrl(currentImage, 'q_auto:best,f_auto,w_2000')}
                         alt={title}
-                        className="max-w-full max-h-full object-contain"
+                        className="max-w-full max-h-full object-contain [image-rendering:-webkit-optimize-contrast]"
                     />
 
                     <div className="absolute bottom-8 left-1/2 -translate-x-1/2 text-white/40 font-mono">

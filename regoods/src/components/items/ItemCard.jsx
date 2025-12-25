@@ -4,6 +4,8 @@ import Link from "next/link";
 import { ShoppingBag, Star, Heart } from "lucide-react";
 import Image from "next/image";
 
+import { optimizeCloudinaryUrl } from "@/lib/imageOptimization";
+
 export default function ItemCard({ item }) {
   return (
     <Link
@@ -13,9 +15,9 @@ export default function ItemCard({ item }) {
       <div className="relative w-full pb-[110%] bg-zinc-50 overflow-hidden">
         {item.images && item.images.length > 0 ? (
           <img
-            src={item.images[0]}
+            src={optimizeCloudinaryUrl(item.images[0], 'q_auto,f_auto,w_600')}
             alt={item.title}
-            className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
+            className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out [image-rendering:-webkit-optimize-contrast]"
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center text-zinc-300">
@@ -32,7 +34,7 @@ export default function ItemCard({ item }) {
 
       </div>
       <div className="p-5">
-        <h3 className="text-base font-bold text-zinc-900 truncate group-hover:text-blue-500 transition-colors mb-4 font-inter">
+        <h3 className="text-base font-black text-zinc-900 group-hover:text-blue-600 transition-colors mb-2 font-inter uppercase tracking-tight leading-tight">
           {item.title}
         </h3>
 

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
-import { Search, Heart, MessageCircle, LogOut, User, PlusCircle, LayoutDashboard, HelpCircle, Phone, X } from "lucide-react";
+import { Search, Heart, MessageCircle, LogOut, User, PlusCircle, LayoutDashboard, HelpCircle, Phone, X, ShieldCheck } from "lucide-react";
 import { useState, useEffect } from "react";
 import WishlistDropdown from "./WishlistDropdown";
 import CartDropdown from "./CartDropdown";
@@ -44,8 +44,8 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', controlNavbar);
   }, [lastScrollY]);
 
-  // Hide Navbar on Admin Routes
-  if (pathname?.startsWith('/admin')) {
+  // Conditional Returns (Must stay after all Hook calls)
+  if (pathname?.startsWith('/auth') || pathname?.startsWith('/admin')) {
     return null;
   }
 
@@ -166,7 +166,7 @@ export default function Navbar() {
                         { name: 'Dashboard', path: '/account', icon: LayoutDashboard },
                         ...(session.user.role === 'admin' ? [{ name: 'Admin Panel', path: '/admin', icon: ShieldCheck }] : []),
                         { name: 'Inbox', path: '/inbox', icon: MessageCircle },
-                        { name: 'Profile', path: `/profile/${session.user.id}`, icon: User }
+                        { name: session.user.isVerified ? 'My public profile' : 'My profile', path: `/profile/${session.user.id}`, icon: User }
                       ].map((item) => (
                         <Link
                           key={item.path}
