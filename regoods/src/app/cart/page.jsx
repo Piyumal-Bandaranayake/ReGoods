@@ -77,8 +77,11 @@ export default function CartPage() {
 
                                         {/* Price & Options */}
                                         <div className="flex items-center gap-3 text-sm font-medium text-gray-900">
-                                            <div className="flex items-center gap-2">
+                                            <div className="flex flex-col items-end">
                                                 <span className="font-serif font-bold text-sm text-gray-900">${item.price?.toFixed(2)}</span>
+                                                {item.hasAcceptedOffer && (
+                                                    <span className="text-[8px] text-sky-600 font-bold uppercase tracking-tighter bg-sky-50 px-1 rounded">Offer Accepted</span>
+                                                )}
                                             </div>
                                         </div>
 

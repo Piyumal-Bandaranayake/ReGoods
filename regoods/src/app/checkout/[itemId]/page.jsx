@@ -6,6 +6,7 @@ import { notFound, redirect } from "next/navigation";
 import CheckoutClient from "./CheckoutClient";
 import Link from "next/link";
 import { ChevronRight, ShoppingBag, Package, Truck, ShieldCheck } from "lucide-react";
+import Offer from "@/lib/models/Offer";
 
 export const dynamic = "force-dynamic";
 
@@ -51,8 +52,19 @@ export default async function CheckoutPage({ params }) {
         )
     }
 
+    // ⚡ Check for accepted offer
+    const acceptedOffer = await Offer.findOne({
+        itemId: item._id,
+        buyerId: session.user.id,
+        status: "Accepted"
+    });
+
+    const finalPrice = acceptedOffer ? acceptedOffer.offerAmount : item.price;
     const shippingFee = 40;
-    const total = item.price + shippingFee;
+    const total = finalPrice + shippingFee;
+
+    // Update item object with final price for client components (receipt, summary, etc.)
+    const displayItem = { ...item, price: finalPrice };
 
     return (
 
@@ -64,7 +76,7 @@ export default async function CheckoutPage({ params }) {
                     <div className="mb-4">
                         <h1 className="text-3xl font-black text-gray-900 tracking-tight">Checkout</h1>
                     </div>
-                    <CheckoutClient item={item} session={session} />
+                    <CheckoutClient item={displayItem} session={session} />
                 </div>
 
                 {/* SUMMARY SIDE (Fixed) */}
@@ -82,14 +94,14 @@ export default async function CheckoutPage({ params }) {
                             <div className="min-w-0">
                                 <h4 className="font-bold text-gray-900 text-sm truncate">{item.title}</h4>
                                 <p className="text-[10px] text-gray-400 font-bold uppercase mt-1">{item.category}</p>
-                                <p className="text-sm font-black text-gray-900 mt-1">${item.price.toLocaleString()}</p>
+                                <p className="text-sm font-black text-gray-900 mt-1">${finalPrice.toLocaleString()}</p>
                             </div>
                         </div>
 
                         <div className="space-y-4 mb-6">
                             <div className="flex justify-between text-sm">
                                 <span className="text-gray-400">Subtotal</span>
-                                <span className="font-bold text-gray-900">${item.price.toLocaleString()}</span>
+                                <span className="font-bold text-gray-900">${finalPrice.toLocaleString()}</span>
                             </div>
                             <div className="flex justify-between text-sm">
                                 <span className="text-gray-400">Shipping</span>

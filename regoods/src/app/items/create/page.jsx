@@ -145,7 +145,7 @@ export default function CreateItemPage() {
             setError(result.error);
             setLoading(false);
         } else {
-            router.push(`/items/${result.itemId}`);
+            router.push("/dashboard");
         }
     };
 
