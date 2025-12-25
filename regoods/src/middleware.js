@@ -19,7 +19,13 @@ export async function middleware(req) {
   const token = await getToken({ 
     req, 
     secret: AUTH_SECRET 
-  });
+    });
+
+  // Redirect authenticated users away from login/register
+  if (pathname.startsWith("/auth") && token) {
+    const dashboardUrl = new URL(token.role === "admin" ? "/admin" : "/account", req.url);
+    return NextResponse.redirect(dashboardUrl);
+  }
 
   // 2. Protect sensitive routes
   if (pathname.startsWith("/admin") || pathname.startsWith("/account") || pathname.startsWith("/dashboard")) {
@@ -28,9 +34,12 @@ export async function middleware(req) {
       return NextResponse.redirect(loginUrl);
     }
     
-    // Admin only protection
-    if (pathname.startsWith("/admin") && token.role !== "admin") {
-      return NextResponse.redirect(new URL("/", req.url));
+    // Strict Admin-only protection for all /admin routes
+    if (pathname.startsWith("/admin")) {
+      if (token.role !== "admin") {
+        console.warn(`Unauthorized admin access attempt by ${token.email} to ${pathname}`);
+        return NextResponse.redirect(new URL("/", req.url));
+      }
     }
   }
 
@@ -38,5 +47,5 @@ export async function middleware(req) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/account/:path*", "/dashboard/:path*"],
+  matcher: ["/admin", "/admin/:path*", "/account/:path*", "/account", "/dashboard/:path*", "/dashboard", "/auth/:path*", "/auth"],
 };

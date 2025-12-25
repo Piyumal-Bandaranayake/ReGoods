@@ -5,6 +5,7 @@ import dbConnect from "@/lib/db";
 import Item from "@/lib/models/Item";
 import Link from "next/link";
 import { PlusCircle, ShoppingBag, Filter, ArrowRight, MapPin, Star } from "lucide-react";
+import { optimizeCloudinaryUrl } from "@/lib/imageOptimization";
 
 
 
@@ -132,10 +133,10 @@ export default async function DashboardPage({ searchParams }) {
 
                                     {item.images && item.images.length > 0 ? (
                                         <img
-                                            src={item.images[0]}
+                                            src={optimizeCloudinaryUrl(item.images[0], 'q_auto:best,f_auto,w_800')}
                                             alt={item.title}
                                             className={`w-full h-full object-cover transition-transform duration-700 ease-out ${item.status === 'Sold' ? 'opacity-75' : 'group-hover:scale-110'
-                                                }`}
+                                                } [image-rendering:-webkit-optimize-contrast]`}
                                         />
                                     ) : (
                                         <div className="w-full h-full flex items-center justify-center text-gray-300">
@@ -166,7 +167,7 @@ export default async function DashboardPage({ searchParams }) {
                                 {/* Content */}
                                 <div className="space-y-1 px-1">
                                     <div className="flex justify-between items-start">
-                                        <h3 className="text-lg font-medium text-gray-900 line-clamp-1 group-hover:text-indigo-600 transition-colors">
+                                        <h3 className="text-lg font-black text-gray-900 group-hover:text-blue-600 transition-colors tracking-tight leading-tight uppercase">
                                             {item.title}
                                         </h3>
                                         <span className="font-serif font-bold text-lg text-gray-900 ml-2">

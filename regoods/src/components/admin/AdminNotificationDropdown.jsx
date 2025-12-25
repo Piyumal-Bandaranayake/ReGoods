@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 
 export default function AdminNotificationDropdown() {
     const [isOpen, setIsOpen] = useState(false);
+    const [hasSeen, setHasSeen] = useState(false);
     const [notifications, setNotifications] = useState([]);
     const [loading, setLoading] = useState(true);
     const [clearing, setClearing] = useState(false);
@@ -20,7 +21,7 @@ export default function AdminNotificationDropdown() {
             setNotifications(data);
             setLoading(false);
         };
-        
+
         if (isOpen) {
             fetchNotifications();
         } else {
@@ -73,12 +74,15 @@ export default function AdminNotificationDropdown() {
 
     return (
         <div className="relative" ref={dropdownRef}>
-            <button 
-                onClick={() => setIsOpen(!isOpen)}
+            <button
+                onClick={() => {
+                    setIsOpen(!isOpen);
+                    if (!isOpen) setHasSeen(true);
+                }}
                 className={`p-3 bg-white rounded-2xl shadow-sm hover:shadow-md transition-all relative group ${isOpen ? 'text-gray-900 ring-2 ring-blue-500/10' : 'text-gray-400 hover:text-gray-900'}`}
             >
                 <Bell className="w-5 h-5" />
-                {notifications.length > 0 && (
+                {notifications.length > 0 && !hasSeen && (
                     <span className="absolute top-3 right-3 w-4 h-4 bg-rose-500 text-white text-[8px] font-black flex items-center justify-center rounded-full border-2 border-white">
                         {notifications.length > 9 ? "9+" : notifications.length}
                     </span>
@@ -94,7 +98,7 @@ export default function AdminNotificationDropdown() {
                         </div>
                         <div className="flex items-center space-x-2">
                             {notifications.length > 0 && (
-                                <button 
+                                <button
                                     onClick={handleClearAll}
                                     disabled={clearing}
                                     className="text-[10px] font-bold uppercase tracking-widest text-rose-500 hover:bg-rose-50 px-3 py-2 rounded-xl transition-all disabled:opacity-50"
@@ -125,16 +129,15 @@ export default function AdminNotificationDropdown() {
                         ) : (
                             <div className="divide-y divide-gray-50">
                                 {notifications.map((notif) => (
-                                    <Link 
+                                    <Link
                                         key={notif.id}
                                         href={notif.link}
                                         onClick={() => setIsOpen(false)}
                                         className="flex gap-4 p-5 hover:bg-gray-50 transition-colors group"
                                     >
-                                        <div className={`mt-1 w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
-                                            notif.type === 'verification' ? 'bg-blue-50' : 
-                                            notif.type === 'report' ? 'bg-rose-50' : 'bg-amber-50'
-                                        }`}>
+                                        <div className={`mt-1 w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${notif.type === 'verification' ? 'bg-blue-50' :
+                                                notif.type === 'report' ? 'bg-rose-50' : 'bg-amber-50'
+                                            }`}>
                                             {getIcon(notif.type)}
                                         </div>
                                         <div className="space-y-1">
@@ -151,8 +154,8 @@ export default function AdminNotificationDropdown() {
                         )}
                     </div>
 
-                    <Link 
-                        href="/admin/reports" 
+                    <Link
+                        href="/admin/reports"
                         onClick={() => setIsOpen(false)}
                         className="block p-4 bg-gray-50 text-center text-[10px] font-black text-gray-400 hover:text-gray-900 uppercase tracking-widest transition-colors border-t border-gray-50"
                     >

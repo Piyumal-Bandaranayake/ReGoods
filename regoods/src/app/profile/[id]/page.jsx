@@ -159,6 +159,12 @@ export default async function ProfilePage({ params, searchParams }) {
 
                     {/* 3. CENTER COLUMN: TABS & CONTENT */}
                     <div className="lg:col-span-6 mt-8 lg:mt-6">
+                        {isOwner && user.isVerified && (
+                            <div className="mb-8">
+                                <h1 className="text-2xl font-black text-gray-900 tracking-tight uppercase">My Public Profile</h1>
+                                <p className="text-[10px] font-bold text-gray-400 mt-1 uppercase tracking-widest">This is how other users see your store</p>
+                            </div>
+                        )}
                         {!user.isVerified ? (
                             <div className="bg-white rounded-[2rem] p-8 shadow-sm border border-white text-center py-20">
                                 <div className="w-20 h-20 bg-sky-50 rounded-full flex items-center justify-center mx-auto mb-6 text-sky-400">

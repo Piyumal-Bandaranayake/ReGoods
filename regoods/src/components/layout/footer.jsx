@@ -7,8 +7,8 @@ import { usePathname } from "next/navigation";
 export default function Footer() {
   const pathname = usePathname();
 
-  // Hide Footer on Admin Routes
-  if (pathname?.startsWith('/admin')) {
+  // Hide Footer on Admin Routes or Verification page
+  if (pathname?.startsWith('/admin') || pathname === '/account/verify') {
     return null;
   }
 

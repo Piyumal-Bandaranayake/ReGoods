@@ -16,12 +16,13 @@ export default function EditItemForm({ item, onSuccess, onCancel, isVerified = t
     // For the UI, we just need a list of "previewable" objects.
     // We'll track them together but distinguish on submit.
     const [images, setImages] = useState(
-        item.images.map(url => ({ type: 'existing', url, preview: url }))
+        item.images.map(url => ({ imageType: 'existing', url, preview: url }))
     );
 
     const onDrop = useCallback((acceptedFiles) => {
-        const newImages = acceptedFiles.map(file => Object.assign(file, {
-            type: 'new',
+        const newImages = acceptedFiles.map(file => ({
+            file,
+            imageType: 'new',
             preview: URL.createObjectURL(file)
         }));
         setImages(prev => [...prev, ...newImages]);
@@ -43,8 +44,8 @@ export default function EditItemForm({ item, onSuccess, onCancel, isVerified = t
         setLoading(true);
         setError("");
 
-        if (images.length < 2) {
-            setError("Please have at least 2 images for the listing.");
+        if (images.length < 1) {
+            setError("Please have at least 1 image for the listing.");
             setLoading(false);
             return;
         }
@@ -53,11 +54,11 @@ export default function EditItemForm({ item, onSuccess, onCancel, isVerified = t
 
         const existingImages = [];
         images.forEach(img => {
-            if (img.type === 'existing') {
+            if (img.imageType === 'existing') {
                 existingImages.push(img.url);
-            } else if (img.type === 'new') {
-                // It's a File object (extended with preview)
-                formData.append("images", img);
+            } else if (img.imageType === 'new') {
+                // It's a wrapper containing the File object
+                formData.append("images", img.file);
             }
         });
 
@@ -127,7 +128,7 @@ export default function EditItemForm({ item, onSuccess, onCancel, isVerified = t
             {/* Image Upload Section */}
             <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-2">
-                    Item Images (Min 2 required)
+                    Item Images (Min 1 required)
                 </label>
 
                 <div
