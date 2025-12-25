@@ -136,7 +136,7 @@ export default async function ProfilePage({ params, searchParams }) {
                             <div className="space-y-2">
                                 {session?.user?.id === user._id ? (
                                     <>
-                                        <Link href="/account" className="flex items-center justify-center w-full py-3 bg-sky-500 hover:bg-sky-600 text-white rounded-2xl text-sm font-bold transition-all shadow-lg shadow-sky-200/50">
+                                        <Link href="/account?tab=settings" className="flex items-center justify-center w-full py-3 bg-sky-500 hover:bg-sky-600 text-white rounded-2xl text-sm font-bold transition-all shadow-lg shadow-sky-200/50">
                                             Edit Profile
                                         </Link>
                                         <VerifyAccountButton currentStatus={user.verificationStatus || "Unverified"} />
