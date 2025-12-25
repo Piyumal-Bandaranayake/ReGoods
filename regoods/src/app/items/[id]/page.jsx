@@ -24,6 +24,8 @@ import ItemImageGallery from "@/components/items/ItemImageGallery";
 import { getUserInteractions } from "@/app/actions/user";
 import { WishlistButton, AddToCartButton, BuyNowButton, NegotiateButton } from "@/components/items/ItemInteractionButtons";
 
+import Offer from "@/lib/models/Offer";
+
 async function getItem(id) {
     await dbConnect();
     const item = await Item.findById(id).populate("sellerId", "name email image role warningCount isBanned isVerified createdAt averageRating reviewCount");
@@ -41,8 +43,20 @@ export default async function ItemPage({ params }) {
     }
 
     const seller = item.sellerId;
-    const isOwner = session?.user?.email === seller?.email;
+    const isOwner = session?.user?.id === seller?._id?.toString();
     const isSold = item.status === "Sold";
+
+    // ⚡ Check if the current user has an ACCEPTED offer for this item
+    let acceptedOffer = null;
+    if (session && !isOwner) {
+        acceptedOffer = await Offer.findOne({
+            itemId: item._id,
+            buyerId: session.user.id,
+            status: "Accepted"
+        });
+    }
+
+    const displayPrice = acceptedOffer ? acceptedOffer.offerAmount : item.price;
 
     // Fetch user interactions (wishlist/cart status)
     const { wishlist, cart } = await getUserInteractions();
@@ -109,9 +123,15 @@ export default async function ItemPage({ params }) {
                             <div className="flex items-center justify-between mb-6 border-b border-gray-100 pb-6">
                                 <div>
                                     <h2 className="text-2xl font-black text-gray-900 tracking-tight">
-                                        ${item.price.toLocaleString()}
+                                        ${displayPrice.toLocaleString()}
                                     </h2>
-                                    {item.negotiable && <span className="text-[10px] text-green-600 font-bold uppercase tracking-wider">Negotiable</span>}
+                                    {acceptedOffer && (
+                                        <div className="flex items-center gap-2 mt-1">
+                                            <span className="text-[10px] text-sky-600 font-bold uppercase tracking-wider bg-sky-50 px-2 py-0.5 rounded">Offer Accepted</span>
+                                            <span className="text-[10px] text-gray-400 font-medium line-through">${item.price.toLocaleString()}</span>
+                                        </div>
+                                    )}
+                                    {!acceptedOffer && item.negotiable && <span className="text-[10px] text-green-600 font-bold uppercase tracking-wider">Negotiable</span>}
                                 </div>
                                 <div className="flex items-center gap-4 w-60">
                                     <BuyNowButton itemId={item._id} />

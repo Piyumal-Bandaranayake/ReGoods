@@ -11,6 +11,7 @@ import { revalidatePath } from "next/cache";
 import Report from "@/lib/models/Report";
 import Notification from "@/lib/models/Notification";
 import Verification from "@/lib/models/Verification";
+import Offer from "@/lib/models/Offer";
 import { redirect } from "next/navigation";
 
 export async function getCurrentUserStatus() {
@@ -201,15 +202,32 @@ export async function getCartItems() {
     const user = await User.findById(session.user.id).populate({
         path: 'cart',
         model: Item,
-        select: 'title price images slug _id status sellerId'
+        select: 'title price images slug _id status sellerId category'
     });
 
     if (!user) return { cart: [] };
 
+    // Filter out nulls if items were deleted
     const items = user.cart.filter(item => item !== null);
 
+    // ⚡ Check for accepted offers for each cart item
+    const processedItems = await Promise.all(items.map(async (item) => {
+        const itemObj = JSON.parse(JSON.stringify(item));
+        const acceptedOffer = await Offer.findOne({
+            itemId: item._id,
+            buyerId: session.user.id,
+            status: "Accepted"
+        });
+
+        if (acceptedOffer) {
+            itemObj.price = acceptedOffer.offerAmount;
+            itemObj.hasAcceptedOffer = true;
+        }
+        return itemObj;
+    }));
+
     return { 
-        cart: JSON.parse(JSON.stringify(items))
+        cart: processedItems
     };
 }
 
