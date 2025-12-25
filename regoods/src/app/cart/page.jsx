@@ -34,7 +34,7 @@ export default function CartPage() {
                         <ShoppingBag className="w-12 h-12 text-gray-300 mb-6" />
                         <h2 className="text-2xl font-serif font-medium text-gray-900 mb-4">Your cart is empty</h2>
                         <Link
-                            href="/items"
+                            href="/dashboard"
                             className="bg-blue-900 text-white px-8 py-4 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-black transition-all shadow-lg shadow-blue-900/20"
                         >
                             Start Shopping
@@ -75,26 +75,14 @@ export default function CartPage() {
                                             <p className="text-[10px] text-gray-400 mt-0.5 font-bold uppercase tracking-wider">Single Item</p>
                                         </div>
 
-                                        {/* Price & Options */}
+                                        {/* Price */}
                                         <div className="flex items-center gap-3 text-sm font-medium text-gray-900">
                                             <div className="flex flex-col items-end">
-                                                <span className="font-serif font-bold text-sm text-gray-900">${item.price?.toFixed(2)}</span>
+                                                <span className="font-serif font-bold text-lg text-gray-900">${item.price?.toFixed(2)}</span>
                                                 {item.hasAcceptedOffer && (
                                                     <span className="text-[8px] text-sky-600 font-bold uppercase tracking-tighter bg-sky-50 px-1 rounded">Offer Accepted</span>
                                                 )}
                                             </div>
-                                        </div>
-
-                                        {/* Qty */}
-                                        <div className="flex items-center border border-gray-100 bg-gray-50/50 rounded-lg px-0.5">
-                                            <button className="px-1.5 py-0.5 text-gray-400 hover:text-black transition-colors" disabled>-</button>
-                                            <span className="px-1.5 text-[11px] font-bold text-gray-900">1</span>
-                                            <button className="px-1.5 py-0.5 text-gray-400 hover:text-black transition-colors" disabled>+</button>
-                                        </div>
-
-                                        {/* Total */}
-                                        <div className="text-sm font-serif font-bold text-gray-900 min-w-[70px] text-right">
-                                            ${item.price?.toFixed(2)}
                                         </div>
                                     </div>
                                 ))}
@@ -135,7 +123,7 @@ export default function CartPage() {
                                 </Link>
 
                                 <div className="text-center">
-                                    <Link href="/items" className="text-[10px] font-bold uppercase tracking-widest text-gray-500 hover:text-blue-900 transition-colors">
+                                    <Link href="/dashboard" className="text-[10px] font-bold uppercase tracking-widest text-gray-500 hover:text-blue-900 transition-colors">
                                         Continue Shopping
                                     </Link>
                                 </div>
