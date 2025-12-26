@@ -11,24 +11,24 @@ export default function Hero() {
   const slides = [
     {
       title: "GIVE EVERY ITEM A SECOND LIFE",
-      desc: "The unified platform to buy and sell pre-owned treasures. From electronics to furniture, discover everything you need.",
-      img: "https://images.unsplash.com/photo-1556740758-90de374c12ad?q=80&w=2000&auto=format&fit=crop",
+      desc: "The unified platform to buy and sell pre-owned treasures. From vintage clothing to unique collectibles, discover your next favorite find.",
+      img: "/images/hero/thrift_market.png",
       badge: "Sustainable Marketplace",
       accent: "text-blue-500",
       overlay: "bg-blue-900/40"
     },
     {
       title: "UPGRADE YOUR TECH SUSTAINABLY",
-      desc: "Verified pre-owned electronics at unbeatable prices. Join the circular economy and save more.",
-      img: "https://images.unsplash.com/photo-1498049794561-7780e7231661?q=80&w=2000&auto=format&fit=crop",
+      desc: "Verified pre-owned electronics at unbeatable prices. Join the circular economy and save more on premium gadgets.",
+      img: "/images/hero/pre_owned_tech.png",
       badge: "Quality Electronics",
       accent: "text-blue-400",
       overlay: "bg-blue-950/40"
     },
     {
       title: "BETTER HOMES, BETTER PLANET",
-      desc: "Find unique home decor and furniture that fits your style and your values.",
-      img: "https://images.unsplash.com/photo-1524758631624-e2822e304c36?q=80&w=2000&auto=format&fit=crop",
+      desc: "Find unique home decor and vintage furniture that fits your style and your values. Beautifully curated pieces for every room.",
+      img: "/images/hero/vintage_interior.png",
       badge: "Home & Interior",
       accent: "text-blue-300",
       overlay: "bg-blue-900/30"
