@@ -36,9 +36,9 @@ export default async function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
             {[
-              { title: "Electronics", img: "https://images.unsplash.com/photo-1498049794561-7780e7231661?q=80&w=1000&auto=format&fit=crop", link: "/dashboard?category=Electronics" },
-              { title: "Home Interior", img: "https://images.unsplash.com/photo-1538688525198-9b88f6f53126?q=80&w=1000&auto=format&fit=crop", link: "/dashboard?category=Home" },
-              { title: "Everyday Gear", img: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=1000&auto=format&fit=crop", link: "/dashboard?category=Other" }
+              { title: "Electronics", img: "/images/hero/electronics_cat.png", link: "/dashboard?category=Electronics" },
+              { title: "Home Interior", img: "/images/hero/home_cat.png", link: "/dashboard?category=Home" },
+              { title: "Everyday Gear", img: "/images/hero/everyday_cat.png", link: "/dashboard?category=Other" }
             ].map((col, i) => (
               <div key={i} className="group cursor-pointer">
                 <div className="relative h-[450px] w-full rounded-2xl overflow-hidden mb-6 shadow-sm group-hover:shadow-xl transition-all duration-500">
@@ -62,7 +62,7 @@ export default async function Home() {
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
              <div className="relative h-[500px] w-full rounded-2xl overflow-hidden shadow-lg">
-                <Image src="https://images.unsplash.com/photo-1512436991641-6745cdb1723f?q=80&w=1000&auto=format&fit=crop" alt="Minimal" fill className="object-cover" />
+                <Image src="/images/hero/minimal_banner.png" alt="Minimal" fill className="object-cover" />
              </div>
              <div className="text-center lg:text-left">
                 <h2 className="text-4xl md:text-5xl font-montserrat font-black text-zinc-900 mb-6 leading-tight">Everything Has a Story</h2>
